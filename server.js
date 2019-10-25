@@ -25,7 +25,7 @@ module.exports = class Server {
         this.serverProcess.stderr.on('data', this.log.bind(this));
 
         process.stdin.setEncoding('utf8');
-
+        // This handles manual input to the console and passes it forward to minecraft
         process.stdin.on('readable', () => {
             let chunk;
             // Use a loop to make sure we read all available data.
