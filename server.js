@@ -8,7 +8,6 @@ module.exports = class Server {
         // Root commands
         this.homeHandler = require('./commands/home');
 
-        this.playerEntities = {};
         this.playerHomes = {};
     }
 
@@ -42,6 +41,9 @@ module.exports = class Server {
         });
     }
 
+    /*
+     * Handling Input
+     */
     write(command) {
         this.serverProcess.stdin.write(command);
     };
@@ -50,6 +52,9 @@ module.exports = class Server {
         this.write(command + '\n');
     };
 
+    /*
+     * Handling Output
+     */
     log(data) {
         let text = data.toString();
         process.stdout.write(text);
@@ -75,6 +80,9 @@ module.exports = class Server {
 
     }
 
+    /*
+     * Entity getting & handling
+     */
     parseEntityData(rawString) {
         // Converting data structure to Javascript.
         let entityStr = rawString.split(' ').map((t) => {
@@ -148,4 +156,14 @@ module.exports = class Server {
         });
     }
 
+    /*
+     * Data handling
+     */
+    setPlayerHome(player, { pos, rot }) {
+        this.playerHomes[player] = { pos, rot };
+    }
+
+    getPlayerHome(player) {
+        return this.playerHomes[player];
+    }
 };
