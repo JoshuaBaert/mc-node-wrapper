@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon --ignore \"server/**\" --inspect ./app.js"
+    "start": "nodemon --ignore \"server/**\" --inspect ./app.js",
+    "start: prod": "node --ignore ./app.js"
   },
   "keywords": [],
   "author": "",
