@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  node-java:
+    container_name: mine-node
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./:/app/
+    ports:
+      - 25565:25565
+    working_dir: /app/
+    entrypoint: 'npm run start:container'
+
