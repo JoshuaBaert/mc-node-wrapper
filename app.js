@@ -1,14 +1,9 @@
-const spawn = require('child_process').spawn;
-
 const jarCheck = require('./jar-check');
+const Server = require('./server');
 
-async function startServer() {
-    jarCheck().then((jarPath) => {
-        console.log('from main ' + jarPath);
-    }).catch((error) => {
-        console.error(error);
-    });
-}
-
-startServer();
+jarCheck().then((jarPath) => {
+    let server = new Server(jarPath);
+}).catch((error) => {
+    console.error(error);
+});
 

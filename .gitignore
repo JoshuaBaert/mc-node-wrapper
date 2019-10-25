@@ -4,3 +4,5 @@ server
 
 __current_version.txt
 *.minecraft-server.jar
+
+test.js
