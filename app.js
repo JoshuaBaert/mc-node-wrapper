@@ -1,5 +1,5 @@
 const jarCheck = require('./jar-check');
-const Server = require('./server');
+const Server = require('./app/server');
 
 jarCheck().then((jarPath) => {
     let server = new Server(jarPath);

@@ -9,7 +9,8 @@ module.exports = async function (player, args) {
         this.writeToMine(`w ${player} Setting your home to ${position.join(' ')}`);
     } else if (args.length === 0) {
         // grab and see if players home exists
-        let playerHome = this.getPlayerHome(player);
+        let playerHome = await this.getPlayerHome(player);
+        console.log(playerHome);
         if (playerHome) {
             this.writeToMine(`tp ${player} ${playerHome.pos.join(' ')} ${playerHome.rot.join(' ')}`);
         } else {

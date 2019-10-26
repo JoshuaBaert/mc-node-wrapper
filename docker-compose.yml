@@ -1,15 +1,37 @@
 version: '3'
 
 services:
-  node-java:
+  mine-node:
     container_name: mine-node
     build:
       context: ./
       dockerfile: ./Dockerfile
+    restart: always
     volumes:
       - ./:/app/
     ports:
       - 25565:25565
+      - 9229:9229
     working_dir: /app/
     entrypoint: 'npm run start:container'
+    links:
+      - "mine-db:db"
+    networks:
+      - mine-network
 
+  mine-db:
+    container_name: mine-db
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - 27017:27017
+    volumes:
+      - ./db:/data/db
+    networks:
+      - mine-network
+
+networks:
+  mine-network:
+    driver: bridge

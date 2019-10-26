@@ -8,14 +8,17 @@ module.exports = class Server {
         // Root commands
         this.homeHandler = require('./commands/home');
 
-        this.playerHomes = {};
+        // Data Handlers
+        Object.entries(require('./data')).forEach(([key, func]) => {
+            this[key] = func.bind(this);
+        });
     }
 
     startServer(jarPath) {
         let workingDir = './server';
         this.serverProcess = spawn('java', [
-            '-Xmx2048M',
-            '-Xms512M',
+            '-Xmx4096M',
+            '-Xms1024M',
             '-jar',
             jarPath.replace(workingDir, '.'),
             'nogui',
@@ -58,7 +61,13 @@ module.exports = class Server {
     log(data) {
         let text = data.toString();
         process.stdout.write(text);
-        if (/<\w+>\s!/.test(text)) this.handleCommand(text);
+        if (/<\w+>\s!/.test(text)) return this.handleCommand(text);
+        let authReg = /.*UUID\sof\splayer\s(\w+)\sis\s((\w|\d){8}-(\w|\d){4}-(\w|\d){4}-(\w|\d){4}-(\w|\d){12}).*/;
+        if (authReg.test(text)) {
+            let [playerName, UUID] = text.replace(authReg, '$1+_+$2').split('+_+');
+            console.log(`${playerName} logged in and has UUID of ${UUID}`);
+            this.handlePlayerLogin(playerName, UUID)
+        }
     };
 
     handleCommand(text) {
@@ -154,16 +163,5 @@ module.exports = class Server {
 
             this.writeToMine(`data get entity ${player} Rotation`);
         });
-    }
-
-    /*
-     * Data handling
-     */
-    setPlayerHome(player, { pos, rot }) {
-        this.playerHomes[player] = { pos, rot };
-    }
-
-    getPlayerHome(player) {
-        return this.playerHomes[player];
     }
 };
