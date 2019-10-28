@@ -61,7 +61,11 @@ module.exports = class Server {
     log(data) {
         let text = data.toString();
         process.stdout.write(text);
+
+        // listens for ! commands
         if (/<\w+>\s!/.test(text)) return this.handleCommand(text);
+
+        // lets us know when someone logs into the server
         let authReg = /.*UUID\sof\splayer\s(\w+)\sis\s((\w|\d){8}-(\w|\d){4}-(\w|\d){4}-(\w|\d){4}-(\w|\d){12}).*/;
         if (authReg.test(text)) {
             let [playerName, UUID] = text.replace(authReg, '$1+_+$2').split('+_+');
@@ -71,17 +75,19 @@ module.exports = class Server {
     };
 
     handleCommand(text) {
-        let player = text.replace(/.*<(\w+)>.*/, '$1').trim(),
+        let playerName = text.replace(/.*<(\w+)>.*/, '$1').trim(),
             commands = text.replace(/\[(\d\d:){2}\d\d\]\s\[\w+\s\w+\/\w+\]:\s<\w+>\s\!/, '')
                 .split(' ')
                 .map(t => t.trim()),
-            command = commands[0],
+            baseCommand = commands[0],
             args = commands.slice(1);
 
         (() => {
-            switch (command) {
+            switch (baseCommand) {
                 case 'home':
-                    return this.homeHandler(player, args);
+                    return this.homeHandler(playerName, args);
+                case 'warp':
+                    return this.homeHandler(playerName, args);
                 default:
                     return;
             }
@@ -127,7 +133,7 @@ module.exports = class Server {
         return eval(`(${entityStr})`);
     }
 
-    getPlayerPosition(player) {
+    getPlayerPosition(playerName) {
         return new Promise((resolve) => {
             const listenForPosition = (data) => {
                 let text = data.toString();
@@ -142,7 +148,7 @@ module.exports = class Server {
 
             this.serverProcess.stdout.on('data', listenForPosition);
 
-            this.writeToMine(`data get entity ${player} Pos`);
+            this.writeToMine(`data get entity ${playerName} Pos`);
         });
     }
 
