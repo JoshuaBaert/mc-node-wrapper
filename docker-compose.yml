@@ -7,6 +7,13 @@ services:
       context: ./
       dockerfile: ./Dockerfile
     restart: always
+    deploy:
+      limits:
+        cpus: '2'
+        memory: '4096M'
+      reservations:
+        cpus: '1'
+        memory: '1024M'
     volumes:
       - ./:/app/
     ports:
