@@ -14,10 +14,10 @@ module.exports = Base => class extends Base {
         });
     }
 
-    setPlayerHome(playerName, { pos, rot }) {
+    setPlayerHome(playerName, pos, rot, world) {
         Player.updateOne(
             { name: playerName },
-            { name: playerName, home: { pos: pos, rot: rot } },
+            { name: playerName, home: { pos: pos, rot: rot, world } },
             (err, player) => {
                 if(err) console.error(err)
             },

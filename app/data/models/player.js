@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const locationSchema = new mongoose.Schema({
     pos: [{ type: Number }],
     rot: [{ type: Number }],
+    world: String,
 }, { _id: false });
 
 const playerSchema = new mongoose.Schema({
