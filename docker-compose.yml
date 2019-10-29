@@ -8,12 +8,13 @@ services:
       dockerfile: ./Dockerfile
     restart: always
     deploy:
-      limits:
-        cpus: '2'
-        memory: '4096M'
-      reservations:
-        cpus: '1'
-        memory: '1024M'
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: '4096M'
+        reservations:
+          cpus: '0.25'
+          memory: '1024M'
     volumes:
       - ./:/app/
     ports:
