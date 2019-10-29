@@ -18,7 +18,9 @@ module.exports = Base => class extends Base {
         Player.updateOne(
             { name: playerName },
             { name: playerName, home: { pos: pos, rot: rot } },
-            (err, player) => {},
+            (err, player) => {
+                if(err) console.error(err)
+            },
         );
     }
 
