@@ -76,7 +76,6 @@ module.exports = class Server extends OtherClasses {
         let authReg = /.*UUID\sof\splayer\s(\w+)\sis\s((\w|\d){8}-(\w|\d){4}-(\w|\d){4}-(\w|\d){4}-(\w|\d){12}).*/;
         if (authReg.test(text)) {
             let [playerName, UUID] = text.replace(authReg, '$1+_+$2').split('+_+');
-            console.log(`${playerName} logged in and has UUID of ${UUID}`);
             this.handlePlayerLogin(playerName, UUID);
         }
     };
