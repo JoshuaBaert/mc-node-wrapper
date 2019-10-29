@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon --ignore \"server/**\" --inspect ./app.js",
+    "start": "docker-compose -f ./docker-compose.dev.yml up -d && cross-env NODE_ENV=development nodemon --ignore \"server/**\" --inspect ./app.js",
     "start:container": "npm ci && npm run start:prod",
     "start:prod": "node ./app.js"
   },
@@ -16,6 +16,7 @@
     "mongoose": "^5.7.7"
   },
   "devDependencies": {
+    "cross-env": "^6.0.3",
     "nodemon": "^1.19.4"
   }
 }

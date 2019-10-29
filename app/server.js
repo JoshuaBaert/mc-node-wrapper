@@ -1,4 +1,5 @@
 const spawn = require('child_process').spawn;
+const isDev = process.env.NODE_ENV === 'development';
 
 module.exports = class Server {
     constructor(jarPath) {
@@ -15,10 +16,11 @@ module.exports = class Server {
     }
 
     startServer(jarPath) {
+        console.log(`isDev: ${isDev}`);
         let workingDir = './server';
         this.serverProcess = spawn('java', [
-            '-Xmx4096M',
-            '-Xms1024M',
+            isDev ? '-Xmx1024M' : '-Xmx4096M',
+            isDev ? '-Xms512M' : '-Xms1024M',
             '-jar',
             jarPath.replace(workingDir, '.'),
             'nogui',
@@ -70,7 +72,7 @@ module.exports = class Server {
         if (authReg.test(text)) {
             let [playerName, UUID] = text.replace(authReg, '$1+_+$2').split('+_+');
             console.log(`${playerName} logged in and has UUID of ${UUID}`);
-            this.handlePlayerLogin(playerName, UUID)
+            this.handlePlayerLogin(playerName, UUID);
         }
     };
 

@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  mine-db:
+    container_name: mine-db
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - 27017:27017
+    networks:
+      - mine-network
+
+networks:
+  mine-network:
+    driver: bridge
