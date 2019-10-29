@@ -3,7 +3,7 @@ mongoose.connect('mongodb://root:password@db/minecraft?authSource=admin', { useN
 
 const Player = require('./models/player');
 
-module.exports = {
+module.exports = Base => class extends Base {
     handlePlayerLogin(playerName, UUID) {
         Player.count({ name: playerName }, (err, count) => {
             if (err) throw err;
@@ -12,13 +12,15 @@ module.exports = {
                 player.save((err) => {if (err) throw err; });
             }
         });
-    },
+    }
 
     setPlayerHome(playerName, { pos, rot }) {
-        Player.updateOne({ name: playerName }, { name: playerName, home: { pos: pos, rot: rot } }, (err, player) => {
-
-        });
-    },
+        Player.updateOne(
+            { name: playerName },
+            { name: playerName, home: { pos: pos, rot: rot } },
+            (err, player) => {},
+        );
+    }
 
     getPlayerHome(playerName) {
         return new Promise((resolve) => {
@@ -26,5 +28,5 @@ module.exports = {
                 resolve(player.home);
             });
         });
-    },
+    }
 };
