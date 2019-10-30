@@ -19,7 +19,6 @@ services:
       - ./:/app/
     ports:
       - 25565:25565
-      - 9229:9229
     working_dir: /app/
     entrypoint: 'npm run start:container'
     links:
