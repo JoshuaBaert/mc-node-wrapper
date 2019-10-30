@@ -5,7 +5,7 @@ module.exports = Base => class extends Base {
             let playerHome = await this.getPlayerHome(playerName);
 
             if (playerHome) {
-                this.writeToMine(`tp ${playerName} ${playerHome.pos.join(' ')} ${playerHome.rot.join(' ')}`);
+                this.writeToMine(`execute in ${playerHome.world} run tp ${playerName} ${playerHome.pos.join(' ')} ${playerHome.rot.join(' ')}`);
             } else {
                 this.writeToMine(`w ${playerName} Your home is not set yet.`);
             }
@@ -18,9 +18,10 @@ module.exports = Base => class extends Base {
         // Get Position & Rotation
         let position = await this.getPlayerPosition(playerName);
         let rotation = await this.getPlayerRotation(playerName);
+        let world = await this.getPlayerDimension(playerName);
 
         // Saving players position and rotation for use later
-        this.setPlayerHome(playerName, { pos: position, rot: rotation });
+        this.setPlayerHome(playerName, position, rotation, world);
         this.writeToMine(`w ${playerName} Setting your home to ${position.join(' ')}`);
     }
 };
