@@ -2,11 +2,11 @@
   "name": "mine-node",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "start": "docker-compose -f ./docker-compose.dev.yml up -d && cross-env NODE_ENV=development nodemon --ignore \"server/**\" --inspect ./app.js",
+    "start": "docker-compose -f ./docker-compose.dev.yml up -d && cross-env NODE_ENV=development nodemon --ignore \"server/**\" --inspect ./index.js",
     "start:container": "npm ci && npm run start:prod",
-    "start:prod": "node ./app.js"
+    "start:prod": "node ./index.js"
   },
   "keywords": [],
   "author": "",
