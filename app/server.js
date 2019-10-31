@@ -5,11 +5,13 @@ const spawn = require('child_process').spawn;
 * This is where We combine all of the classes into one
 * */
 class OtherClasses {}
-OtherClasses = require('./commands/home')(OtherClasses);
-OtherClasses = require('./commands/warp')(OtherClasses);
 OtherClasses = require('./data')(OtherClasses);
 OtherClasses = require('./lib/cooldown')(OtherClasses);
 OtherClasses = require('./lib/entity')(OtherClasses);
+
+// Command imports
+OtherClasses = require('./commands/home')(OtherClasses);
+OtherClasses = require('./commands/warp')(OtherClasses);
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -76,7 +78,12 @@ module.exports = class Server extends OtherClasses {
         let authReg = /.*UUID\sof\splayer\s(\w+)\sis\s((\w|\d){8}-(\w|\d){4}-(\w|\d){4}-(\w|\d){4}-(\w|\d){12}).*/;
         if (authReg.test(text)) {
             let [playerName, UUID] = text.replace(authReg, '$1+_+$2').split('+_+');
-            this.handlePlayerLogin(playerName, UUID);
+            return this.handlePlayerLogin(playerName, UUID);
+        }
+        let logoutReg = /(\w+)\sleft\sthe\sgame/;
+        if (logoutReg.test(text)) {
+            let playerName = text.replace(logoutReg, '$1');
+            return this.handlePlayerLogout(playerName);
         }
     };
 
@@ -89,11 +96,11 @@ module.exports = class Server extends OtherClasses {
             args = commands.slice(1);
 
         (() => {
-            switch (baseCommand) {
+            switch (baseCommand.toLowerCase()) {
                 case 'home':
-                    return this.homeHandler(playerName, args);
+                    return this.handleHome(playerName, args);
                 case 'warp':
-                    return this.homeHandler(playerName, args);
+                    return this.handleWarp(playerName, args);
                 default:
                     return;
             }
