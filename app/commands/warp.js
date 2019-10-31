@@ -21,7 +21,7 @@ module.exports = Base => class extends Base {
             this.warpRequests[args[0]] = playerName;
         } else {
             // they got here because they messed up
-            this.writeToMine(`w ${playerName} Invalid warp this is how to use warp -> '!warp PlayerName' (PlayerName is case sensitive) or '!warp accept'`)
+            this.writeToMine(`w ${playerName} Player ${args[0]} isn't logged in. Did you mean to type '!warp accept'`)
         }
     }
 };
