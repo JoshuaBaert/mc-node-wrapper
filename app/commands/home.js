@@ -1,5 +1,5 @@
 module.exports = Base => class extends Base {
-    async homeHandler(playerName, args) {
+    async handleHome(playerName, args) {
         if (args.length === 0) {
             // grab and see if players home exists
             let playerHome = await this.getPlayerHome(playerName);
@@ -9,7 +9,7 @@ module.exports = Base => class extends Base {
             } else {
                 this.writeToMine(`w ${playerName} Your home is not set yet.`);
             }
-        } else if (args[0] === 'set') {
+        } else if (args[0].toLowerCase() === 'set') {
             this.setHome(playerName);
         }
     }
