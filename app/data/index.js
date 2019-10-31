@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://root:password@db/minecraft?authSource=admin', { useNewUrlParser: true });
+mongoose.connect('mongodb://root:password@db/minecraft?authSource=admin', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const Player = require('./models/player');
 

@@ -49,7 +49,6 @@ module.exports = Base => class extends Base {
             };
 
             this.serverProcess.stdout.on('data', listenForData);
-
             this.writeToMine(`data get entity ${playerName} ${path}`);
         });
     }
