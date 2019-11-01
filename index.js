@@ -4,7 +4,7 @@ const killPort = process.env.KILL_PORT;
 const io = require('socket.io')
     , server = io.listen(killPort);
 
-const jarCheck = require('./jar-check');
+const jarCheck = require('./scripts/jar-check');
 const Server = require('./app/server');
 
 let mcServer;

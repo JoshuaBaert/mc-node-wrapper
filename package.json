@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "shutdown": "node shutdown.js",
+    "shutdown": "node ./scripts/shutdown.js",
     "start": "npm run start:docker-compose && npm run start:node",
     "start:docker-compose": "docker-compose -f ./docker-compose.dev.yml up -d",
     "start:node": "npx cross-env NODE_ENV=development nodemon --ignore \"server/**\" --inspect ./index.js",
