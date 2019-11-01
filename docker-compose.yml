@@ -19,6 +19,7 @@ services:
       - ./:/app/
     ports:
       - 25565:25565
+      - ${KILL_PORT}:${KILL_PORT}
     working_dir: /app/
     entrypoint: 'npm run start:container'
     links:

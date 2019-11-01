@@ -5,6 +5,7 @@ const spawn = require('child_process').spawn;
 * This is where We combine all of the classes into one
 * */
 class OtherClasses {}
+
 OtherClasses = require('./data')(OtherClasses);
 OtherClasses = require('./lib/cooldown')(OtherClasses);
 OtherClasses = require('./lib/entity')(OtherClasses);
@@ -50,6 +51,30 @@ module.exports = class Server extends OtherClasses {
         process.on('exit', () => {
             console.warn('Killing minecraft.');
             this.serverProcess.kill();
+        });
+    }
+
+    shutdownServer() {
+        return new Promise((resolve) => {
+            const savedWolds = new Set();
+
+            const shutdownListener = (data) => {
+                const text = data.toString();
+
+                if (/All\schunks\sare\ssaved/.test(text)) {
+                    let world = text.replace(/.*\(([\w-]+)\).*/, '$1').trim();
+                    world.length < 10 ? savedWolds.add(world) : null;
+                }
+
+                if (savedWolds.size >= 3) {
+                    resolve();
+                }
+            };
+
+            this.writeToMine('say Server is shutting down.');
+
+            this.serverProcess.stdout.on('data', shutdownListener);
+            this.writeToMine('stop');
         });
     }
 
