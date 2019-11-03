@@ -1,6 +1,5 @@
 const spawn = require('child_process').spawn;
 
-
 /*
 * This is where We combine all of the classes into one
 * */

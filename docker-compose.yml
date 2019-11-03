@@ -5,7 +5,7 @@ services:
     container_name: mine-node
     build:
       context: ./
-      dockerfile: ./Dockerfile
+      dockerfile: ./docker/prod.node-java.dockerfile
     restart: always
     deploy:
       resources:
