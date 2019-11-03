@@ -47,11 +47,19 @@ module.exports = class Server extends OtherClasses {
             }
         });
 
-        // Make sure the Minecraft server dies with this process
+        // Make sure the Minecraft server dies with this process hopefully gracefully
         process.on('exit', () => {
-            console.warn('Killing minecraft.');
-            this.serverProcess.kill();
+            console.warn('Trying to stop minecaft gracefully');
+            this.serverProcess.stdin.write('stop\n');
         });
+
+
+        // Listens for Minecraft server having exited and shuts down node js
+        // We do this so docker will restart the server
+        const childShutdownListener = () => {
+            process.exit();
+        };
+        this.serverProcess.on('exit', childShutdownListener);
     }
 
     shutdownServer() {

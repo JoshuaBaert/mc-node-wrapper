@@ -5,7 +5,7 @@ module.exports = Base => class extends Base {
     }
 
     handleWarp(playerName, args) {
-        if (args[0].toLowerCase() === 'accept') {
+        if (args[0] && args[0].toLowerCase() === 'accept') {
             // if it is accept see if there is a player that requested a warp
             // then if there is warp them to the accepting player
             let requestingPlayer = this.warpRequests[playerName];
