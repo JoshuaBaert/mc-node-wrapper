@@ -31,7 +31,7 @@ module.exports = class Server extends OtherClasses {
             '-jar',
             jarPath.replace(workingDir, '.'),
             'nogui',
-        ], { cwd: workingDir });
+        ], { cwd: workingDir, detached: true });
 
         this.serverProcess.stdout.on('data', this.log.bind(this));
         this.serverProcess.stderr.on('data', this.log.bind(this));
@@ -46,11 +46,33 @@ module.exports = class Server extends OtherClasses {
             }
         });
 
-        // Make sure the Minecraft server dies with this process
-        process.on('exit', () => {
-            console.warn('Killing minecraft.');
-            this.serverProcess.kill();
-        });
+        this.serverExitSetup();
+    }
+
+    serverExitSetup() {
+        let hasExitedMinecraft = false;
+
+        // Make sure the Minecraft server dies with this process hopefully gracefully
+        const handleTerm = async () => {
+            if (hasExitedMinecraft) return;
+
+            this.writeToMine('Server is shutting down');
+
+            await this.shutdownServer();
+        };
+        process.on('SIGINT', handleTerm);
+        process.on('SIGTERM', handleTerm);
+
+
+        // Listens for Minecraft server having exited and shuts down node js
+        // We do this so docker will restart the server
+        const childShutdownListener = () => {
+            hasExitedMinecraft = true;
+
+            console.log('stopping node because minecraft stopped');
+            process.exit();
+        };
+        this.serverProcess.on('exit', childShutdownListener);
     }
 
     shutdownServer() {
@@ -69,8 +91,6 @@ module.exports = class Server extends OtherClasses {
                     resolve();
                 }
             };
-
-            this.writeToMine('say Server is shutting down.');
 
             this.serverProcess.stdout.on('data', shutdownListener);
             this.writeToMine('stop');
