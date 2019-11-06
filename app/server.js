@@ -31,7 +31,7 @@ module.exports = class Server extends OtherClasses {
             '-jar',
             jarPath.replace(workingDir, '.'),
             'nogui',
-        ], { cwd: workingDir, detached: true });
+        ], { cwd: workingDir });
 
         this.serverProcess.stdout.on('data', this.log.bind(this));
         this.serverProcess.stderr.on('data', this.log.bind(this));
