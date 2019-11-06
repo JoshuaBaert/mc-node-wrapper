@@ -8,6 +8,7 @@ class OtherClasses {}
 OtherClasses = require('./data')(OtherClasses);
 OtherClasses = require('./lib/cooldown')(OtherClasses);
 OtherClasses = require('./lib/entity')(OtherClasses);
+OtherClasses = require('./lib/message')(OtherClasses);
 
 // Command imports
 OtherClasses = require('./commands/home')(OtherClasses);
@@ -73,6 +74,12 @@ module.exports = class Server extends OtherClasses {
             process.exit();
         };
         this.serverProcess.on('exit', childShutdownListener);
+
+        // in case its killed anyways shutdown Minecraft
+        process.on('exit', () => {
+            if (hasExitedMinecraft) return;
+            this.serverProcess.kill()
+        })
     }
 
     shutdownServer() {

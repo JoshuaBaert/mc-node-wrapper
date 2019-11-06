@@ -40,7 +40,9 @@ module.exports = Base => class extends Base {
             const listenForData = (data) => {
                 let text = data.toString();
 
-                if (!(/has\sthe\sfollowing\sentity\sdata:/).test(text)) return;
+                let regEx = new RegExp(`${playerName} has the following entity data:`);
+
+                if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForData);
                 let rawEntityText = text.split('entity data: ')[1];
                 let entityData = this.parseEntityData(rawEntityText);
@@ -58,14 +60,14 @@ module.exports = Base => class extends Base {
     }
 
     getPlayerRotation(playerName) {
-        return this.getEntityData(playerName, 'Rotation')
+        return this.getEntityData(playerName, 'Rotation');
     }
 
     async getPlayerDimension(playerName) {
         let dimensionInt = await this.getEntityData(playerName, 'Dimension');
 
         return (() => {
-            switch(dimensionInt){
+            switch (dimensionInt) {
                 case 0:
                     return 'minecraft:overworld';
                 case -1:
