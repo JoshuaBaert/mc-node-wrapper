@@ -1,9 +1,11 @@
 module.exports = Base => class extends Base {
-    checkCooldown() {
+    cooldowns = {
 
     }
 
-    startCooldown() {
+    checkCooldown(playerName, command) {
+    }
 
+    startCooldown(playerName, command) {
     }
 };
