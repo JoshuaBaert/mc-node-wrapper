@@ -9,14 +9,25 @@ module.exports = Base => class extends Base {
             this.handleWarpAccept(playerName);
         } else if (this.loggedInPlayers.indexOf(args[0]) !== -1) {
             // If the first word is a players name then make a request for warp
-            this.writeToMine(`w ${args[0]} Do you want to accept warp from ${playerName}? Type '!warp accept' to accept`);
+            this.whisperPlayerRaw(args[0], [
+                { text: `Do you want to accept warp from ${playerName}? \nType `, color: 'white' },
+                { text: `!warp accept`, color: 'green' },
+                { text: ` to accept`, color: 'white' },
+            ]);
             this.warpRequests[args[0]] = playerName;
         } else {
             // they got here because they messed up
             if (!args[0]) {
-                this.writeToMine(`w ${playerName} You need to target a player`);
+                this.whisperPlayer(playerName, 'You need to target a player.', 'red');
+                // this.writeToMine(`w ${playerName} You need to target a player`);
             } else {
-                this.writeToMine(`w ${playerName} Player ${args[0]} isn't logged in. Did you mean to type '!warp accept'`);
+                this.whisperPlayerRaw(playerName, [
+                    { text: `Player `, color: 'white' },
+                    { text: `${args[0]}`, color: 'aqua' },
+                    { text: ` is not logged in. \nDid you mean to type `, color: 'white' },
+                    { text: `!warp accept`, color: 'green' },
+                    { text: `?`, color: 'white' },
+                ]);
             }
         }
     }
@@ -27,9 +38,11 @@ module.exports = Base => class extends Base {
         let requestingPlayer = this.warpRequests[playerName];
         if (requestingPlayer) {
             this.writeToMine(`tp ${requestingPlayer} ${playerName}`);
+            this.whisperPlayer(requestingPlayer, 'Warp accepted');
+            this.whisperPlayer(playerName, 'Warp accepted');
             this.warpRequests[playerName] = null;
         } else {
-            this.writeToMine(`w ${playerName} No pending warp requests.`);
+            this.whisperPlayer(playerName, `No pending warp requests.`, 'red');
         }
     }
 };

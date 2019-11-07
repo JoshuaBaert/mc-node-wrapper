@@ -7,7 +7,7 @@ module.exports = Base => class extends Base {
             if (playerHome) {
                 this.writeToMine(`execute in ${playerHome.world} run tp ${playerName} ${playerHome.pos.join(' ')} ${playerHome.rot.join(' ')}`);
             } else {
-                this.writeToMine(`w ${playerName} Your home is not set yet.`);
+                this.whisperPlayer(playerName, `Your home is not set yet.`, 'red');
             }
         } else if (args[0].toLowerCase() === 'set') {
             this.setHome(playerName);
@@ -22,6 +22,6 @@ module.exports = Base => class extends Base {
 
         // Saving players position and rotation for use later
         this.setPlayerHome(playerName, position, rotation, world);
-        this.writeToMine(`w ${playerName} Setting your home to ${position.join(' ')}`);
+        this.whisperPlayer(playerName, `Setting your home to [${position.join(', ')}]`);
     }
 };
