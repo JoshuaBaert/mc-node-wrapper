@@ -1,15 +1,18 @@
 const spawn = require('child_process').spawn;
 
-
 /*
 * This is where We combine all of the classes into one
 * */
 class OtherClasses {}
-OtherClasses = require('./commands/home')(OtherClasses);
-OtherClasses = require('./commands/warp')(OtherClasses);
+
 OtherClasses = require('./data')(OtherClasses);
 OtherClasses = require('./lib/cooldown')(OtherClasses);
 OtherClasses = require('./lib/entity')(OtherClasses);
+OtherClasses = require('./lib/message')(OtherClasses);
+
+// Command imports
+OtherClasses = require('./commands/home')(OtherClasses);
+OtherClasses = require('./commands/warp')(OtherClasses);
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -44,10 +47,60 @@ module.exports = class Server extends OtherClasses {
             }
         });
 
-        // Make sure the Minecraft server dies with this process
+        this.serverExitSetup();
+    }
+
+    serverExitSetup() {
+        let hasExitedMinecraft = false;
+
+        // Make sure the Minecraft server dies with this process hopefully gracefully
+        const handleTerm = async () => {
+            if (hasExitedMinecraft) return;
+
+            this.writeToMine('Server is shutting down');
+
+            await this.shutdownServer();
+        };
+        process.on('SIGINT', handleTerm);
+        process.on('SIGTERM', handleTerm);
+
+
+        // Listens for Minecraft server having exited and shuts down node js
+        // We do this so docker will restart the server
+        const childShutdownListener = () => {
+            hasExitedMinecraft = true;
+
+            console.log('stopping node because minecraft stopped');
+            process.exit();
+        };
+        this.serverProcess.on('exit', childShutdownListener);
+
+        // in case its killed anyways shutdown Minecraft
         process.on('exit', () => {
-            console.warn('Killing minecraft.');
-            this.serverProcess.kill();
+            if (hasExitedMinecraft) return;
+            this.serverProcess.kill()
+        })
+    }
+
+    shutdownServer() {
+        return new Promise((resolve) => {
+            const savedWolds = new Set();
+
+            const shutdownListener = (data) => {
+                const text = data.toString();
+
+                if (/All\schunks\sare\ssaved/.test(text)) {
+                    let world = text.replace(/.*\(([\w-]+)\).*/, '$1').trim();
+                    world.length < 10 ? savedWolds.add(world) : null;
+                }
+
+                if (savedWolds.size >= 3) {
+                    resolve();
+                }
+            };
+
+            this.serverProcess.stdout.on('data', shutdownListener);
+            this.writeToMine('stop');
         });
     }
 
@@ -76,7 +129,12 @@ module.exports = class Server extends OtherClasses {
         let authReg = /.*UUID\sof\splayer\s(\w+)\sis\s((\w|\d){8}-(\w|\d){4}-(\w|\d){4}-(\w|\d){4}-(\w|\d){12}).*/;
         if (authReg.test(text)) {
             let [playerName, UUID] = text.replace(authReg, '$1+_+$2').split('+_+');
-            this.handlePlayerLogin(playerName, UUID);
+            return this.handlePlayerLogin(playerName, UUID);
+        }
+        let logoutReg = /(\w+)\sleft\sthe\sgame/;
+        if (logoutReg.test(text)) {
+            let playerName = text.replace(logoutReg, '$1');
+            return this.handlePlayerLogout(playerName);
         }
     };
 
@@ -89,11 +147,11 @@ module.exports = class Server extends OtherClasses {
             args = commands.slice(1);
 
         (() => {
-            switch (baseCommand) {
+            switch (baseCommand.toLowerCase()) {
                 case 'home':
-                    return this.homeHandler(playerName, args);
+                    return this.handleHome(playerName, args);
                 case 'warp':
-                    return this.homeHandler(playerName, args);
+                    return this.handleWarp(playerName, args);
                 default:
                     return;
             }
@@ -101,11 +159,3 @@ module.exports = class Server extends OtherClasses {
 
     }
 };
-
-
-/*
-* portfolio
-* blog
-* minecraft
-*
-* */

@@ -1,15 +1,15 @@
 module.exports = Base => class extends Base {
-    async homeHandler(playerName, args) {
+    async handleHome(playerName, args) {
         if (args.length === 0) {
             // grab and see if players home exists
             let playerHome = await this.getPlayerHome(playerName);
 
             if (playerHome) {
-                this.writeToMine(`tp ${playerName} ${playerHome.pos.join(' ')} ${playerHome.rot.join(' ')}`);
+                this.writeToMine(`execute in ${playerHome.world} run tp ${playerName} ${playerHome.pos.join(' ')} ${playerHome.rot.join(' ')}`);
             } else {
-                this.writeToMine(`w ${playerName} Your home is not set yet.`);
+                this.whisperPlayer(playerName, `Your home is not set yet.`, 'red');
             }
-        } else if (args[0] === 'set') {
+        } else if (args[0].toLowerCase() === 'set') {
             this.setHome(playerName);
         }
     }
@@ -18,9 +18,10 @@ module.exports = Base => class extends Base {
         // Get Position & Rotation
         let position = await this.getPlayerPosition(playerName);
         let rotation = await this.getPlayerRotation(playerName);
+        let world = await this.getPlayerDimension(playerName);
 
         // Saving players position and rotation for use later
-        this.setPlayerHome(playerName, { pos: position, rot: rotation });
-        this.writeToMine(`w ${playerName} Setting your home to ${position.join(' ')}`);
+        this.setPlayerHome(playerName, position, rotation, world);
+        this.whisperPlayer(playerName, `Setting your home to [${position.join(', ')}]`);
     }
 };
