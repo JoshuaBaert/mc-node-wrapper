@@ -68,15 +68,23 @@ module.exports = Base => class extends Base {
 
         return (() => {
             switch (dimensionInt) {
-                case 0:
-                    return 'minecraft:overworld';
-                case -1:
-                    return 'minecraft:the_nether';
-                case 1:
-                    return 'minecraft:the_end';
-                default:
-                    return null;
+            case 0:
+                return 'minecraft:overworld';
+            case -1:
+                return 'minecraft:the_nether';
+            case 1:
+                return 'minecraft:the_end';
+            default:
+                return null;
             }
         })();
+    }
+
+    async getPlayerLocation(playerName) {
+        let pos = await this.getPlayerPosition(playerName);
+        let rot = await this.getPlayerRotation(playerName);
+        let world = await this.getPlayerDimension(playerName);
+
+        return { pos, rot, world };
     }
 };
