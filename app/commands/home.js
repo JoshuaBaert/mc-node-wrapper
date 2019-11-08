@@ -2,7 +2,7 @@ module.exports = Base => class extends Base {
     async handleHome(playerName, args) {
         if (args.length === 0) {
             // grab and see if players home exists
-            let playerHome = await this.getPlayerHome(playerName);
+            let playerHome = await this.readPlayerHome(playerName);
 
             if (playerHome) {
                 this.writeToMine(`execute in ${playerHome.world} run tp ${playerName} ${playerHome.pos.join(' ')} ${playerHome.rot.join(' ')}`);
@@ -21,7 +21,7 @@ module.exports = Base => class extends Base {
         let world = await this.getPlayerDimension(playerName);
 
         // Saving players position and rotation for use later
-        this.setPlayerHome(playerName, position, rotation, world);
+        this.createPlayerHome(playerName, position, rotation, world);
         this.whisperPlayer(playerName, `Setting your home to [${position.join(', ')}]`);
     }
 };
