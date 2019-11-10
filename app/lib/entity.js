@@ -96,6 +96,7 @@ module.exports = Base => class extends Base {
 
                 if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForPlayers);
+
                 let players = text.split('players online: ')[1].split(', ');
                 resolve(players);
             };

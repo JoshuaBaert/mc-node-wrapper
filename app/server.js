@@ -149,8 +149,6 @@ module.exports = class Server extends OtherClasses {
                 return this.handleWarp(playerName, args);
             case 'location':
                 return this.handleLocation(playerName, args);
-            case 'test':
-                return this.getListOfOnlinePlayers();
             default:
                 // dev color helper
                 if (isDev && baseCommand.toLowerCase() === 'colors') return this.tellColors(playerName);
