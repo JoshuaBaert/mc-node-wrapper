@@ -39,11 +39,11 @@ module.exports = Base => class extends Base {
         return new Promise((resolve) => {
             const listenForData = (data) => {
                 let text = data.toString();
-
                 let regEx = new RegExp(`${playerName} has the following entity data:`);
 
                 if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForData);
+
                 let rawEntityText = text.split('entity data: ')[1];
                 let entityData = this.parseEntityData(rawEntityText);
 
@@ -86,5 +86,22 @@ module.exports = Base => class extends Base {
         let world = await this.getPlayerDimension(playerName);
 
         return { pos, rot, world };
+    }
+
+    getListOfOnlinePlayers() {
+        return new Promise((resolve) => {
+            const listenForPlayers = (data) => {
+                let text = data.toString().trim();
+                let regEx = new RegExp('There are \\d+ of a max \\d+ players online:');
+
+                if (!regEx.test(text)) return;
+                this.serverProcess.stdout.removeListener('data', listenForPlayers);
+                let players = text.split('players online: ')[1].split(', ');
+                resolve(players);
+            };
+
+            this.serverProcess.stdout.on('data', listenForPlayers);
+            this.writeToMine(`list`);
+        });
     }
 };

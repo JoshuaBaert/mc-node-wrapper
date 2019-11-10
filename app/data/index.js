@@ -7,22 +7,16 @@ const Location = require('./models/location');
 module.exports = Base => class extends Base {
     constructor() {
         super();
-        this.loggedInPlayers = [];
     }
 
     handlePlayerLogin(playerName, UUID) {
         Player.count({ name: playerName }, (err, count) => {
-            this.loggedInPlayers.push(playerName);
             if (err) throw err;
             if (count === 0) {
                 let player = new Player({ name: playerName, id: UUID });
                 player.save((err) => {if (err) throw err; });
             }
         });
-    }
-
-    handlePlayerLogout(playerName) {
-        this.loggedInPlayers.splice(this.loggedInPlayers.indexOf(playerName), 1);
     }
 
     createPlayerHome(playerName, pos, rot, world) {

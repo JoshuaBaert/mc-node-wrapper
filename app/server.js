@@ -132,11 +132,6 @@ module.exports = class Server extends OtherClasses {
             let [playerName, UUID] = text.replace(authReg, '$1+_+$2').split('+_+');
             return this.handlePlayerLogin(playerName, UUID);
         }
-        let logoutReg = /(\w+)\sleft\sthe\sgame/;
-        if (logoutReg.test(text)) {
-            let playerName = text.replace(logoutReg, '$1');
-            return this.handlePlayerLogout(playerName);
-        }
     };
 
     handleCommand(text) {
@@ -154,6 +149,8 @@ module.exports = class Server extends OtherClasses {
                 return this.handleWarp(playerName, args);
             case 'location':
                 return this.handleLocation(playerName, args);
+            case 'test':
+                return this.getListOfOnlinePlayers();
             default:
                 // dev color helper
                 if (isDev && baseCommand.toLowerCase() === 'colors') return this.tellColors(playerName);
