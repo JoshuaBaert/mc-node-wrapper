@@ -152,9 +152,6 @@ module.exports = class Server extends OtherClasses {
                     return this.handleHome(playerName, args);
                 case 'warp':
                     return this.handleWarp(playerName, args);
-                //test and debug code
-                case 'test':
-                    return this.checkCooldown()
                 default:
                     return;
             }
