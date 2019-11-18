@@ -2,31 +2,49 @@ module.exports = Base => class extends Base {
     //add a constructor and add cooldowns to constructor
     constructor() {
         super();
-        this.cooldowns = {};
+        this.cooldowns = {
+            warp : cooldownTimer(warp),
+            home : cooldownTimer(home)
+        };
+        this.onCooldown = [];
     }
     
+    //
+    cooldownTimer(command) {
+        
+    }
 
     checkCooldown(playerName, command, time) {
         console.log('hello world');
         //make sure command is valid. currently hardcoded to only accept !home and !warp, likely we'll need change this sooner than later.
-        validCommand => {
-            if (command.toLowerCase() !== "!home" || "!warp") return;
-        
-        //array of commands currently on cooldown.
-        let onCooldown = [];
+        if (command.toLowerCase() !== "!home" || "!warp") {
+            this.whisperPlayerRaw(args[0], [
+                { text: `${command} is not a valad command. Type `, color: 'red' },
+                { text: `!help`, color: 'white' },
+                { text: ` for a list of commands.`, color: 'red' },
+                ]);    
+            return;
+        }
 
-        //checking if command is in the array and responding accordingly.
-        if (onCooldown.some(i => i == command) {
+        //checking if command is in the onCooldown array and responding accordingly.
+        if (onCooldown.some(i => i == command)) {
             this.whisperPlayerRaw(args[0], [
                 { text: `${command} is on cooldown for `, color: 'white' },
                 { text: `${time}`, color: 'red' },
                 { text: ` minutes.`, color: 'white' },
-                ]);
-        }
+                ]);    
+        } else {
+            startCooldown(playerName, command, time);
+        };
+
     }
 
     startCooldown(playerName, command, time) {
+        //if this.cooldowns[command] is at 0 start the cooldown when the command is run and reset cooldownTimer().
+
     }
+
+
 };
 
 
