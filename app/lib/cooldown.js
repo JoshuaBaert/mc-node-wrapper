@@ -2,93 +2,33 @@ module.exports = Base => class extends Base {
     //add a constructor and add cooldowns to constructor
     constructor() {
         super();
-        this.cooldowns = {
-            warp : cooldownTimer(warp),
-            home : cooldownTimer(home)
-        };
-        this.onCooldown = [];
+        this.available = true;
     }
-    
-    //
-    cooldownTimer(command) {
+
+    //sets available to false and runs cooldown(time)
+
+    startCooldown(command) {
+        //command is on cooldown. currently doesn't record how long player needs to wait to use command. will add later.
+        if (this.available = false) {
+            this.whisperPlayerRaw(args[0], [
+                { text: `!${command} `, color: 'white' },
+                { text: `has a cooldown of `, color: 'red' },
+                { text: `${time / 60000} minutes.`, color: 'white' },
+                { text: `Try again later.`, color: 'red' },
+            ]); 
+        } else if (this.available = true) {
+        //execute command and set available to false.
+
+        this.available = false;
+        };
         
     }
 
-    checkCooldown(playerName, command, time) {
-        console.log('hello world');
-        //make sure command is valid. currently hardcoded to only accept !home and !warp, likely we'll need change this sooner than later.
-        if (command.toLowerCase() !== "!home" || "!warp") {
-            this.whisperPlayerRaw(args[0], [
-                { text: `${command} is not a valad command. Type `, color: 'red' },
-                { text: `!help`, color: 'white' },
-                { text: ` for a list of commands.`, color: 'red' },
-                ]);    
-            return;
-        }
-
-        //checking if command is in the onCooldown array and responding accordingly.
-        if (onCooldown.some(i => i == command)) {
-            this.whisperPlayerRaw(args[0], [
-                { text: `${command} is on cooldown for `, color: 'white' },
-                { text: `${time}`, color: 'red' },
-                { text: ` minutes.`, color: 'white' },
-                ]);    
-        } else {
-            startCooldown(playerName, command, time);
-        };
-
-    }
-
-    startCooldown(playerName, command, time) {
-        //if this.cooldowns[command] is at 0 start the cooldown when the command is run and reset cooldownTimer().
-
+    //sets available to true after elapsed time
+    timer(time) {
+        return setTimeout(function() {this.available = true}, time);
     }
 
 
-};
 
-
-
-
-
-
-
-// {
-//     if (args[0] && args[0].toLowerCase() === 'accept') {
-//         this.handleWarpAccept(playerName);
-//     } else if (this.loggedInPlayers.indexOf(args[0]) !== -1) {
-//         // If the first word is a players name then make a request for warp
-//         this.whisperPlayerRaw(args[0], [
-//             { text: `Do you want to accept warp from ${playerName}? \nType `, color: 'white' },
-//             { text: `!warp accept`, color: 'green' },
-//             { text: ` to accept`, color: 'white' },
-//         ]);
-//         this.warpRequests[args[0]] = playerName;
-//     } else {
-//         // they got here because they messed up
-//         if (!args[0]) {
-//             this.whisperPlayer(playerName, 'You need to target a player.', 'red');
-//             // this.writeToMine(`w ${playerName} You need to target a player`);
-//         } else {
-//             this.whisperPlayerRaw(playerName, [
-//                 { text: `Player `, color: 'white' },
-//                 { text: `${args[0]}`, color: 'aqua' },
-//                 { text: ` is not logged in. \nDid you mean to type `, color: 'white' },
-//                 { text: `!warp accept`, color: 'green' },
-//                 { text: `?`, color: 'white' },
-//             ]);
-//         }
-//     }
-// }
-
-//goals: a cooldown object that can be added to any object with arguements that set length of cooldown,
-//add the object to the home command and possibly the warp command.
-
-//function to check cooldown when player tries to input command.
-/*if cooldown is active: whisper player "{command} is on cooldown for {time}. try again later."
-else execute command and put command on cooldown.*/
-
-//function to start cooldown.
-/*player inputs {command}
-start a countdown timer at {time}. while {time} > 0, {command} does not work.
-if command already on cooldown continue as normal. do not reset cooldown.*/
+}
