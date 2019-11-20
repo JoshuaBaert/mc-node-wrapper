@@ -148,11 +148,10 @@ module.exports = class Server extends OtherClasses {
 
         (() => {
             switch (baseCommand.toLowerCase()) {
-                case 'home':
-                    
-                    return this.handleHome(playerName, args);
+                case 'home':                   
+                    return this.cooldown("home", 1, args);
                 case 'warp':
-                    return this.handleWarp(playerName, args);
+                    return this.cooldown("warp", 1, args);
                 default:
                     return;
             }
