@@ -2,12 +2,7 @@ module.exports = Base => class extends Base {
     //add a constructor and add cooldowns to constructor
     constructor() {
         super();
-        this.available = {}
-    }
-
-    //make an available variable for each command
-    addAvailable(command) {
-        return this.available[command] = true;
+        this.available = true;
     }
 
     //sets available to false and runs cooldown(time)
