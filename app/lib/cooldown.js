@@ -3,13 +3,18 @@ module.exports = Base => class extends Base {
     constructor() {
         super();
         this.onCooldownMap = {}
+        //josh doesn't want times passed in, wants one sorce of truth.
+        this.coodownTimes = {
+            home: 30000,
+            warp: 30000
+        }
     }
 
     //method to check if a command is on cooldown.
     cooldownCheck(command, playerName, time) {
         //instantiate playerName variable if it hasn't been instantiated yet.
         if (!this.onCooldownMap[playerName]) this.onCooldownMap[playerName] = {}
-        console.log(this.onCooldownMap[playerName][command])
+        console.log(this.onCooldownMap)
 
         //check to make sure the command doesn't have any arguments
             //if command is on cooldown then return true.
@@ -22,7 +27,7 @@ module.exports = Base => class extends Base {
                 { text: ` total.\nTry again later.`, color: 'red' },
             ]);
             return true;
-        }
+        } else return false;
     }
 
     //method to start cooldown. should be seperate from check so that there is more versatility in code. there should be an option to check before you execute command.
@@ -31,9 +36,8 @@ module.exports = Base => class extends Base {
         if (!this.onCooldownMap[playerName]) this.onCooldownMap[playerName] = {}
 
         this.onCooldownMap[playerName][command] = true;
-        this.cooldownTimer(command, playerName, time);       
-
-        return;
+        this.cooldownTimer(command, playerName, time);   
+        console.log(this.onCooldownMap);    
     }
 
     //sets onCooldownMap to true after elapsed time

@@ -9,6 +9,7 @@ module.exports = Base => class extends Base {
             this.handleWarpAccept(playerName);
         } else if (this.loggedInPlayers.indexOf(args[0]) !== -1) {
             // If the first word is a players name then make a request for warp
+            
             if (this.cooldownCheck('warp', playerName, 30000) == true) return;
 
             this.whisperPlayerRaw(args[0], [
@@ -43,8 +44,8 @@ module.exports = Base => class extends Base {
             this.whisperPlayer(requestingPlayer, 'Warp accepted');
             this.whisperPlayer(playerName, 'Warp accepted');
             this.warpRequests[playerName] = null;
-
-            this.cooldownStart('warp', playerName, 30000)
+            //start cooldown - should only start for requesting player
+            this.cooldownStart('warp', requestingPlayer, 30000)
         } else {
             this.whisperPlayer(playerName, `No pending warp requests.`, 'red');
         }
