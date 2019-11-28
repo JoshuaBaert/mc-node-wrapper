@@ -28,8 +28,8 @@ module.exports = class Server extends OtherClasses {
     startServer(jarPath) {
         let workingDir = './server';
         this.serverProcess = spawn('java', [
-            isDev ? '-Xmx1024M' : '-Xmx4096M',
-            isDev ? '-Xms512M' : '-Xms1024M',
+            isDev ? '-Xmx1g' : '-Xmx7g',
+            isDev ? '-Xms512m' : '-Xms1024m',
             '-jar',
             jarPath.replace(workingDir, '.'),
             'nogui',
