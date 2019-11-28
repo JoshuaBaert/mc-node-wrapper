@@ -39,11 +39,11 @@ module.exports = Base => class extends Base {
         return new Promise((resolve) => {
             const listenForData = (data) => {
                 let text = data.toString();
-
                 let regEx = new RegExp(`${playerName} has the following entity data:`);
 
                 if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForData);
+
                 let rawEntityText = text.split('entity data: ')[1];
                 let entityData = this.parseEntityData(rawEntityText);
 
@@ -68,15 +68,41 @@ module.exports = Base => class extends Base {
 
         return (() => {
             switch (dimensionInt) {
-                case 0:
-                    return 'minecraft:overworld';
-                case -1:
-                    return 'minecraft:the_nether';
-                case 1:
-                    return 'minecraft:the_end';
-                default:
-                    return null;
+            case 0:
+                return 'minecraft:overworld';
+            case -1:
+                return 'minecraft:the_nether';
+            case 1:
+                return 'minecraft:the_end';
+            default:
+                return null;
             }
         })();
+    }
+
+    async getPlayerLocation(playerName) {
+        let pos = await this.getPlayerPosition(playerName);
+        let rot = await this.getPlayerRotation(playerName);
+        let world = await this.getPlayerDimension(playerName);
+
+        return { pos, rot, world };
+    }
+
+    getListOfOnlinePlayers() {
+        return new Promise((resolve) => {
+            const listenForPlayers = (data) => {
+                let text = data.toString().trim();
+                let regEx = new RegExp('There are \\d+ of a max \\d+ players online:');
+
+                if (!regEx.test(text)) return;
+                this.serverProcess.stdout.removeListener('data', listenForPlayers);
+
+                let players = text.split('players online: ')[1].split(', ');
+                resolve(players);
+            };
+
+            this.serverProcess.stdout.on('data', listenForPlayers);
+            this.writeToMine(`list`);
+        });
     }
 };

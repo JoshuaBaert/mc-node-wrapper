@@ -4,10 +4,12 @@ module.exports = Base => class extends Base {
         this.warpRequests = {};
     }
 
-    handleWarp(playerName, args) {
+    async handleWarp(playerName, args) {
+        let loggedInPlayers = await this.getListOfOnlinePlayers();
+
         if (args[0] && args[0].toLowerCase() === 'accept') {
             this.handleWarpAccept(playerName);
-        } else if (this.loggedInPlayers.indexOf(args[0]) !== -1) {
+        } else if (loggedInPlayers.indexOf(args[0]) !== -1) {
             // If the first word is a players name then make a request for warp
 
             //cooldownCheck goes here

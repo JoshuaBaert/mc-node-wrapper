@@ -1,15 +1,19 @@
 const mongoose = require('mongoose');
 
-const locationSchema = new mongoose.Schema({
+const homeSchema = new mongoose.Schema({
     pos: [{ type: Number }],
     rot: [{ type: Number }],
     world: String,
 }, { _id: false });
 
 const playerSchema = new mongoose.Schema({
-    name: String,
+    name: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     id: String,
-    home: locationSchema,
+    home: homeSchema,
 });
 
 module.exports = mongoose.model('Player', playerSchema);

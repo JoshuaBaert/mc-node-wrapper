@@ -12,6 +12,7 @@ OtherClasses = require('./lib/message')(OtherClasses);
 
 // Command imports
 OtherClasses = require('./commands/home')(OtherClasses);
+OtherClasses = require('./commands/location')(OtherClasses);
 OtherClasses = require('./commands/warp')(OtherClasses);
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -27,8 +28,8 @@ module.exports = class Server extends OtherClasses {
     startServer(jarPath) {
         let workingDir = './server';
         this.serverProcess = spawn('java', [
-            isDev ? '-Xmx1024M' : '-Xmx4096M',
-            isDev ? '-Xms512M' : '-Xms1024M',
+            isDev ? '-Xmx1g' : '-Xmx7g',
+            isDev ? '-Xms512m' : '-Xms1024m',
             '-jar',
             jarPath.replace(workingDir, '.'),
             'nogui',
@@ -78,8 +79,8 @@ module.exports = class Server extends OtherClasses {
         // in case its killed anyways shutdown Minecraft
         process.on('exit', () => {
             if (hasExitedMinecraft) return;
-            this.serverProcess.kill()
-        })
+            this.serverProcess.kill();
+        });
     }
 
     shutdownServer() {
@@ -131,31 +132,58 @@ module.exports = class Server extends OtherClasses {
             let [playerName, UUID] = text.replace(authReg, '$1+_+$2').split('+_+');
             return this.handlePlayerLogin(playerName, UUID);
         }
-        let logoutReg = /(\w+)\sleft\sthe\sgame/;
-        if (logoutReg.test(text)) {
-            let playerName = text.replace(logoutReg, '$1');
-            return this.handlePlayerLogout(playerName);
-        }
     };
 
     handleCommand(text) {
         let playerName = text.replace(/.*<(\w+)>.*/, '$1').trim(),
-            commands = text.replace(/\[(\d\d:){2}\d\d\]\s\[\w+\s\w+\/\w+\]:\s<\w+>\s\!/, '')
-                .split(' ')
-                .map(t => t.trim()),
+            commands = text.replace(/\[(\d\d:){2}\d\d]\s\[\w+\s\w+\/\w+]:\s<\w+>\s!/, '')
+                .split(' ').map(t => t.trim()),
             baseCommand = commands[0],
             args = commands.slice(1);
 
-        (() => {
+        (async () => {
             switch (baseCommand.toLowerCase()) {
-                case 'home':
-                    return this.handleHome(playerName, args);
-                case 'warp':
-                    return this.handleWarp(playerName, args);
-                default:
-                    return;
+            case 'home':
+                return this.handleHome(playerName, args);
+            case 'warp':
+                return this.handleWarp(playerName, args);
+            case 'location':
+                return this.handleLocation(playerName, args);
+            default:
+                // dev color helper
+                if (isDev && baseCommand.toLowerCase() === 'colors') return this.tellColors(playerName);
+
+                let isLocation = await this.checkLocationAndTeleport(playerName, baseCommand);
+                if (isLocation) return;
+
+                return this.whisperPlayerRaw(playerName, [
+                    { text: 'Command ', color: 'red' },
+                    { text: `!${baseCommand}`, color: 'green' },
+                    { text: ' is not a valid command', color: 'red' },
+                ]);
             }
         })();
+    }
 
+    tellColors(playerName) {
+        this.whisperPlayerRaw(playerName, ['',
+            { 'text': 'These are all of the tellraw colors: ' },
+            { 'text': 'Black', 'color': 'black' }, { 'text': ', ' },
+            { 'text': 'Dark Blue', 'color': 'dark_blue' }, { 'text': ', ' },
+            { 'text': 'Dark Green', 'color': 'dark_green' }, { 'text': ', ' },
+            { 'text': 'Dark Aqua', 'color': 'dark_aqua' }, { 'text': ', ' },
+            { 'text': 'Dark Red', 'color': 'dark_red' }, { 'text': ', ' },
+            { 'text': 'Dark', 'color': 'dark_purple' }, { 'text': ', ' },
+            { 'text': 'Purple', 'color': 'dark_purple' }, { 'text': ', ' },
+            { 'text': 'Gold', 'color': 'gold' }, { 'text': ', ' },
+            { 'text': 'Gray', 'color': 'gray' }, { 'text': ', ' },
+            { 'text': 'Dark Grey', 'color': 'dark_gray' }, { 'text': ', ' },
+            { 'text': 'Blue', 'color': 'blue' }, { 'text': ', ' },
+            { 'text': 'Green', 'color': 'green' }, { 'text': ', ' },
+            { 'text': 'Aqua', 'color': 'aqua' }, { 'text': ', ' },
+            { 'text': 'Red', 'color': 'dark_red' }, { 'text': ', ' },
+            { 'text': 'Light Purple', 'color': 'light_purple' }, { 'text': ', ' },
+            { 'text': 'Yellow', 'color': 'yellow' },
+            { 'text': ', and White' }]);
     }
 };
