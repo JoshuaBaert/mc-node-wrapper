@@ -3,23 +3,21 @@ module.exports = Base => class extends Base {
     constructor() {
         super();
         this.onCooldownMap = {}
+        
         //object containing the cooldown times for the commands. new commands would need a new property added here.
         this.coodownTimes = {
-            'home': 30000,
-            'warp': 30000
+            'home': 1000 * 60 * 15,
+            'warp': 1000 * 60 * 15
         }
     }
 
-    //method to check if a command is on cooldown.
+    //Check cooldown. place before code you want to execute.
     cooldownCheck(command, playerName) {
         //instantiate playerName variable if it hasn't been instantiated yet.
         if (!this.onCooldownMap[playerName]) this.onCooldownMap[playerName] = {}
-        console.log(this.onCooldownMap)
 
-        //check to make sure the command doesn't have any arguments
-            //if command is on cooldown then return true.
+        //if command is on cooldown then return true.
         if (this.onCooldownMap[playerName][command] == true) {
-            console.log('command on cooldown')
             this.whisperPlayerRaw(playerName, [
                 { text: `!${command} `, color: 'white' },
                 { text: `has a cooldown of `, color: 'red' },
@@ -30,22 +28,16 @@ module.exports = Base => class extends Base {
         } else return false;
     }
 
-    //method to start cooldown. should be seperate from check so that there is more versatility in code. there should be an option to check before you execute command.
-    //in theory you put the check before the command and the start after.
+    //Starts Cooldown. place after code you want to execute.
     cooldownStart(command, playerName) {
         if (!this.onCooldownMap[playerName]) this.onCooldownMap[playerName] = {}
 
         this.onCooldownMap[playerName][command] = true;
-        this.cooldownTimer(command, playerName, this.coodownTimes[command]);   
-        console.log(this.onCooldownMap);    
+        this.cooldownTimer(command, playerName, this.coodownTimes[command]);      
     }
 
     //sets onCooldownMap to true after elapsed time
     cooldownTimer(command, playerName, time) {
         return setTimeout( () => {this.onCooldownMap[playerName][command] = false}, time);
-    }
-
-    
+    }   
 }
-
-//this all works perfectly with the home command. i'll need to change some things so it can be compatable with warp.

@@ -47,6 +47,7 @@ module.exports = Base => class extends Base {
             this.whisperPlayer(requestingPlayer, 'Warp accepted');
             this.whisperPlayer(playerName, 'Warp accepted');
             this.warpRequests[playerName] = null;
+            
             //cooldownStart goes here.
             this.cooldownStart('warp', requestingPlayer)
         } else {
