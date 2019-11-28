@@ -3,15 +3,15 @@ module.exports = Base => class extends Base {
     constructor() {
         super();
         this.onCooldownMap = {}
-        //josh doesn't want times passed in, wants one sorce of truth.
+        //object containing the cooldown times for the commands. new commands would need a new property added here.
         this.coodownTimes = {
-            home: 30000,
-            warp: 30000
+            'home': 30000,
+            'warp': 30000
         }
     }
 
     //method to check if a command is on cooldown.
-    cooldownCheck(command, playerName, time) {
+    cooldownCheck(command, playerName) {
         //instantiate playerName variable if it hasn't been instantiated yet.
         if (!this.onCooldownMap[playerName]) this.onCooldownMap[playerName] = {}
         console.log(this.onCooldownMap)
@@ -23,7 +23,7 @@ module.exports = Base => class extends Base {
             this.whisperPlayerRaw(playerName, [
                 { text: `!${command} `, color: 'white' },
                 { text: `has a cooldown of `, color: 'red' },
-                { text: `${time / 60000} minutes`, color: 'white' },
+                { text: `${this.coodownTimes[command] / 60000} minutes`, color: 'white' },
                 { text: ` total.\nTry again later.`, color: 'red' },
             ]);
             return true;
@@ -32,11 +32,11 @@ module.exports = Base => class extends Base {
 
     //method to start cooldown. should be seperate from check so that there is more versatility in code. there should be an option to check before you execute command.
     //in theory you put the check before the command and the start after.
-    cooldownStart(command, playerName, time) {
+    cooldownStart(command, playerName) {
         if (!this.onCooldownMap[playerName]) this.onCooldownMap[playerName] = {}
 
         this.onCooldownMap[playerName][command] = true;
-        this.cooldownTimer(command, playerName, time);   
+        this.cooldownTimer(command, playerName, this.coodownTimes[command]);   
         console.log(this.onCooldownMap);    
     }
 
