@@ -17,7 +17,7 @@ module.exports = Base => class extends Base {
             this.cooldownStart('home', playerName)
         } else if (args[0].toLowerCase() === 'set') {
             this.setHome(playerName);
-        }       
+        }
     }
 
     async setHome(playerName) {
