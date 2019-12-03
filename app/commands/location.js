@@ -70,7 +70,7 @@ module.exports = Base => class extends Base {
 
     checkIsAuthorized(playerName) {
         // TODO Add more complicated Auth
-        if (playerName === 'Gobsmack90') {
+        if (playerName === 'Joshyray') {
             return true;
         } else {
             return false;
