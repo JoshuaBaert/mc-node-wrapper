@@ -6,7 +6,7 @@ module.exports = Base => class extends Base {
         
         //object containing the cooldown times for the commands. new commands would need a new property added here.
         this.coodownTimes = {
-            'home': 1000 * 60 * 15,
+            'home': 1000 * 30 * 1,
             'warp': 1000 * 60 * 15,
             'location': 1000 * 60 * 30
         }
@@ -18,12 +18,12 @@ module.exports = Base => class extends Base {
         if (!this.onCooldownMap[playerName]) this.onCooldownMap[playerName] = {}
 
         //if command is on cooldown then return true.
-        if (this.onCooldownMap[playerName][command] == true) {
+        if (typeof this.onCooldownMap[playerName][command] == "number") {
             this.whisperPlayerRaw(playerName, [
                 { text: `!${command} `, color: 'white' },
-                { text: `has a cooldown of `, color: 'red' },
-                { text: `${this.timeLeft(playerName, command)} seconds`, color: 'white' },
-                { text: ` total.\nTry again later.`, color: 'red' },
+                { text: `will be available in `, color: 'red' },
+                { text: `${Number((this.timeLeft(command, playerName)).toFixed(2))}`, color: 'white' },
+                { text: ` minutes.`, color: 'red' },
             ]);
             return true;
         } else return false;
@@ -33,7 +33,8 @@ module.exports = Base => class extends Base {
     cooldownStart(command, playerName) {
         if (!this.onCooldownMap[playerName]) this.onCooldownMap[playerName] = {}
 
-        this.onCooldownMap[playerName][command] = true;
+        this.onCooldownMap[playerName][command] = Date.now() + this.coodownTimes[command];
+        console.log(this.onCooldownMap[playerName][command]);
         this.cooldownTimer(command, playerName, this.coodownTimes[command]);      
     }
 
@@ -42,21 +43,26 @@ module.exports = Base => class extends Base {
         return setTimeout( () => {this.onCooldownMap[playerName][command] = false}, time);
     }
     
-    timeLeft(playerName, command) {
-        let c = 0;
-        let t;
-
-        clearTimeout(t);
-
-        function timedCount() {
-            ++c
-            t = setTimeout(timedCount, 1000);
-        }
-
-        while (this.onCooldownMap[playerName][command] == true) {
-            timedCount();
-        }
-
-        return this.coodownTimes[command]/1000 - c;
+    timeLeft(command, playerName) {
+        return (this.onCooldownMap[playerName][command] - Date.now())/60000;
     }
+
+
+    // timeLeft(playerName, command) {
+    //     let c = 0;
+    //     let t;
+
+    //     clearTimeout(t);
+
+    //     function timedCount() {
+    //         ++c
+    //         t = setTimeout(timedCount, 1000);
+    //     }
+
+    //     while (this.onCooldownMap[playerName][command] == true) {
+    //         timedCount();
+    //     }
+
+    //     return this.coodownTimes[command]/1000 - c;
+    // }
 }
