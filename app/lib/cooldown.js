@@ -22,7 +22,7 @@ module.exports = Base => class extends Base {
             this.whisperPlayerRaw(playerName, [
                 { text: `!${command} `, color: 'white' },
                 { text: `has a cooldown of `, color: 'red' },
-                { text: `${this.coodownTimes[command] / 60000} minutes`, color: 'white' },
+                { text: `${this.timeLeft(playerName, command)} seconds`, color: 'white' },
                 { text: ` total.\nTry again later.`, color: 'red' },
             ]);
             return true;
@@ -40,5 +40,23 @@ module.exports = Base => class extends Base {
     //sets onCooldownMap to true after elapsed time
     cooldownTimer(command, playerName, time) {
         return setTimeout( () => {this.onCooldownMap[playerName][command] = false}, time);
-    }   
+    }
+    
+    timeLeft(playerName, command) {
+        let c = 0;
+        let t;
+
+        clearTimeout(t);
+
+        function timedCount() {
+            ++c
+            t = setTimeout(timedCount, 1000);
+        }
+
+        while (this.onCooldownMap[playerName][command] == true) {
+            timedCount();
+        }
+
+        return this.coodownTimes[command]/1000 - c;
+    }
 }
