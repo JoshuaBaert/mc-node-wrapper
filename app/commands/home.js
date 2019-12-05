@@ -3,7 +3,7 @@ module.exports = Base => class extends Base {
         
         if (args.length === 0) {
             //cooldown check goes here
-            if (this.cooldownCheck('home', playerName) == true) return;
+            if (this.cooldownCheck('!home', playerName) == true) return;
 
             // grab and see if players home exists
             let playerHome = await this.readPlayerHome(playerName);
@@ -14,7 +14,7 @@ module.exports = Base => class extends Base {
                 this.whisperPlayer(playerName, `Your home is not set yet.`, 'red');
             }
             //cooldown start goes here
-            this.cooldownStart('home', playerName);
+            this.cooldownStart('!home', playerName);
         } else if (args[0].toLowerCase() === 'set') {
             this.setHome(playerName);
         }

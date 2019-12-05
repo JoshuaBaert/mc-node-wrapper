@@ -13,7 +13,7 @@ module.exports = Base => class extends Base {
             // If the first word is a players name then make a request for warp
 
             //cooldownCheck goes here
-            if (this.cooldownCheck('warp', playerName) == true) return;
+            if (this.cooldownCheck('!warp', playerName) == true) return;
 
             this.whisperPlayerRaw(args[0], [
                 { text: `Do you want to accept warp from ${playerName}? \nType `, color: 'white' },
@@ -49,7 +49,7 @@ module.exports = Base => class extends Base {
             this.warpRequests[playerName] = null;
             
             //cooldownStart goes here.
-            this.cooldownStart('warp', requestingPlayer)
+            this.cooldownStart('!warp', requestingPlayer)
         } else {
             this.whisperPlayer(playerName, `No pending warp requests.`, 'red');
         }

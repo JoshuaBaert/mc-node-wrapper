@@ -58,12 +58,12 @@ module.exports = Base => class extends Base {
         if (!location) return false;
 
         //cooldown check goes here
-        if (this.cooldownCheck('location', playerName) == true) return true;
+        if (this.cooldownCheck('Location teleporting', playerName) == true) return true;
 
         this.writeToMine(`execute in ${location.world} run tp ${playerName} ${location.pos.join(' ')} ${location.rot.join(' ')}`);
 
         //cooldown start goes here
-        this.cooldownStart('location', playerName);
+        this.cooldownStart('Location teleporting', playerName);
 
         return true;
     }
