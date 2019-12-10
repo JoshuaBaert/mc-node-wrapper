@@ -15,6 +15,9 @@ module.exports = Base => class extends Base {
             //cooldownCheck goes here
             if (this.cooldownCheck('!warp', playerName) == true) return;
 
+            this.whisperPlayerRaw(playerName, ['Sent warp request to ', { text: args[0], color: 'green' }]);
+
+
             this.whisperPlayerRaw(args[0], [
                 { text: `Do you want to accept warp from ${playerName}? \nType `, color: 'white' },
                 { text: `!warp accept`, color: 'green' },
@@ -47,9 +50,10 @@ module.exports = Base => class extends Base {
             this.whisperPlayer(requestingPlayer, 'Warp accepted');
             this.whisperPlayer(playerName, 'Warp accepted');
             this.warpRequests[playerName] = null;
-            
+
             //cooldownStart goes here.
-            this.cooldownStart('!warp', requestingPlayer)
+            this.cooldownStart('!warp', requestingPlayer);
+
         } else {
             this.whisperPlayer(playerName, `No pending warp requests.`, 'red');
         }
