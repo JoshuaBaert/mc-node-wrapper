@@ -136,7 +136,7 @@ module.exports = class Server extends OtherClasses {
 
     handleCommand(text) {
         let playerName = text.replace(/.*<(\w+)>.*/, '$1').trim(),
-            commands = text.replace(/\[(\d\d:){2}\d\d]\s\[\w+\s\w+\/\w+]:\s<\w+>\s!/, '')
+            commands = text.replace(/^.*<\w+>\s!/, '')
                 .split(' ').map(t => t.trim()),
             baseCommand = commands[0],
             args = commands.slice(1);

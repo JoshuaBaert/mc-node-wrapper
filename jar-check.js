@@ -2,7 +2,7 @@ const fs = require('fs');
 const http = require('axios').default;
 const path = require('path');
 
-module.exports = function () {
+function vanillaFetch() {
     return new Promise(async function (resolve, reject) {
         let serverPath = './server',
             jarPath;
@@ -41,9 +41,52 @@ module.exports = function () {
                         jarRes.data.pipe(writer);
                     });
                 }
-            }, 50)
+            }, 50);
         } catch (e) {
             reject(e);
         }
     });
-};
+}
+
+function paperFetch() {
+    return new Promise(async function (resolve, reject) {
+        let serverPath = './server',
+            basePaperUrl = 'https://papermc.io/api/v1/paper',
+            latestVersion = (await http.get(basePaperUrl)).data.versions[0],
+            latestBuild = (await http.get(`${basePaperUrl}/${latestVersion}`)).data.builds.latest,
+            downloadUrl = `${basePaperUrl}/${latestVersion}/${latestBuild}/download`,
+            jarPath = `${serverPath}/paper-${latestVersion}-${latestBuild}.jar`;
+
+        try {
+            // check to make sure that server folder is there
+            if (!fs.existsSync(`${serverPath}/`)) fs.mkdirSync(`${serverPath}/`);
+            // If there isn't a eula.txt copy one from assets so we don't have to restart the server
+            if (!fs.existsSync(`${serverPath}/eula.txt`)) fs.copyFileSync('./assets/eula.txt', `${serverPath}/eula.txt`);
+
+            setTimeout(async () => {
+                if (fs.existsSync(jarPath)) {
+                    console.log('\nServer jar already present.\n');
+
+                    resolve(jarPath);
+                } else {
+                    console.log('\nNo up to date server file. \nDownloading new server... Please Wait\n');
+
+                    const writer = fs.createWriteStream(path.resolve(__dirname, jarPath));
+                    writer.on('finish', () => {
+                        console.log('Finished downloading minecraft.');
+                        resolve(jarPath);
+                    });
+                    writer.on('error', (e) => reject('Problem downloading jar\n' + e));
+
+                    http.get(downloadUrl, { responseType: 'stream' }).then((jarRes) => {
+                        jarRes.data.pipe(writer);
+                    });
+                }
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+module.exports = paperFetch;
