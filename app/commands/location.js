@@ -58,7 +58,7 @@ module.exports = Base => class extends Base {
         if (!location) return false;
 
         //cooldown check goes here
-        if (this.cooldownCheck('!location', playerName, [
+        if (this.cooldownCheck('location', playerName, [
             { text: `!${locationName}`, color: 'white' },
             { text: ` and other `, color: 'red' },
             { text: `location`, color: 'white' },
@@ -67,7 +67,7 @@ module.exports = Base => class extends Base {
         this.writeToMine(`execute in ${location.world} run tp ${playerName} ${location.pos.join(' ')} ${location.rot.join(' ')}`);
 
         //cooldown start goes here
-        this.cooldownStart('!location', playerName);
+        this.cooldownStart('location', playerName);
 
         return true;
     }

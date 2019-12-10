@@ -6,9 +6,9 @@ module.exports = Base => class extends Base {
         
         //object containing the cooldown times for the commands. new commands would need a new property added here.
         this.coodownTimes = {
-            '!home': 1000 * 60 * 15,
-            '!warp': 1000 * 60 * 15,
-            '!location': 1000 * 60 * 15
+            'home': 1000 * 60 * 15,
+            'warp': 1000 * 60 * 15,
+            'location': 1000 * 60 * 15
         }
     }
 
@@ -35,7 +35,7 @@ module.exports = Base => class extends Base {
             }
             
             let messageToSend = optionalCooldownMessage(optionalRawMessage) || [[
-                { text: `${command} `, color: 'white' },
+                { text: `!${command} `, color: 'white' },
                 { text: `will be available in `, color: 'red' }], ...defaultTimeStampMessage
             ];
 
