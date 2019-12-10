@@ -58,7 +58,7 @@ module.exports = Base => class extends Base {
         if (!location) return false;
 
         //cooldown check goes here
-        if (this.cooldownCheck('!location', playerName, `!${locationName}`, [
+        if (this.cooldownCheck('!location', playerName, [
             { text: `!${locationName}`, color: 'white' },
             { text: ` and other `, color: 'red' },
             { text: `location`, color: 'white' },

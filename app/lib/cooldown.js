@@ -13,7 +13,7 @@ module.exports = Base => class extends Base {
     }
 
     //Check cooldown. place before code you want to execute. optionalDisplayCommandName lets you display a different name for a command to the player, and optionalRawMessage allows you to set a custom message sent to players.
-    cooldownCheck(command, playerName, optionalDisplayCommandName, optionalRawMessage) {
+    cooldownCheck(command, playerName, optionalRawMessage) {
         //instantiate playerName variable if it hasn't been instantiated yet.
         if (!this.onCooldownMap[playerName]) this.onCooldownMap[playerName] = {}
 
@@ -35,7 +35,7 @@ module.exports = Base => class extends Base {
             }
             
             let messageToSend = optionalCooldownMessage(optionalRawMessage) || [[
-                { text: `${optionalDisplayCommandName || command} `, color: 'white' },
+                { text: `${command} `, color: 'white' },
                 { text: `will be available in `, color: 'red' }], ...defaultTimeStampMessage
             ];
 
