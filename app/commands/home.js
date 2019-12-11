@@ -14,7 +14,7 @@ module.exports = Base => class extends Base {
                 this.whisperPlayer(playerName, `Your home is not set yet.`, 'red');
             }
             //cooldown start goes here
-            this.cooldownStart('home', playerName)
+            this.cooldownStart('home', playerName);
         } else if (args[0].toLowerCase() === 'set') {
             this.setHome(playerName);
         }

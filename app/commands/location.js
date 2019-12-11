@@ -49,7 +49,7 @@ module.exports = Base => class extends Base {
         }
 
         this.whisperPlayerRaw(playerName, [
-            'Set location ', { text: newLocation.name, color: 'aqua' }, `' to the position of [${newLocation.pos.join(', ')}]'`,
+            'Set location ', { text: newLocation.name, color: 'aqua' }, ` to the position of [${newLocation.pos.join(', ')}]`,
         ]);
     }
 
@@ -57,7 +57,17 @@ module.exports = Base => class extends Base {
         let location = await this.readLocation(locationName);
         if (!location) return false;
 
+        //cooldown check goes here
+        if (this.cooldownCheck('location', playerName, [
+            { text: `!${locationName}`, color: 'white' },
+            { text: ` and other `, color: 'red' },
+            { text: `location`, color: 'white' },
+            { text: ` commands will be available in `, color: 'red' }]) == true) return true;
+
         this.writeToMine(`execute in ${location.world} run tp ${playerName} ${location.pos.join(' ')} ${location.rot.join(' ')}`);
+
+        //cooldown start goes here
+        this.cooldownStart('location', playerName);
 
         return true;
     }
