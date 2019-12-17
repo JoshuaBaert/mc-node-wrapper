@@ -1,8 +1,8 @@
-const spawn = require('child_process').spawn;
+const isDev = process.env.NODE_ENV === 'development';
 
-/*
-* This is where We combine all of the classes into one
-* */
+/**
+ * This is where We combine all of the classes into one
+ */
 class OtherClasses {
 }
 
@@ -10,13 +10,12 @@ OtherClasses = require('./data')(OtherClasses);
 OtherClasses = require('./lib/cooldown')(OtherClasses);
 OtherClasses = require('./lib/entity')(OtherClasses);
 OtherClasses = require('./lib/message')(OtherClasses);
+OtherClasses = require('./lib/server-management')(OtherClasses);
 
 // Command imports
 OtherClasses = require('./commands/home')(OtherClasses);
 OtherClasses = require('./commands/location')(OtherClasses);
 OtherClasses = require('./commands/warp')(OtherClasses);
-
-const isDev = process.env.NODE_ENV === 'development';
 
 module.exports = class Server extends OtherClasses {
     constructor(jarPath) {
@@ -24,32 +23,6 @@ module.exports = class Server extends OtherClasses {
         console.log('Starting Minecraft!');
         console.log(`isDev: ${isDev}\n`);
         this.startServer(jarPath);
-    }
-
-    startServer(jarPath) {
-        let workingDir = './server';
-        this.serverProcess = spawn('java', [
-            isDev ? '-Xmx1g' : '-Xmx7g',
-            isDev ? '-Xms512m' : '-Xms1024m',
-            '-jar',
-            jarPath.replace(workingDir, '.'),
-            'nogui',
-        ], { cwd: workingDir });
-
-        this.serverProcess.stdout.on('data', this.log.bind(this));
-        this.serverProcess.stderr.on('data', this.log.bind(this));
-
-        process.stdin.setEncoding('utf8');
-        // This handles manual input to the console and passes it forward to minecraft
-        process.stdin.on('readable', () => {
-            let chunk;
-            // Use a loop to make sure we read all available data.
-            while ((chunk = process.stdin.read()) !== null) {
-                this.write(chunk);
-            }
-        });
-
-        this.serverExitSetup();
     }
 
     serverExitSetup() {
@@ -73,7 +46,7 @@ module.exports = class Server extends OtherClasses {
             hasExitedMinecraft = true;
 
             console.log('stopping node because minecraft stopped');
-            process.exit();
+            process.exit(0);
         };
         this.serverProcess.on('exit', childShutdownListener);
 
@@ -81,28 +54,6 @@ module.exports = class Server extends OtherClasses {
         process.on('exit', () => {
             if (hasExitedMinecraft) return;
             this.serverProcess.kill();
-        });
-    }
-
-    shutdownServer() {
-        return new Promise((resolve) => {
-            const savedWolds = new Set();
-
-            const shutdownListener = (data) => {
-                const text = data.toString();
-
-                if (/All\schunks\sare\ssaved/.test(text)) {
-                    let world = text.replace(/.*\(([\w-]+)\).*/, '$1').trim();
-                    world.length < 10 ? savedWolds.add(world) : null;
-                }
-
-                if (savedWolds.size >= 3) {
-                    resolve();
-                }
-            };
-
-            this.serverProcess.stdout.on('data', shutdownListener);
-            this.writeToMine('stop');
         });
     }
 
