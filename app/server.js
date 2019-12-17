@@ -118,24 +118,25 @@ module.exports = class Server extends OtherClasses {
     }
 
     tellColors(playerName) {
-        this.whisperPlayerRaw(playerName, ['',
-            { 'text': 'These are all of the tellraw colors: ' },
-            { 'text': 'Black', 'color': 'black' }, { 'text': ', ' },
-            { 'text': 'Dark Blue', 'color': 'dark_blue' }, { 'text': ', ' },
-            { 'text': 'Dark Green', 'color': 'dark_green' }, { 'text': ', ' },
-            { 'text': 'Dark Aqua', 'color': 'dark_aqua' }, { 'text': ', ' },
-            { 'text': 'Dark Red', 'color': 'dark_red' }, { 'text': ', ' },
-            { 'text': 'Dark', 'color': 'dark_purple' }, { 'text': ', ' },
-            { 'text': 'Purple', 'color': 'dark_purple' }, { 'text': ', ' },
-            { 'text': 'Gold', 'color': 'gold' }, { 'text': ', ' },
-            { 'text': 'Gray', 'color': 'gray' }, { 'text': ', ' },
-            { 'text': 'Dark Grey', 'color': 'dark_gray' }, { 'text': ', ' },
-            { 'text': 'Blue', 'color': 'blue' }, { 'text': ', ' },
-            { 'text': 'Green', 'color': 'green' }, { 'text': ', ' },
-            { 'text': 'Aqua', 'color': 'aqua' }, { 'text': ', ' },
-            { 'text': 'Red', 'color': 'dark_red' }, { 'text': ', ' },
-            { 'text': 'Light Purple', 'color': 'light_purple' }, { 'text': ', ' },
+        this.whisperPlayerRaw(playerName, [
+            'These are all of the tellraw colors: ',
+            { 'text': 'Black', 'color': 'black' }, ', ',
+            { 'text': 'Dark Blue', 'color': 'dark_blue' }, ', ',
+            { 'text': 'Dark Green', 'color': 'dark_green' }, ', ',
+            { 'text': 'Dark Aqua', 'color': 'dark_aqua' }, ', ',
+            { 'text': 'Dark Red', 'color': 'dark_red' }, ', ',
+            { 'text': 'Dark', 'color': 'dark_purple' }, ', ',
+            { 'text': 'Purple', 'color': 'dark_purple' }, ', ',
+            { 'text': 'Gold', 'color': 'gold' }, ', ',
+            { 'text': 'Gray', 'color': 'gray' }, ', ',
+            { 'text': 'Dark Grey', 'color': 'dark_gray' }, ', ',
+            { 'text': 'Blue', 'color': 'blue' }, ', ',
+            { 'text': 'Green', 'color': 'green' }, ', ',
+            { 'text': 'Aqua', 'color': 'aqua' }, ', ',
+            { 'text': 'Red', 'color': 'dark_red' }, ', ',
+            { 'text': 'Light Purple', 'color': 'light_purple' }, ', ',
             { 'text': 'Yellow', 'color': 'yellow' },
-            { 'text': ', and White' }]);
+            ', and White',
+        ]);
     }
 };
