@@ -5,6 +5,12 @@ module.exports = Base => class extends Base {
     }
 
     async handleWarp(playerName, args) {
+        // Check to see if the player is in the end if so don't allow anything home related
+        // I could have checked upon request if the recipient is in the end but decided it wasn't worth the extra code
+        if ((await this.getPlayerDimension(playerName)) === 'minecraft:the_end') {
+            return this.whisperPlayer(playerName, 'Sorry can not use the warp command in the end', 'red');
+        }
+
         let loggedInPlayers = await this.getListOfOnlinePlayers();
 
         if (args[0] && args[0].toLowerCase() === 'accept') {
