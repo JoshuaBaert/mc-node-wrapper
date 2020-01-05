@@ -1,12 +1,19 @@
 module.exports = Base => class extends Base {
     async handleHome(playerName, args) {
-        
+        // Check to see if the player is in the end if so don't allow anything home related
+        if ((await this.getPlayerDimension(playerName)) === 'minecraft:the_end') {
+            return this.whisperPlayer(playerName, 'Sorry can not use the home command in the end', 'red');
+        }
+
+
         if (args.length === 0) {
             //cooldown check goes here
-            if (this.cooldownCheck('home', playerName) == true) return;
+            if (this.cooldownCheck('home', playerName) === true) return;
 
             // grab and see if players home exists
             let playerHome = await this.readPlayerHome(playerName);
+            let dim = await this.getPlayerDimension(playerName);
+            console.log(dim);
 
             if (playerHome) {
                 this.writeToMine(`execute in ${playerHome.world} run tp ${playerName} ${playerHome.pos.join(' ')} ${playerHome.rot.join(' ')}`);
