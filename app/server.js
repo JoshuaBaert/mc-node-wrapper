@@ -16,6 +16,7 @@ OtherClasses = require('./lib/server-management')(OtherClasses);
 OtherClasses = require('./commands/home')(OtherClasses);
 OtherClasses = require('./commands/location')(OtherClasses);
 OtherClasses = require('./commands/warp')(OtherClasses);
+OtherClasses = require('./commands/xp')(OtherClasses);
 
 module.exports = class Server extends OtherClasses {
     constructor(jarPath) {
