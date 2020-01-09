@@ -25,9 +25,9 @@ module.exports = Base => class extends Base {
                     { text: `number`, color: 'red' },
                     { text: ` to the command.\nEG: `, color: 'white' },
                     { text: `!xp get 3`, color: 'green' },
-                    { text: ` will retrieve 3 XP levels.\nType `, color: 'white' },
+                    { text: ` will retrieve 3 XP pointss.\nType `, color: 'white' },
                     { text: `!xp check`, color: 'green' },
-                    { text: ` to check how many XP levels you have stored.`, color: 'white' },
+                    { text: ` to check how many XP pointss you have stored.`, color: 'white' },
                 ]);;
             }
         })();
@@ -57,38 +57,38 @@ module.exports = Base => class extends Base {
 
     }
 
-    getPlayerXp(level) {
+    getPlayerXp(points) {
 
     }
 
-    XpFromDatabase(level) {
+    XpFromDatabase(points) {
 
     }
 }
 
 /*
 !xp store
-set var level to current player level
-store var level to database
-write-to-mine that player's new xp level is current player level - var level (should be 0)
+set var points to current player points
+store var points to database
+write-to-mine that player's new xp points is current player points - var points (should be 0)
 
 !xp store #
-set var level to #
-store var level to database
-write-to-mine that player's new xp level is current player level - var level
+set var points to #
+store var points to database
+write-to-mine that player's new xp points is current player points - var points
 
 !xp get
-set var level to database
+set var points to database
 set database to 0
-write-to-mine that player's new xp level is current player level + var level
+write-to-mine that player's new xp points is current player points + var points
 
 !xp get #
 check # <= database
-set var level to #
+set var points to #
 set database to database - #
-write-to-mine that player's new xp level is current player level + var level
+write-to-mine that player's new xp points is current player points + var points
 
 !xp check
-set var level to database
-whisperPlayerRaw message: You have level XP points stored.
+set var points to database
+whisperPlayerRaw message: You have points XP points stored.
 */

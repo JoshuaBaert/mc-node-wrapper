@@ -14,6 +14,7 @@ const playerSchema = new mongoose.Schema({
     },
     id: String,
     home: homeSchema,
+    xpStore: Number,
 });
 
 module.exports = mongoose.model('Player', playerSchema);

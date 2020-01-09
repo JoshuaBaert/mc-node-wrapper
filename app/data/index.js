@@ -40,6 +40,28 @@ module.exports = Base => class extends Base {
         });
     }
 
+    updatePlayerXpStore(playerName, newXp) {
+        return new Promise((resolve, reject) =>{
+            Player.updateOne(
+                { name: playerName }, 
+                { xpStore: newXp},
+                (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                },
+            )
+        })
+    };
+
+    readPlayerXpStore(playerName) {
+        return new Promise((resolve) => {
+            Player.findOne({ name: playerName }, (err, player) => {
+                if (err) return reject(err);
+                resolve(player.xpStore);   
+            })
+        })
+    };
+
     createLocation(name, world, pos, rot) {
         return new Promise((resolve, reject) => {
             let location = new Location({
