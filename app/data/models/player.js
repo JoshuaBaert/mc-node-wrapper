@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+
 const homeSchema = new mongoose.Schema({
     pos: [{ type: Number }],
     rot: [{ type: Number }],
@@ -7,13 +8,20 @@ const homeSchema = new mongoose.Schema({
 }, { _id: false });
 
 const playerSchema = new mongoose.Schema({
+    _version: {
+        type: Number,
+        default: 2,
+    },
     name: {
         type: String,
         required: true,
         unique: true,
     },
     id: String,
-    home: homeSchema,
+    home: homeSchema, // this is being depreciated
+    homes: {
+        type: Object,
+    },
 });
 
-module.exports = mongoose.model('Player', playerSchema);
+module.exports = mongoose.model('Player', playerSchema)
