@@ -5,35 +5,48 @@ module.exports = Base => class extends Base {
     }
 
     handleXp(playerName, args) {
-    //choose a function based on the args.    
-        (() => {
-            switch (args[0].toLowerCase()) {
-            case 'store':
-                return this.handleXpStore(playerName, args.slice(1));
-            case 'get':
-                return this.handleXpGet(playerName, args.slice(1));
-            case 'check':
-                return this.handleXpCheck(playerName);
-            default:
-                //they got here by typing the wrong thing, will list the things they can type.
-                return this.whisperPlayerRaw(playerName, [
-                    { text: `To store all XP, type `, color: 'white' },
-                    { text: `!xp store`, color: 'green' },
-                    { text: `.\nTo retrieve all stored XP, type `, color: 'white' },
-                    { text: `!xp get`, color: 'green' },
-                    { text: `.\nYou can also store and retieve partial amounts of XP by appending a `, color: 'white' },
-                    { text: `number`, color: 'red' },
-                    { text: ` to the command.\nEG: `, color: 'white' },
-                    { text: `!xp get 3`, color: 'green' },
-                    { text: ` will retrieve 3 XP pointss.\nType `, color: 'white' },
-                    { text: `!xp check`, color: 'green' },
-                    { text: ` to check how many XP pointss you have stored.`, color: 'white' },
-                ]);;
-            }
-        })();
+    //choose a function based on the args.   
+        if (!args[0]) {
+            return this.handleWrongInput(playerName);
+        } else {
+            (() => {
+                switch (args[0].toLowerCase()) {
+                case 'store':
+                    return this.handleXpStore(playerName, args.slice(1));
+                case 'get':
+                    return this.handleXpGet(playerName, args.slice(1));
+                case 'give':
+                    return this.handleXpGive(playerName, args.slice(1));
+                case 'check':
+                    return this.handleXpCheck(playerName);
+                default:
+                    return this.handleWrongInput(playerName);             
+                }
+            })();
+        }
     }
 
-    handleXpStore(playerName, ...args) {
+    handleWrongInput(playerName) {
+        //they got here by typing the wrong thing, will list the things they can type.
+        return this.whisperPlayerRaw(playerName, [
+            { text: `To store all experience, type `, color: 'white' },
+            { text: `!xp store`, color: 'green' },
+            { text: `.\nTo retrieve all stored experience, type `, color: 'white' },
+            { text: `!xp get`, color: 'green' },
+            { text: `.\nTo gift your stored experience to another player, type `, color: 'white' },
+            { text: `!xp give `, color: 'green' },
+            { text: `Playername`, color: 'aqua' },
+            { text: `.\nYou can also gift, store and retieve partial amounts of experience by appending a `, color: 'white' },
+            { text: `number`, color: 'red' },
+            { text: ` to the command.\nEG: `, color: 'white' },
+            { text: `!xp get 3000`, color: 'green' },
+            { text: ` will retrieve 3000 experience points.\nFinally, you may type `, color: 'white' },
+            { text: `!xp check`, color: 'green' },
+            { text: ` to to see your stored experience.`, color: 'white' },
+        ]);;
+    }
+
+    handleXpStore(playerName, args) {
         //did player append a number to the command?
         if (!args[0]) {
 
@@ -43,7 +56,7 @@ module.exports = Base => class extends Base {
 
     }
 
-    handleXpGet(playerName, ...args) {
+    handleXpGet(playerName, args) {
         //did player append a number to the command?
         if (!args[0]) {
 
@@ -53,16 +66,20 @@ module.exports = Base => class extends Base {
 
     }
 
+    handleXpGive(playerName, args) {
+        if (!args[0]) {
+
+        } else {
+            
+        }
+    }
+
     handleXpCheck(playerName) {
-
-    }
-
-    getPlayerXp(points) {
-
-    }
-
-    XpFromDatabase(points) {
-
+        this.whisperPlayerRaw(playerName, [
+            { text: `You have `, color: 'white' },
+            { text: `${this.readPlayerXpStore(playerName)}`, color: 'red' },
+            { text: ` stored experience points.`, color: 'white' },
+        ]);
     }
 }
 
