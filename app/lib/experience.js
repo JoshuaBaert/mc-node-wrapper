@@ -1,8 +1,22 @@
 //functions intereacting with player experience points in Minecraft will go here.
 module.exports = Base => class extends Base {
     readPlayerExperience(playerName) {
-        this.writeToMine(`experience query ${playerName} points`);
-        // return the number
+        return new Promise((resolve) => {
+            const listenForData = (data) => {
+                let text = data.toString();
+                let regEx = new RegExp(`${playerName} has \d+ experience points`);
+
+                if (!regEx.test(text)) return;
+                this.serverProcess.stdout.removeListener('data', listenForData);
+
+
+//figure out how to get just the number after 'has' from an entire line in console eg: '[17:15:04 INFO]: Gobsmack90 has 0 experience points'
+                resolve(points);
+            };
+
+            this.serverProcess.stdout.on('data', listenForData);
+            this.writeToMine(`experience query ${playerName} points`);
+        });
     }
 
     addPlayerExperience(playerName, points) {
@@ -13,5 +27,4 @@ module.exports = Base => class extends Base {
     subtractPlayerExperience(playerName, points) {
         this.writeToMine(`experience set ${playerName} ${this.readPlayerExperience(playerName) - points} points`);
     }
-
 }
