@@ -9,7 +9,8 @@ module.exports = Base => class extends Base {
                 if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForData);
 
-
+                let points = Number(text.split(' ')[4])
+                console.log('points var', points)
 //figure out how to get just the number after 'has' from an entire line in console eg: '[17:15:04 INFO]: Gobsmack90 has 0 experience points'
                 resolve(points);
             };

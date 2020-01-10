@@ -35,7 +35,7 @@ module.exports = Base => class extends Base {
             { text: `!xp get`, color: 'green' },
             { text: `.\nTo gift your stored experience to another player, type `, color: 'white' },
             { text: `!xp give `, color: 'green' },
-            { text: `Playername`, color: 'aqua' },
+            { text: `PlayerName`, color: 'aqua' },
             { text: `.\nYou can also gift, store and retieve partial amounts of experience by appending a `, color: 'white' },
             { text: `number`, color: 'red' },
             { text: ` to the command.\nEG: `, color: 'white' },
@@ -49,9 +49,24 @@ module.exports = Base => class extends Base {
     handleXpStore(playerName, args) {
         //did player append a number to the command?
         if (!args[0]) {
+            //removing points from player
+            let read = this.readPlayerExperience(playerName)
+            let points = this.subtractPlayerExperience(playerName, read);
+
+            //adding those points to their xp store
+            this.updatePlayerXpStore(playerName, points)
+
+            //informing player current point balance
+            let readXp = await this.readPlayerXpStore(playerName);
+            this.whisperPlayerRaw(playerName, [
+                { text: `You have `, color: 'white' },
+                { text: `${readXp}`, color: 'red' },
+                { text: ` stored experience points.`, color: 'white' },
+            ]);
 
         } else {
-
+            //temporary
+            return
         }
 
     }
@@ -70,14 +85,16 @@ module.exports = Base => class extends Base {
         if (!args[0]) {
 
         } else {
-            
+           
+            //[20:17:45 INFO]: [Gobsmack90: Gave 5 experience levels to Gobsmack90]
         }
     }
 
     handleXpCheck(playerName) {
+        let readXp = await this.readPlayerXpStore(playerName);
         this.whisperPlayerRaw(playerName, [
             { text: `You have `, color: 'white' },
-            { text: `${this.readPlayerXpStore(playerName)}`, color: 'red' },
+            { text: `${readXp}`, color: 'red' },
             { text: ` stored experience points.`, color: 'white' },
         ]);
     }
