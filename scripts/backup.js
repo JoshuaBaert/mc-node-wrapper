@@ -44,6 +44,6 @@ function deleteOld(backupFolder, numberToKeep) {
 module.exports = async function(serverFolder, backupFolder, numberToKeep) {
     await backup(serverFolder, backupFolder);
     await deleteOld(backupFolder, numberToKeep);
-    console.log('just did backup.');
+    console.info('just did backup.');
 };
 

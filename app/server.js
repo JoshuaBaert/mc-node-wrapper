@@ -9,8 +9,11 @@ class OtherClasses {
 OtherClasses = require('./data')(OtherClasses);
 OtherClasses = require('./lib/cooldown')(OtherClasses);
 OtherClasses = require('./lib/entity')(OtherClasses);
-OtherClasses = require('./lib/message')(OtherClasses);
+OtherClasses = require('./lib/tell')(OtherClasses);
 OtherClasses = require('./lib/server-management')(OtherClasses);
+
+// Help needs to be first command to setup structure
+OtherClasses = require('./commands/help')(OtherClasses);
 
 // Command imports
 OtherClasses = require('./commands/home')(OtherClasses);
@@ -20,8 +23,8 @@ OtherClasses = require('./commands/warp')(OtherClasses);
 module.exports = class Server extends OtherClasses {
     constructor(jarPath) {
         super();
-        console.log('Starting Minecraft!');
-        console.log(`isDev: ${isDev}\n`);
+        console.info('Starting Minecraft!');
+        console.info(`isDev: ${isDev}\n`);
         this.startServer(jarPath);
     }
 
@@ -31,9 +34,6 @@ module.exports = class Server extends OtherClasses {
         // Make sure the Minecraft server dies with this process hopefully gracefully
         const handleTerm = async () => {
             if (hasExitedMinecraft) return;
-
-            this.writeToMine('Server is shutting down');
-
             await this.shutdownServer();
         };
         process.on('SIGINT', handleTerm);
@@ -45,7 +45,7 @@ module.exports = class Server extends OtherClasses {
         const childShutdownListener = () => {
             hasExitedMinecraft = true;
 
-            console.log('stopping node because minecraft stopped');
+            console.info('stopping node because minecraft stopped');
             process.exit(0);
         };
         this.serverProcess.on('exit', childShutdownListener);
@@ -79,10 +79,10 @@ module.exports = class Server extends OtherClasses {
         if (/<\w+>\s!/.test(text)) return this.handleCommand(text);
 
         // lets us know when someone logs into the server
-        let authReg = /.*UUID\sof\splayer\s(\w+)\sis\s((\w|\d){8}-(\w|\d){4}-(\w|\d){4}-(\w|\d){4}-(\w|\d){12}).*/;
+        let authReg = /\[[\d:]*\sINFO\]:\s(\w+)[[\d\/\.:]*]\slogged\sin\swith\sentity\sid\s\d+\sat\s.*/;
         if (authReg.test(text)) {
-            let [playerName, UUID] = text.replace(authReg, '$1+_+$2').split('+_+');
-            return this.handlePlayerLogin(playerName, UUID);
+            let playerName = text.replace(authReg, '$1').trim();
+            return this.handlePlayerLogin(playerName);
         }
     };
 
@@ -95,12 +95,16 @@ module.exports = class Server extends OtherClasses {
 
         (async () => {
             switch (baseCommand.toLowerCase()) {
+            case 'help':
+                return this.handleHelp(playerName, args);
             case 'home':
                 return this.handleHome(playerName, args);
             case 'warp':
                 return this.handleWarp(playerName, args);
             case 'location':
                 return this.handleLocation(playerName, args);
+            case 'locations':
+                return this.handleLocations(playerName, args);
             default:
                 // dev color helper
                 if (isDev && baseCommand.toLowerCase() === 'colors') return this.tellColors(playerName);
@@ -108,7 +112,7 @@ module.exports = class Server extends OtherClasses {
                 let isLocation = await this.checkLocationAndTeleport(playerName, baseCommand);
                 if (isLocation) return;
 
-                return this.whisperPlayerRaw(playerName, [
+                return this.tellPlayerRaw(playerName, [
                     { text: 'Command ', color: 'red' },
                     { text: `!${baseCommand}`, color: 'green' },
                     { text: ' is not a valid command', color: 'red' },
@@ -118,7 +122,7 @@ module.exports = class Server extends OtherClasses {
     }
 
     tellColors(playerName) {
-        this.whisperPlayerRaw(playerName, [
+        this.tellPlayerRaw(playerName, [
             'These are all of the tellraw colors: ',
             { 'text': 'Black', 'color': 'black' }, ', ',
             { 'text': 'Dark Blue', 'color': 'dark_blue' }, ', ',
@@ -138,5 +142,9 @@ module.exports = class Server extends OtherClasses {
             { 'text': 'Yellow', 'color': 'yellow' },
             ', and White',
         ]);
+    }
+
+    handlePlayerLogin(playerName) {
+        this.welcomeMessage(playerName);
     }
 };

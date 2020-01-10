@@ -5,7 +5,7 @@ const io = require('socket.io-client')
     , client = io.connect(`http://localhost:${killPort}`);
 
 client.on('killed', function () {
-    console.log('killed');
+    console.info('killed');
     process.exit(0)
 });
 

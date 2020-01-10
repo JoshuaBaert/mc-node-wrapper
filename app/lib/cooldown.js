@@ -41,7 +41,7 @@ module.exports = Base => class extends Base {
                 { text: `will be available in `, color: 'red' }], ...defaultTimeStampMessage,
             ];
 
-            this.whisperPlayerRaw(playerName, messageToSend);
+            this.tellPlayerRaw(playerName, messageToSend);
             return true;
         } else return false;
     }
