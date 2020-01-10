@@ -79,10 +79,12 @@ module.exports = class Server extends OtherClasses {
         if (/<\w+>\s!/.test(text)) return this.handleCommand(text);
 
         // lets us know when someone logs into the server
-        let authReg = /\[[\d:]*\sINFO\]:\s(\w+)[[\d\/\.:]*]\slogged\sin\swith\sentity\sid\s\d+\sat\s.*/;
+        let authReg = /.*UUID\sof\splayer\s(\w+)\sis\s([\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}).*/;
         if (authReg.test(text)) {
-            let playerName = text.replace(authReg, '$1').trim();
-            return this.handlePlayerLogin(playerName);
+            let [playerName, uuid] = text.replace(authReg, '$1-_-$2')
+                .split('-_-')
+                .map(x => x.trim());
+            return this.handlePlayerLogin(playerName, uuid);
         }
     };
 
@@ -144,7 +146,9 @@ module.exports = class Server extends OtherClasses {
         ]);
     }
 
-    handlePlayerLogin(playerName) {
+    handlePlayerLogin(playerName, uuid) {
+        console.log(playerName, uuid);
+        this.checkPlayerLogin(playerName, uuid);
         this.welcomeMessage(playerName);
     }
 };

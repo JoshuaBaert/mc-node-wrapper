@@ -8,6 +8,15 @@ const Player = require('./models/player');
 const Location = require('./models/location');
 
 module.exports = Base => class extends Base {
+    checkPlayerLogin(playerName, UUID) {
+        Player.count({ name: playerName }, (err, count) => {
+            if (err) throw err;
+            if (count === 0) {
+                let player = new Player({ name: playerName, id: UUID });
+                player.save((err) => {if (err) throw err; });
+            }
+        });
+    }
 
     createPlayerHome(playerName, pos, rot, world) {
         return new Promise((resolve, reject) => {
