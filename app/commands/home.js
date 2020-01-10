@@ -1,8 +1,25 @@
 module.exports = Base => class extends Base {
+    constructor() {
+        super();
+
+        this.helpShortDescription.home = [
+            'set a home you can teleport back to ex: ',
+            { text: '!home set', color: 'green' },
+        ];
+
+        this.helpFullDescription.home = [
+            { text: '', color: 'white' },
+            { text: '!home set', color: 'green' },
+            ' sets your home to your current location.\n\n',
+            { text: '!home', color: 'green' },
+            ' send you back home. (has 15 minute cooldown)'
+        ];
+    }
+
     async handleHome(playerName, args) {
         // Check to see if the player is in the end if so don't allow anything home related
         if ((await this.getPlayerDimension(playerName)) === 'minecraft:the_end') {
-            return this.whisperPlayer(playerName, 'Sorry can not use the home command in the end', 'red');
+            return this.tellPlayer(playerName, 'Sorry can not use the home command in the end', 'red');
         }
 
 
@@ -12,13 +29,11 @@ module.exports = Base => class extends Base {
 
             // grab and see if players home exists
             let playerHome = await this.readPlayerHome(playerName);
-            let dim = await this.getPlayerDimension(playerName);
-            console.log(dim);
 
             if (playerHome) {
                 this.writeToMine(`execute in ${playerHome.world} run tp ${playerName} ${playerHome.pos.join(' ')} ${playerHome.rot.join(' ')}`);
             } else {
-                this.whisperPlayer(playerName, `Your home is not set yet.`, 'red');
+                this.tellPlayer(playerName, `Your home is not set yet.`, 'red');
             }
             //cooldown start goes here
             this.cooldownStart('home', playerName);
@@ -35,6 +50,6 @@ module.exports = Base => class extends Base {
 
         // Saving players position and rotation for use later
         this.createPlayerHome(playerName, position, rotation, world);
-        this.whisperPlayer(playerName, `Setting your home to [${position.join(', ')}]`);
+        this.tellPlayer(playerName, `Setting your home to [${position.join(', ')}]`);
     }
 };

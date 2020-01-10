@@ -21,15 +21,15 @@ function vanillaFetch() {
             // if we don't have a jar file with the correct version we download the latest form mojang
             setTimeout(async () => {
                 if (fs.existsSync(jarPath)) {
-                    console.log('\nServer jar already present.\n');
+                    console.info('\nServer jar already present.\n');
 
                     resolve(jarPath);
                 } else {
-                    console.log('\nNo up to date server file. \nDownloading new server... Please Wait\n');
+                    console.info('\nNo up to date server file. \nDownloading new server... Please Wait\n');
 
                     const writer = fs.createWriteStream(path.resolve(__dirname, jarPath));
                     writer.on('finish', () => {
-                        console.log('Finished downloading minecraft.');
+                        console.info('Finished downloading minecraft.');
                         resolve(jarPath);
                     });
                     writer.on('error', (e) => reject('Problem downloading jar\n' + e));
@@ -65,15 +65,15 @@ function paperFetch() {
 
             setTimeout(async () => {
                 if (fs.existsSync(jarPath)) {
-                    console.log('\nServer jar already present.\n');
+                    console.info('\nServer jar already present.\n');
 
                     resolve(jarPath);
                 } else {
-                    console.log('\nNo up to date server file. \nDownloading new server... Please Wait\n');
+                    console.info('\nNo up to date server file. \nDownloading new server... Please Wait\n');
 
                     const writer = fs.createWriteStream(path.resolve(__dirname, jarPath));
                     writer.on('finish', () => {
-                        console.log('Finished downloading minecraft.');
+                        console.info('Finished downloading minecraft.');
                         resolve(jarPath);
                     });
                     writer.on('error', (e) => reject('Problem downloading jar\n' + e));

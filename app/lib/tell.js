@@ -1,10 +1,10 @@
 module.exports = Base => class extends Base {
-    whisperPlayerRaw(playerName, messageObj) {
+    tellPlayerRaw(playerName, messageObj) {
         this.writeToMine(`tellraw ${playerName} ${JSON.stringify(messageObj)}`)
     }
 
-    whisperPlayer(playerName, message, color) {
+    tellPlayer(playerName, message, color) {
         color = color || 'white';
-        this.whisperPlayerRaw(playerName, {text: message, color: color})
+        this.tellPlayerRaw(playerName, {text: message, color: color})
     }
 };
