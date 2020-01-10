@@ -9,10 +9,19 @@ module.exports = Base => class extends Base {
 
         this.helpFullDescription.home = [
             { text: '', color: 'white' },
-            { text: '!home set', color: 'green' },
-            ' sets your home to your current location.\n\n',
-            { text: '!home', color: 'green' },
-            ' send you back home. (has 15 minute cooldown)'
+            { text: '!home set ', color: 'green' },
+            'sets your home to your current location.\n',
+            { text: '!home ', color: 'green' },
+            'send you back home. (has 15 minute cooldown)\n\n',
+            'Multiple homes you can up to 2 named homes\n',
+            'ex: ',
+            { text: '!home set boo', color: 'green' },
+            ' then ',
+            { text: '!home boo\n', color: 'green' },
+            { text: '!home list ', color: 'green' },
+            'lists your homes\n',
+            { text: '!home delete homeName ', color: 'green' },
+            'deletes a home from your list',
         ];
     }
 
@@ -22,34 +31,71 @@ module.exports = Base => class extends Base {
             return this.tellPlayer(playerName, 'Sorry can not use the home command in the end', 'red');
         }
 
-
-        if (args.length === 0) {
-            //cooldown check goes here
-            if (this.cooldownCheck('home', playerName) === true) return;
-
-            // grab and see if players home exists
-            let playerHome = await this.readPlayerHome(playerName);
-
-            if (playerHome) {
-                this.writeToMine(`execute in ${playerHome.world} run tp ${playerName} ${playerHome.pos.join(' ')} ${playerHome.rot.join(' ')}`);
-            } else {
-                this.tellPlayer(playerName, `Your home is not set yet.`, 'red');
-            }
-            //cooldown start goes here
-            this.cooldownStart('home', playerName);
-        } else if (args[0].toLowerCase() === 'set') {
-            this.setHome(playerName);
+        switch (args[0]) {
+        case 'delete':
+            return this.deleteHome(playerName, args[1]);
+        case 'list':
+            return this.listHomes(playerName);
+        case 'set':
+            return this.setHome(playerName, args[1]);
+        default:
+            return this.teleportHome(playerName, args[0]);
         }
     }
 
-    async setHome(playerName) {
+    async teleportHome(playerName, homeName) {
+        //cooldown check goes here
+        if (this.cooldownCheck('home', playerName) === true) return;
+
+        // grab and see if players home exists
+        let playerHome = await this.readPlayerHome(playerName, homeName);
+
+        if (playerHome) {
+            this.writeToMine(`execute in ${playerHome.world} run tp ${playerName} ${playerHome.pos.join(' ')} ${playerHome.rot.join(' ')}`);
+        } else {
+            this.tellPlayerRaw(playerName, [
+                { text: 'Your home ', color: 'red' },
+                { text: homeName ? homeName + ' ' : '', color: 'green' },
+                `is not set yet.`,
+            ]);
+        }
+        //cooldown start goes here
+        this.cooldownStart('home', playerName);
+    }
+
+    async deleteHome(playerName, homeName) {
+        if (!homeName) return this.tellPlayer(playerName, 'You must provide a home to delete', 'red');
+
+        await this.deletePlayerHome(playerName, homeName);
+        this.tellPlayer(playerName, 'Home deleted', 'green');
+    }
+
+    async listHomes(playerName) {
+        let homes = await this.readPlayerHomeList(playerName);
+
+        if (!homes) {
+            this.tellPlayer(playerName, 'You have no homes.');
+        } else {
+            this.tellPlayerRaw(playerName, [
+                'Your homes:\n',
+                ...(homes.map((home) => {
+                    return { text: home + '\n', color: 'green' };
+                })),
+            ]);
+        }
+    }
+
+    async setHome(playerName, homeName) {
+        if (homeName && !(/[a-z]/i).test(homeName)) {
+            return this.tellPlayer(playerName, `Invalid home name ${homeName}. Must use only letters`, 'red');
+        }
         // Get Position & Rotation
         let position = await this.getPlayerPosition(playerName);
         let rotation = await this.getPlayerRotation(playerName);
         let world = await this.getPlayerDimension(playerName);
 
         // Saving players position and rotation for use later
-        this.createPlayerHome(playerName, position, rotation, world);
+        await this.createPlayerHome(playerName, position, rotation, world, homeName);
         this.tellPlayer(playerName, `Setting your home to [${position.join(', ')}]`);
     }
 };

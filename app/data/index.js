@@ -8,26 +8,110 @@ const Player = require('./models/player');
 const Location = require('./models/location');
 
 module.exports = Base => class extends Base {
-
-    createPlayerHome(playerName, pos, rot, world) {
+    checkPlayerRecord(playerName, uuid) {
         return new Promise((resolve, reject) => {
-            Player.updateOne(
-                { name: playerName },
-                { name: playerName, home: { pos: pos, rot: rot, world } },
-                (err, player) => {
-                    if (err) return reject(err);
+            Player.findOne({ name: playerName }, (err, player) => {
+                // If they are new to the server just create new db record for them
+                if (!player) return this.newPlayer(playerName, uuid);
+
+                // If the player has a home on their db object its not the new format so we reformat it
+                if (player.home) {
+                    player._version = 2;
+                    player.homes = {};
+                    player.homes._default = player.home;
+                    player.home = undefined;
+                    return player.save(() => {
+                        resolve(player);
+                    });
+                } else {
                     resolve(player);
-                },
-            );
+                }
+            });
+        });
+    };
+
+    newPlayer(playerName, uuid) {
+        let player = new Player({
+            id: uuid,
+            name: playerName,
+        });
+
+        player.save();
+    }
+
+    createPlayerHome(playerName, pos, rot, world, homeName = '_default') {
+        return new Promise((resolve, reject) => {
+            Player.findOne({ name: playerName }, (err, player) => {
+                if (err) return reject(err);
+
+                if (!player.homes) {
+                    player.homes = {
+                        [homeName]: { pos: pos, rot: rot, world },
+                    };
+                    return player.save((err) => {
+                        if (err) return reject(err);
+                        resolve(player);
+                    });
+                }
+                let homeEntries = Object.entries(player.toObject().homes);
+
+                if (player.homes[homeName] || homeEntries.length < 3) {
+                    player.homes = {
+                        ...player.homes,
+                        [homeName]: { pos: pos, rot: rot, world },
+                    };
+                    return player.save((err) => {
+                        if (err) return reject(err);
+                        resolve(player);
+                    });
+                }
+
+                return this.tellPlayer(playerName, 'Cannot have more than 2 extra homes', 'red');
+            });
         });
 
     }
 
-    readPlayerHome(playerName) {
+    readPlayerHome(playerName, homeName = '_default') {
         return new Promise((resolve) => {
             Player.findOne({ name: playerName }, (err, player) => {
                 if (err) return reject(err);
-                resolve(player.home);
+                if (player.homes) {
+                    resolve(player.homes[homeName]);
+                } else {
+                    resolve(null);
+                }
+            });
+        });
+    }
+
+    readPlayerHomeList(playerName) {
+        return new Promise((resolve, reject) => {
+            Player.findOne({ name: playerName }, (err, player) => {
+                if (err) return reject(err);
+                if (player.homes) {
+                    resolve(Object.entries(player.homes)
+                        .map(([key]) => key)
+                        .filter(x => x != '_default'),
+                    );
+                } else {
+                    resolve(null);
+                }
+            });
+        });
+    }
+
+    deletePlayerHome(playerName, homeName) {
+        return new Promise((resolve, reject) => {
+            Player.findOne({ name: playerName }, (err, player) => {
+                if (err) return reject(err);
+                if (!player.homes[homeName]) return resolve(false);
+                let homes = { ...player.homes };
+                delete homes[homeName];
+                player.homes = homes;
+                player.save(() => {
+                    resolve(true);
+                });
             });
         });
     }
