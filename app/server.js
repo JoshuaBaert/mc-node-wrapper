@@ -76,7 +76,6 @@ module.exports = class Server extends OtherClasses {
     log(data) {
         let text = data.toString();
         process.stdout.write(text);
-
         // listens for ! commands
         if (/<\w+>\s!/.test(text)) return this.handleCommand(text);
 
@@ -105,6 +104,8 @@ module.exports = class Server extends OtherClasses {
                 return this.handleLocation(playerName, args);
             case 'xp':
                 return this.handleXp(playerName, args);
+            case 'test':
+                return this.convertPointsToLevels(playerName, 2960);
             default:
                 // dev color helper
                 if (isDev && baseCommand.toLowerCase() === 'colors') return this.tellColors(playerName);

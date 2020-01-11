@@ -46,23 +46,19 @@ module.exports = Base => class extends Base {
         ]);;
     }
 
-    handleXpStore(playerName, args) {
+    async handleXpStore(playerName, args) {
         //did player append a number to the command?
         if (!args[0]) {
             //removing points from player
-            let read = this.readPlayerExperience(playerName)
-            let points = this.subtractPlayerExperience(playerName, read);
+            let read = await this.readPlayerExperience(playerName)
+            let points = await this.subtractPlayerExperience(playerName, read);
 
             //adding those points to their xp store
             this.updatePlayerXpStore(playerName, points)
 
             //informing player current point balance
             let readXp = await this.readPlayerXpStore(playerName);
-            this.whisperPlayerRaw(playerName, [
-                { text: `You have `, color: 'white' },
-                { text: `${readXp}`, color: 'red' },
-                { text: ` stored experience points.`, color: 'white' },
-            ]);
+            this.handleXpCheck(playerName);
 
         } else {
             //temporary
@@ -90,7 +86,7 @@ module.exports = Base => class extends Base {
         }
     }
 
-    handleXpCheck(playerName) {
+    async handleXpCheck(playerName) {
         let readXp = await this.readPlayerXpStore(playerName);
         this.whisperPlayerRaw(playerName, [
             { text: `You have `, color: 'white' },
