@@ -8,9 +8,9 @@ module.exports = Base => class extends Base {
 
         //object containing the cooldown times for the commands. new commands would need a new property added here.
         this.coodownTimes = {
-            'home': isDev ? 10 : 1000 * 60 * 15,
-            'warp': isDev ? 10 : 1000 * 60 * 15,
-            'location': isDev ? 10 : 1000 * 60 * 15,
+            'home': isDev ? 10 * 1000 : 1000 * 60 * 15,
+            'warp': isDev ? 10 * 1000 : 1000 * 60 * 15,
+            'location': isDev ? 10 * 1000 : 1000 * 60 * 15,
         };
     }
 

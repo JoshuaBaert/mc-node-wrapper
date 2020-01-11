@@ -107,8 +107,6 @@ module.exports = class Server extends OtherClasses {
                 return this.handleLocation(playerName, args);
             case 'locations':
                 return this.handleLocations(playerName, args);
-            case 'test':
-                return this.checkPlayerRecord(playerName);
             default:
                 // dev color helper
                 if (isDev && baseCommand.toLowerCase() === 'colors') return this.tellColors(playerName);
@@ -123,29 +121,6 @@ module.exports = class Server extends OtherClasses {
                 ]);
             }
         })();
-    }
-
-    tellColors(playerName) {
-        this.tellPlayerRaw(playerName, [
-            'These are all of the tellraw colors: ',
-            { 'text': 'Black', 'color': 'black' }, ', ',
-            { 'text': 'Dark Blue', 'color': 'dark_blue' }, ', ',
-            { 'text': 'Dark Green', 'color': 'dark_green' }, ', ',
-            { 'text': 'Dark Aqua', 'color': 'dark_aqua' }, ', ',
-            { 'text': 'Dark Red', 'color': 'dark_red' }, ', ',
-            { 'text': 'Dark', 'color': 'dark_purple' }, ', ',
-            { 'text': 'Purple', 'color': 'dark_purple' }, ', ',
-            { 'text': 'Gold', 'color': 'gold' }, ', ',
-            { 'text': 'Gray', 'color': 'gray' }, ', ',
-            { 'text': 'Dark Grey', 'color': 'dark_gray' }, ', ',
-            { 'text': 'Blue', 'color': 'blue' }, ', ',
-            { 'text': 'Green', 'color': 'green' }, ', ',
-            { 'text': 'Aqua', 'color': 'aqua' }, ', ',
-            { 'text': 'Red', 'color': 'dark_red' }, ', ',
-            { 'text': 'Light Purple', 'color': 'light_purple' }, ', ',
-            { 'text': 'Yellow', 'color': 'yellow' },
-            ', and White',
-        ]);
     }
 
     async handlePlayerLogin(playerName, uuid) {

@@ -15,12 +15,15 @@ module.exports = Base => class extends Base {
             'send you back home. (has 15 minute cooldown)\n\n',
             'Multiple homes you can up to 2 named homes\n',
             'ex: ',
-            { text: '!home set boo', color: 'green' },
-            ' then ',
-            { text: '!home boo\n', color: 'green' },
+            { text: '!home set ', color: 'green' },
+            { text: 'homeName ', color: 'light_purple' },
+            'then ',
+            { text: '!home ', color: 'green' },
+            { text: 'homeName\n', color: 'light_purple' },
             { text: '!home list ', color: 'green' },
             'lists your homes\n',
-            { text: '!home delete homeName ', color: 'green' },
+            { text: '!home delete ', color: 'green' },
+            { text: 'homeName ', color: 'light_purple' },
             'deletes a home from your list',
         ];
     }
@@ -53,7 +56,7 @@ module.exports = Base => class extends Base {
         if (playerHome) {
             this.writeToMine(`execute in ${playerHome.world} run tp ${playerName} ${playerHome.pos.join(' ')} ${playerHome.rot.join(' ')}`);
         } else {
-            this.tellPlayerRaw(playerName, [
+            return this.tellPlayerRaw(playerName, [
                 { text: 'Your home ', color: 'red' },
                 { text: homeName ? homeName + ' ' : '', color: 'green' },
                 `is not set yet.`,
@@ -96,6 +99,10 @@ module.exports = Base => class extends Base {
 
         // Saving players position and rotation for use later
         await this.createPlayerHome(playerName, position, rotation, world, homeName);
-        this.tellPlayer(playerName, `Setting your home to [${position.join(', ')}]`);
+        this.tellPlayerRaw(playerName, [
+            `Setting your `,
+            { text: homeName ? homeName + ' ' : '', color: 'light_purple' },
+            `home to [${position.join(', ')}]`,
+        ]);
     }
 };
