@@ -50,14 +50,13 @@ module.exports = Base => class extends Base {
         //did player append a number to the command?
         if (!args[0]) {
             //removing points from player
-            let read = await this.readPlayerExperience(playerName)
-            let points = await this.subtractPlayerExperience(playerName, read);
+            let totalPoints = await this.convertLevelsToPoints(this.readPlayerExperienceLevels(playerName), this.readPlayerExperiencePoints(playerName))
+            let points = await this.subtractPlayerExperience(playerName, totalPoints);
 
             //adding those points to their xp store
             this.updatePlayerXpStore(playerName, points)
 
             //informing player current point balance
-            let readXp = await this.readPlayerXpStore(playerName);
             this.handleXpCheck(playerName);
 
         } else {

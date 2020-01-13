@@ -44,9 +44,9 @@ module.exports = Base => class extends Base {
 
     addPlayerExperience(playerName, newExp) {
         //need to convert existing level/points into points, then add to that pointPool and convert the new total back.
-        let currentExp = convertLevelsToPoints(readPlayerExperienceLevels(playerName),readPlayerExperiencePoints(playerName));
+        let currentExp = this.convertLevelsToPoints(this.readPlayerExperienceLevels(playerName),this.readPlayerExperiencePoints(playerName));
         let totalExp = newExp + currentExp;
-        let newLevelArr = convertPointsToLevels(totalExp);
+        let newLevelArr = this.convertPointsToLevels(totalExp);
 
         //input new experience to Minecraft.
         this.writeToMine(`experience set ${playerName} ${newLevelArr[0]} levels`);
@@ -54,9 +54,9 @@ module.exports = Base => class extends Base {
     }
 
     subtractPlayerExperience(playerName, removedExp) {
-        let currentExp = convertLevelsToPoints(readPlayerExperienceLevels(playerName),readPlayerExperiencePoints(playerName));
-        let totalExp = currentExp - removedExp
-        let newLevelArr = convertPointsToLevels(totalExp);
+        let currentExp = this.convertLevelsToPoints(this.readPlayerExperienceLevels(playerName),this.readPlayerExperiencePoints(playerName));
+        let totalExp = currentExp - removedExp;
+        let newLevelArr = this.convertPointsToLevels(totalExp);
 
         //input new experience to Minecraft.
         this.writeToMine(`experience set ${playerName} ${newLevelArr[0]} levels`);
