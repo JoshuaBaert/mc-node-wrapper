@@ -9,12 +9,12 @@ module.exports = Base => class extends Base {
         return new Promise((resolve) => {
             const listenForData = (data) => {
                 let text = data.toString();
-                let regEx = new RegExp(`${playerName} has \d+ experience points`);
+                let regEx = new RegExp(`.*\\s${playerName}\\shas\\s\\d+\\sexperience\\spoints`);
 
                 if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForData);
 
-                let points = Number(text.split(' ')[4])
+                let points = parseInt(text.split(' ')[4],10);
                 resolve(points);
             };
 
@@ -28,12 +28,13 @@ module.exports = Base => class extends Base {
         return new Promise((resolve) => {
             const listenForData = (data) => {
                 let text = data.toString();
-                let regEx = new RegExp(`${playerName} has \d+ experience levels`);
+                let regEx = new RegExp(`.*\\s${playerName}\\shas\\s\\d+\\sexperience\\slevels`);
 
                 if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForData);
 
-                let levels = Number(text.split(' ')[4])
+                let levels = parseInt(text.split(' ')[4],10);
+                console.log(levels);
                 resolve(levels);
             };
 
@@ -42,9 +43,9 @@ module.exports = Base => class extends Base {
         });
     }
 
-    addPlayerExperience(playerName, newExp) {
+    async addPlayerExperience(playerName, newExp) {
         //need to convert existing level/points into points, then add to that pointPool and convert the new total back.
-        let currentExp = this.convertLevelsToPoints(this.readPlayerExperienceLevels(playerName),this.readPlayerExperiencePoints(playerName));
+        let currentExp = this.convertLevelsToPoints(await this.readPlayerExperienceLevels(playerName),await this.readPlayerExperiencePoints(playerName));
         let totalExp = newExp + currentExp;
         let newLevelArr = this.convertPointsToLevels(totalExp);
 
@@ -53,25 +54,28 @@ module.exports = Base => class extends Base {
         this.writeToMine(`experience set ${playerName} ${newLevelArr[1]} points`);
     }
 
-    subtractPlayerExperience(playerName, removedExp) {
-        let currentExp = this.convertLevelsToPoints(this.readPlayerExperienceLevels(playerName),this.readPlayerExperiencePoints(playerName));
+    async subtractPlayerExperience(playerName, removedExp) {
+        let currentExp = this.convertLevelsToPoints(await this.readPlayerExperienceLevels(playerName),await this.readPlayerExperiencePoints(playerName));
         let totalExp = currentExp - removedExp;
         let newLevelArr = this.convertPointsToLevels(totalExp);
 
         //input new experience to Minecraft.
         this.writeToMine(`experience set ${playerName} ${newLevelArr[0]} levels`);
         this.writeToMine(`experience set ${playerName} ${newLevelArr[1]} points`);
+
+        //return the number of points subtracted.
+        return removedExp;
     }
 
     convertLevelsToPoints(levels, points) {
         //There are three separate equations to determine how many experience points are required to reach a level, this if-else chain picks the right one.
         //the points a player had on top of their level count gets added and returned.
         if (levels > 31) {
-            return points + (4.5*Math.pow(level, 2) - 162.5*level + 2220);
+            return points + (4.5*Math.pow(levels, 2) - 162.5*levels + 2220);
         } else if (levels > 16 && levels <= 31) {
-            return points + (2.5*Math.pow(level, 2) - 40.5*level + 360);
-        } else if (levels > 0 && levels <= 16) {
-            return points + (Math.pow(level, 2) + 6*level);
+            return points + (2.5*Math.pow(levels, 2) - 40.5*levels + 360);
+        } else if (levels >= 0 && levels <= 16) {
+            return points + (Math.pow(levels, 2) + 6*levels);
         };
     };
 
@@ -111,13 +115,6 @@ module.exports = Base => class extends Base {
                 }
             }
         }
-
-        // this.whisperPlayerRaw(playerName, [
-        //     { text: `You have levels `, color: 'white' },
-        //     { text: `${levels}`, color: 'red' },
-        //     { text: `You have points`, color: 'white' },
-        //     { text: `${points}`, color: 'red' },
-        // ]);
 
         return [levels, points]
     }
