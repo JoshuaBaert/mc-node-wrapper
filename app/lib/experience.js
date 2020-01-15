@@ -52,6 +52,9 @@ module.exports = Base => class extends Base {
         //input new experience to Minecraft.
         this.writeToMine(`experience set ${playerName} ${newLevelArr[0]} levels`);
         this.writeToMine(`experience set ${playerName} ${newLevelArr[1]} points`);
+
+        //return the number of points added
+        return newExp;
     }
 
     async subtractPlayerExperience(playerName, removedExp) {

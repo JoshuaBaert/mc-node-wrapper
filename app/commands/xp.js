@@ -63,6 +63,7 @@ module.exports = Base => class extends Base {
 
             //if player stored 0 experience
             if (!pointsRemovedAll) pointsRemovedAll = 0;
+
             //adding those points to their xp store
             await this.updatePlayerXpStore(playerName, currentBalance + pointsRemovedAll);
 
@@ -82,9 +83,6 @@ module.exports = Base => class extends Base {
             if (convertedLevels <= totalPoints) {
                 //input less than or equal the amount of levels they have.
 
-                // //if player stored 0 experience
-                // if (!pointsRemovedPartial) pointsRemovedPartial = 0;
-
                 //removing the number of levels equal to number input as args[0]
                 let pointsRemovedPartial = await this.subtractPlayerExperience(playerName, convertedLevels);
 
@@ -98,6 +96,7 @@ module.exports = Base => class extends Base {
                     { text: ` experience points.`, color: 'white' },
                 ]);
                 await this.handleXpCheck(playerName);
+
             } else {
                 //input too many levels.
 
@@ -127,17 +126,80 @@ module.exports = Base => class extends Base {
 
     }
 
-    handleXpGet(playerName, args) {
+    async handleXpGet(playerName, args) {
+        //checking current xpStore balance
+        let currentBalance = await this.readPlayerXpStore(playerName);
+
         //did player append a number to the command?
         if (!args[0]) {
+            //restoring all points to player
+            let pointsRetrievedAll = await this.addPlayerExperience(playerName, currentBalance);
 
-        } else {
-            
+            //removing those points from their xp store
+            await this.updatePlayerXpStore(playerName, currentBalance - pointsRetrievedAll);
+
+            //informing player current point balance
+            this.whisperPlayerRaw(playerName, [
+                { text: `You have retrieved `, color: 'white' },
+                { text: `${pointsRetrievedAll}`, color: 'red' },
+                { text: ` experience points.\nYou have `, color: 'white' },
+                { text: `0`, color: 'red' },
+                { text: ` points remaining.`, color: 'white' },
+            ]);
+
+        } else if (args[0] >= 0) {
+            //converting args[0] to points
+            let convertedLevels = this.convertLevelsToPoints(parseInt(args[0]),0)
+
+            //need to handle when player inputs more levels than they have xp stored
+            if (convertedLevels <= currentBalance) {
+                //input less than or equal the xp stored.
+
+                //adding the number of levels equal to number input as args[0]
+                let pointsRetrievedPartial = await this.addPlayerExperience(playerName, convertedLevels);
+
+                //removing those points from their xp store
+                await this.updatePlayerXpStore(playerName, currentBalance - pointsRetrievedPartial);
+
+                //informing player current point balance
+                this.whisperPlayerRaw(playerName, [
+                    { text: `You have retrieved `, color: 'white' },
+                    { text: `${pointsRetrievedPartial}`, color: 'red' },
+                    { text: ` experience points.`, color: 'white' },
+                ]);
+                await this.handleXpCheck(playerName);
+
+                
+            } else {
+                //input too many levels.
+
+                //just retrieving all thier xp.
+                let pointsRetrievedInsufficient = await this.addPlayerExperience(playerName, currentBalance);
+
+                //removing those points from their xp store
+                await this.updatePlayerXpStore(playerName, currentBalance - pointsRetrievedInsufficient);
+
+                //informing player current point balance
+                this.whisperPlayerRaw(playerName, [
+                    { text: `You don't have enough stored experience points.\nRetrieving `, color: 'white' },
+                    { text: `${pointsRetrievedInsufficient}`, color: 'red' },
+                    { text: ` experience points instead.`, color: 'white' },
+                ]);
+                await this.handleXpCheck(playerName);
+            }
+
+        }else {
+              //They got here because they messed up
+              this.whisperPlayerRaw(playerName, [
+                { text: `Must input a positive number.\n`, color: 'red' },
+                { text: `!xp get 5`, color: 'green' },
+                { text: ` would retrieve 5 levels of experience.`, color: 'red' },
+            ]);
         }
 
     }
 
-    handleXpGive(playerName, args) {
+    async handleXpGive(playerName, args) {
         if (!args[0]) {
 
         } else {
