@@ -1,7 +1,7 @@
 module.exports = Base => class extends Base {
     constructor() {
         super();
-        
+        this.giveOffers = {};
     }
 
     handleXp(playerName, args) {
@@ -47,6 +47,7 @@ module.exports = Base => class extends Base {
     }
 
     async handleXpStore(playerName, args) {
+        debugger
         //what is the total number of experience points a player has?
         let playerLevels = await this.readPlayerExperienceLevels(playerName);
         let playerPoints = await this.readPlayerExperiencePoints(playerName);        
@@ -54,6 +55,8 @@ module.exports = Base => class extends Base {
 
         //checking current xpStore balance
         let currentBalance = await this.readPlayerXpStore(playerName);
+        console.log(currentBalance)
+        if (currentBalance == undefined) currentBalance = 0;
         
         //did player append a number to the command?
         if (!args[0]) {
@@ -124,11 +127,12 @@ module.exports = Base => class extends Base {
             ]);
         }
 
-    }
+    };
 
     async handleXpGet(playerName, args) {
         //checking current xpStore balance
         let currentBalance = await this.readPlayerXpStore(playerName);
+        if (currentBalance == NaN) currentBalance = 0;
 
         //did player append a number to the command?
         if (!args[0]) {
@@ -200,16 +204,138 @@ module.exports = Base => class extends Base {
     }
 
     async handleXpGive(playerName, args) {
-        if (!args[0]) {
+        let loggedInPlayers = await this.getListOfOnlinePlayers();
 
+        if (args[0] && args[0].toLowerCase() === 'accept') {
+            this.handleXpGiveAccept(playerName);
+        } else if (loggedInPlayers.indexOf(args[0]) !== -1) {
+            // If the first word is a players name then offer stored experience
+
+            let currentBalanceOffering = await this.readPlayerXpStore(playerName);
+            if (currentBalanceOffering == NaN) currentBalanceOffering = 0;
+            // let currentBalanceRecieving = await this.readPlayerXpStore(args[0]);
+
+            if (!args[1]) {
+                //no specified amount offered, this will offer the entire amount stored.
+                this.whisperPlayerRaw(playerName, [
+                    { text: `Offered `, color: 'white' },
+                    { text: `${currentBalanceOffering}`, color: 'red' },
+                    { text: ` stored experience points to `, color: 'white' },
+                    { text: `${args[0]}.`, color: 'green' },
+                ]);
+    
+                this.whisperPlayerRaw(args[0], [
+                    { text: `${playerName} is offering you `, color: 'white' },
+                    { text: `${currentBalanceOffering}`, color: 'red' },
+                    { text: ` stored experience points.\nType `, color: 'white' },
+                    { text: `!xp give accept`, color: 'green' },
+                    { text: ` to accept`, color: 'white' },
+                ]);
+
+                this.giveOffers[args[0]] = [playerName,currentBalanceOffering];
+            } else if (args[1] >= 0){
+                //offered amount must be a positive number.
+
+                if (args[1] <= currentBalanceOffering){
+                    this.whisperPlayerRaw(playerName, [
+                        { text: `Offered `, color: 'white' },
+                        { text: `${args[1]}`, color: 'red' },
+                        { text: ` stored experience points to `, color: 'white' },
+                        { text: `${args[0]}.`, color: 'green' },
+                    ]);
+        
+                    this.whisperPlayerRaw(args[0], [
+                        { text: `${playerName} is offering you `, color: 'white' },
+                        { text: `${args[1]}`, color: 'red' },
+                        { text: ` stored experience points.\nType `, color: 'white' },
+                        { text: `!xp give accept`, color: 'green' },
+                        { text: ` to accept`, color: 'white' },
+                    ]);
+    
+                    this.giveOffers[args[0]] = [playerName,args[1]];
+                } else {
+                    //They don't have enough stored xp for offered amount. will offer entire amount stored.
+                    this.whisperPlayerRaw(playerName, [
+                        { text: `You don't have enough Experience points stored. Offered `, color: 'white' },
+                        { text: `${currentBalanceOffering}`, color: 'red' },
+                        { text: ` points to `, color: 'white' },
+                        { text: `${args[0]}.`, color: 'green' },
+                        { text: `instead.`, color: 'white' },
+                    ]);
+        
+                    this.whisperPlayerRaw(args[0], [
+                        { text: `${playerName} is offering you `, color: 'white' },
+                        { text: `${currentBalanceOffering}`, color: 'red' },
+                        { text: ` stored experience points.\nType `, color: 'white' },
+                        { text: `!xp give accept`, color: 'green' },
+                        { text: ` to accept`, color: 'white' },
+                    ]);
+    
+                    this.giveOffers[args[0]] = [playerName,currentBalanceOffering];
+
+
+                }
+                
+            } else {
+                 //They got here because they messed up
+              this.whisperPlayerRaw(playerName, [
+                { text: `Must input a positive number.\n`, color: 'red' },
+                { text: `!xp give playerName 500`, color: 'green' },
+                { text: ` would gift 500 experience points to that player.`, color: 'red' },
+            ]);
+            }
+            
         } else {
-           
-            //[20:17:45 INFO]: [Gobsmack90: Gave 5 experience levels to Gobsmack90]
+            // they got here because they messed up
+            if (!args[0]) {
+                this.whisperPlayer(playerName, 'You need to target a player.', 'red');
+                
+            } else {
+                this.whisperPlayerRaw(playerName, [
+                    { text: `Player `, color: 'white' },
+                    { text: `${args[0]}`, color: 'aqua' },
+                    { text: ` is not logged in. \nDid you mean to type `, color: 'white' },
+                    { text: `!xp give accept`, color: 'green' },
+                    { text: `?`, color: 'white' },
+                ]);
+            }
         }
+    }
+
+    async handleXpGiveAccept(playerName) {
+        // if it is accept see if there is a player that offered xp
+        // then if there is send corrent amount of xp to the accepting player
+        console.log(this.giveOffers[playerName])
+        if (this.giveOffers[playerName] == undefined) {
+            this.whisperPlayer(playerName, `No pending experience point offers.`, 'red');
+        } else {
+            let offeringPlayer = this.giveOffers[playerName][0];
+        
+            let currentBalanceOffering = await this.readPlayerXpStore(offeringPlayer);
+            if (currentBalanceOffering == NaN) currentBalanceOffering = 0;
+
+            if (offeringPlayer) {
+                //add points to recieving player
+                await this.addPlayerExperience(playerName, this.giveOffers[playerName][1]);
+                //removing those points from offering player xp store
+                await this.updatePlayerXpStore(offeringPlayer, currentBalanceOffering - this.giveOffers[playerName][1]);
+
+                this.handleXpCheck(offeringPlayer);
+                this.whisperPlayer(offeringPlayer, 'Offer accepted');
+
+                this.whisperPlayer(playerName, 'Offer accepted');
+                this.giveOffers[playerName] = null;
+
+            } else {
+                this.whisperPlayer(playerName, `No pending experience point offers.`, 'red');
+            }
+        }
+        
     }
 
     async handleXpCheck(playerName) {
         let readXp = await this.readPlayerXpStore(playerName);
+        if (readXp == NaN) readXp = 0;
         let levelsStored = this.convertPointsToLevels(readXp)[0];
         let pointsStored = this.convertPointsToLevels(readXp)[1];
         this.whisperPlayerRaw(playerName, [
@@ -223,30 +349,3 @@ module.exports = Base => class extends Base {
         ]);
     }
 }
-
-/*
-!xp store
-set var points to current player points
-store var points to database
-write-to-mine that player's new xp points is current player points - var points (should be 0)
-
-!xp store #
-set var points to #
-store var points to database
-write-to-mine that player's new xp points is current player points - var points
-
-!xp get
-set var points to database
-set database to 0
-write-to-mine that player's new xp points is current player points + var points
-
-!xp get #
-check # <= database
-set var points to #
-set database to database - #
-write-to-mine that player's new xp points is current player points + var points
-
-!xp check
-set var points to database
-whisperPlayerRaw message: You have points XP points stored.
-*/
