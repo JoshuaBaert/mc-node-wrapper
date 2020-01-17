@@ -3,7 +3,7 @@ module.exports = Base => class extends Base {
         super();
         this.giveOffers = {};
         this.helpShortDescription.xp = [
-            'A suite of commands that allow you to store Experience in the server and trade that experience with other players. ex: ',
+            'Store, retrieve and trade experience points in the server. ex: ',
             { text: '!xp store ', color: 'green' },
         ];
 
@@ -32,20 +32,20 @@ module.exports = Base => class extends Base {
     }
 
     handleXp(playerName, args) {
-    //choose a function based on the args.   
+        //choose a function based on the args.   
         if (!args[0]) {
             return this.handleWrongInput(playerName);
         } else {
             (() => {
                 switch (args[0].toLowerCase()) {
                 case 'store':
-                    return this.handleXpStore(playerName, args.slice(1));
+                    return this.handleXpStore(playerName, args[1]);
                 case 'get':
-                    return this.handleXpGet(playerName, args.slice(1));
+                    return this.handleXpGet(playerName, args[1]);
                 case 'give':
-                    return this.handleXpGive(playerName, args.slice(1));
+                    return this.handleXpGive(playerName, args[1], args[2]);
                 case 'check':
-                    return this.handleXpCheck(playerName, args.slice(1));
+                    return this.handleXpCheck(playerName, args[1]);
                 default:
                     return this.handleWrongInput(playerName);             
                 }
@@ -60,18 +60,18 @@ module.exports = Base => class extends Base {
         ]);;
     }
 
-    async handleXpStore(playerName, args) {
+    async handleXpStore(playerName, storeAmount) {
         //what is the total number of experience points a player has?
-        let playerLevels = await this.readPlayerExperienceLevels(playerName);
-        let playerPoints = await this.readPlayerExperiencePoints(playerName);        
+        let playerLevels = await this.getPlayerExperienceLevels(playerName);
+        let playerPoints = await this.getPlayerExperiencePoints(playerName);        
         let totalPoints = this.convertLevelsToPoints(playerLevels, playerPoints);
 
         //checking current xpStore balance
         let currentBalance = await this.readPlayerXpStore(playerName);
-        if (currentBalance == undefined) currentBalance = 0;
+        if (currentBalance === undefined) currentBalance = 0;
         
         //did player append a number to the command?
-        if (!args[0]) {
+        if (!storeAmount) {
             //removing points from player
             let pointsRemovedAll = await this.subtractPlayerExperience(playerName, totalPoints);
 
@@ -88,20 +88,26 @@ module.exports = Base => class extends Base {
                 { text: `${pointsRemovedAll}`, color: 'red' },
                 { text: ` experience points.`, color: 'white' },
             ]);
-            await this.simpleCheck(playerName);
+            await this.simpleXpCheck(playerName);
 
         } else {
-            //make args[0] an integer
-            let argsInt = parseInt(args[0], 10);
+             //make storeAmount an integer
+             let storeAmountInt = () => {
+                if (typeof parseInt(storeAmount, 10) === 'number') {
+                     return parseInt(storeAmount, 10)
+                } else {
+                     return -1;
+                }
+            };
 
-            if (argsInt >= 0){
+            if (storeAmountInt() >= 0){
 
                 //need to handle when player inputs more experience points than they have
-                if (argsInt <= totalPoints) {
+                if (storeAmountInt() <= totalPoints) {
                     //input less than or equal their total xp.
 
                     //removing the experience points
-                    let pointsRemovedPartial = await this.subtractPlayerExperience(playerName, argsInt);
+                    let pointsRemovedPartial = await this.subtractPlayerExperience(playerName, storeAmountInt());
 
                     //adding those points to their xp store
                     await this.updatePlayerXpStore(playerName, currentBalance + pointsRemovedPartial);
@@ -112,7 +118,7 @@ module.exports = Base => class extends Base {
                         { text: `${pointsRemovedPartial}`, color: 'red' },
                         { text: ` experience points.`, color: 'white' },
                     ]);
-                    await this.simpleCheck(playerName);
+                    await this.simpleXpCheck(playerName);
 
                 } else {
                     //input too many levels.
@@ -129,7 +135,7 @@ module.exports = Base => class extends Base {
                         { text: `${pointsRemovedInsufficient}`, color: 'red' },
                         { text: ` experience points instead.`, color: 'white' },
                     ]);
-                    await this.simpleCheck(playerName);
+                    await this.simpleXpCheck(playerName);
                 }
                 
             } else {
@@ -144,13 +150,13 @@ module.exports = Base => class extends Base {
 
     };
 
-    async handleXpGet(playerName, args) {
+    async handleXpGet(playerName, getAmount) {
         //checking current xpStore balance
         let currentBalance = await this.readPlayerXpStore(playerName);
-        if (currentBalance == undefined) currentBalance = 0;
+        if (currentBalance === undefined) currentBalance = 0;
 
         //did player append a number to the command?
-        if (!args[0]) {
+        if (!getAmount) {
             //restoring all points to player
             let pointsRetrievedAll = await this.addPlayerExperience(playerName, currentBalance);
 
@@ -167,16 +173,22 @@ module.exports = Base => class extends Base {
             ]);
 
         } else {
-            //make args[0] an integer
-            let argsInt = parseInt(args[0], 10);
+            //make getAmount an integer
+            let getAmountInt = () => {
+                if (typeof parseInt(getAmount, 10) === 'number') {
+                    return parseInt(getAmount, 10)
+                } else {
+                    return -1;
+                }
+            };
             
-            if (argsInt >= 0) {
+            if (getAmountInt() >= 0) {
                 //need to handle when player inputs more xp than they have xp stored
-                if (argsInt <= currentBalance) {
+                if (getAmountInt() <= currentBalance) {
                     //input less than or equal the xp stored.
 
-                    //adding the xp equal to number input as argsInt
-                    let pointsRetrievedPartial = await this.addPlayerExperience(playerName, argsInt);
+                    //adding the xp equal to number input as getAmountInt
+                    let pointsRetrievedPartial = await this.addPlayerExperience(playerName, getAmountInt());
 
                     //removing those points from their xp store
                     await this.updatePlayerXpStore(playerName, currentBalance - pointsRetrievedPartial);
@@ -187,7 +199,7 @@ module.exports = Base => class extends Base {
                         { text: `${pointsRetrievedPartial}`, color: 'red' },
                         { text: ` experience points.`, color: 'white' },
                     ]);
-                    await this.simpleCheck(playerName);
+                    await this.simpleXpCheck(playerName);
 
                     
                 } else {
@@ -205,7 +217,7 @@ module.exports = Base => class extends Base {
                         { text: `${pointsRetrievedInsufficient}`, color: 'red' },
                         { text: ` experience points instead.`, color: 'white' },
                     ]);
-                    await this.simpleCheck(playerName);
+                    await this.simpleXpCheck(playerName);
                 }
 
             } else {
@@ -219,27 +231,27 @@ module.exports = Base => class extends Base {
         }
     }
 
-    async handleXpGive(playerName, args) {
+    async handleXpGive(playerName, recieving, giftAmount) {
         let loggedInPlayers = await this.getListOfOnlinePlayers();
 
-        if (args[0] && args[0].toLowerCase() === 'accept') {
-            this.handleXpGiveAccept(playerName);
-        } else if (loggedInPlayers.indexOf(args[0]) !== -1) {
+        if (recieving && recieving.toLowerCase() === 'accept') this.handleXpGiveAccept(playerName);
+
+        if (loggedInPlayers.indexOf(recieving) !== -1) {
             // If the first word is a players name then offer stored experience
 
             let currentBalance = await this.readPlayerXpStore(playerName);
-            if (currentBalance == undefined) currentBalance = 0;
+            if (currentBalance === undefined) currentBalance = 0;
 
-            if (!args[1]) {
+            if (!giftAmount) {
                 //no specified amount offered, this will offer the entire amount stored.
                 this.tellPlayerRaw(playerName, [
                     { text: `Offered `, color: 'white' },
                     { text: `${currentBalance}`, color: 'red' },
                     { text: ` stored experience points to `, color: 'white' },
-                    { text: `${args[0]}.`, color: 'green' },
+                    { text: `${recieving}.`, color: 'green' },
                 ]);
     
-                this.tellPlayerRaw(args[0], [
+                this.tellPlayerRaw(recieving, [
                     { text: `${playerName} is offering you `, color: 'white' },
                     { text: `${currentBalance}`, color: 'red' },
                     { text: ` stored experience points.\nType `, color: 'white' },
@@ -247,42 +259,48 @@ module.exports = Base => class extends Base {
                     { text: ` to accept`, color: 'white' },
                 ]);
 
-                this.giveOffers[args[0]] = [playerName,currentBalance];
+                this.giveOffers[recieving] = [playerName,currentBalance];
             } else {
-                //make args[1] an integer
-                let argsInt = parseInt(args[1], 10);
+                //make giftAmount an integer
+                let giftAmountInt = () => {
+                    if (typeof parseInt(giftAmount, 10) === 'number') {
+                        return parseInt(giftAmount, 10)
+                    } else {
+                        return -1;
+                    }
+                };
 
-                if (argsInt >= 0){
+                if (giftAmountInt() >= 0){
                     //offered amount must be a positive number.
 
-                    if (argsInt <= currentBalance){
+                    if (giftAmountInt() <= currentBalance){
                         this.tellPlayerRaw(playerName, [
                             { text: `Offered `, color: 'white' },
-                            { text: `${argsInt}`, color: 'red' },
+                            { text: `${giftAmountInt()}`, color: 'red' },
                             { text: ` stored experience points to `, color: 'white' },
-                            { text: `${args[0]}.`, color: 'green' },
+                            { text: `${recieving}.`, color: 'green' },
                         ]);
             
-                        this.tellPlayerRaw(args[0], [
+                        this.tellPlayerRaw(recieving, [
                             { text: `${playerName} is offering you `, color: 'white' },
-                            { text: `${argsInt}`, color: 'red' },
+                            { text: `${giftAmountInt()}`, color: 'red' },
                             { text: ` stored experience points.\nType `, color: 'white' },
                             { text: `!xp give accept`, color: 'green' },
                             { text: ` to accept`, color: 'white' },
                         ]);
         
-                        this.giveOffers[args[0]] = [playerName,argsInt];
+                        this.giveOffers[recieving] = [playerName, giftAmountInt()];
                     } else {
                         //They don't have enough stored xp for offered amount. will offer entire amount stored.
                         this.tellPlayerRaw(playerName, [
                             { text: `You don't have enough Experience points stored. Offered `, color: 'white' },
                             { text: `${currentBalance}`, color: 'red' },
                             { text: ` points to `, color: 'white' },
-                            { text: `${args[0]}.`, color: 'green' },
+                            { text: `${recieving}.`, color: 'green' },
                             { text: `instead.`, color: 'white' },
                         ]);
             
-                        this.tellPlayerRaw(args[0], [
+                        this.tellPlayerRaw(recieving, [
                             { text: `${playerName} is offering you `, color: 'white' },
                             { text: `${currentBalance}`, color: 'red' },
                             { text: ` stored experience points.\nType `, color: 'white' },
@@ -290,7 +308,7 @@ module.exports = Base => class extends Base {
                             { text: ` to accept`, color: 'white' },
                         ]);
         
-                        this.giveOffers[args[0]] = [playerName,currentBalance];
+                        this.giveOffers[recieving] = [playerName,currentBalance];
                     }
                     
                 } else {
@@ -305,13 +323,13 @@ module.exports = Base => class extends Base {
             
         } else {
             // they got here because they messed up
-            if (!args[0]) {
+            if (!recieving) {
                 this.tellPlayer(playerName, 'You need to target a player.', 'red');
                 
             } else {
                 this.tellPlayerRaw(playerName, [
                     { text: `Player `, color: 'white' },
-                    { text: `${args[0]}`, color: 'aqua' },
+                    { text: `${recieving}`, color: 'aqua' },
                     { text: ` is not logged in. \nDid you mean to type `, color: 'white' },
                     { text: `!xp give accept`, color: 'green' },
                     { text: `?`, color: 'white' },
@@ -323,14 +341,13 @@ module.exports = Base => class extends Base {
     async handleXpGiveAccept(playerName) {
         // if it is accept see if there is a player that offered xp
         // then if there is send corrent amount of xp to the accepting player
-        console.log(this.giveOffers[playerName])
-        if (this.giveOffers[playerName] == undefined) {
+        if (this.giveOffers[playerName] === undefined) {
             this.tellPlayer(playerName, `No pending experience point offers.`, 'red');
         } else {
             let offeringPlayer = this.giveOffers[playerName][0];
         
             let currentBalance = await this.readPlayerXpStore(offeringPlayer);
-            if (currentBalance == undefined) currentBalance = 0;
+            if (currentBalance === undefined) currentBalance = 0;
 
             if (offeringPlayer) {
                 //add points to recieving player
@@ -338,7 +355,7 @@ module.exports = Base => class extends Base {
                 //removing those points from offering player xp store
                 await this.updatePlayerXpStore(offeringPlayer, currentBalance - this.giveOffers[playerName][1]);
 
-                this.simpleCheck(offeringPlayer);
+                this.simpleXpCheck(offeringPlayer);
                 this.tellPlayer(offeringPlayer, 'Offer accepted');
 
                 this.tellPlayer(playerName, 'Offer accepted');
@@ -351,18 +368,18 @@ module.exports = Base => class extends Base {
         
     }
 
-    async handleXpCheck(playerName, args) {
-        let playerLevels = await this.readPlayerExperienceLevels(playerName);
-        let playerPoints = await this.readPlayerExperiencePoints(playerName);        
+    async handleXpCheck(playerName, checkAmount) {
+        let playerLevels = await this.getPlayerExperienceLevels(playerName);
+        let playerPoints = await this.getPlayerExperiencePoints(playerName);        
         let totalPoints = this.convertLevelsToPoints(playerLevels, playerPoints);
 
         let currentBalance = await this.readPlayerXpStore(playerName);
-        if (currentBalance == undefined) currentBalance = 0;
+        if (currentBalance === undefined) currentBalance = 0;
 
         let levelsStored = this.convertPointsToLevels(currentBalance)[0];
         let pointsStored = this.convertPointsToLevels(currentBalance)[1];
 
-        if (!args[0]) {
+        if (!checkAmount) {
             this.tellPlayerRaw(playerName, [
                 { text: `You have `, color: 'white' },
                 { text: `${currentBalance}`, color: 'red' },
@@ -374,36 +391,42 @@ module.exports = Base => class extends Base {
             ]);
 
         } else {
-             //make args[1] an integer
-             let argsInt = parseInt(args[0], 10);
+             //make checkAmount an integer
+             let checkAmountInt = () => {
+                if (typeof parseInt(checkAmount, 10) === 'number') {
+                     return parseInt(checkAmount, 10)
+                } else {
+                     return -1;
+                }
+            };
 
-            if (argsInt < playerLevels && argsInt >= 0) {
+            if (checkAmountInt() < playerLevels && checkAmountInt() >= 0) {
                 //this argument will tell the player how many points they would need to store to get down to that level
-                let pointsNeededToStore = totalPoints - this.convertLevelsToPoints(argsInt, 0);
+                let pointsNeededToStore = totalPoints - this.convertLevelsToPoints(checkAmountInt(), 0);
 
                 this.tellPlayerRaw(playerName, [
                     { text: `If you expend `, color: 'white' },
                     { text: `${pointsNeededToStore}`, color: 'red' },
                     { text: ` experience points, You'll have `, color: 'white' },
-                    { text: `${argsInt}`, color: 'red' },
+                    { text: `${checkAmountInt()}`, color: 'red' },
                     { text: ` levels.`, color: 'white' },
                 ]);
 
-            } else if (argsInt > playerLevels) {
+            } else if (checkAmountInt() > playerLevels) {
                 //this argument will tell the player how many points they need to get to that level
-                let pointsNeededToGet = this.convertLevelsToPoints(argsInt, 0) - totalPoints;
+                let pointsNeededToGet = this.convertLevelsToPoints(checkAmountInt(), 0) - totalPoints;
 
                 this.tellPlayerRaw(playerName, [
                     { text: `If you gain `, color: 'white' },
                     { text: `${pointsNeededToGet}`, color: 'red' },
                     { text: ` experience points, You'll have `, color: 'white' },
-                    { text: `${argsInt}`, color: 'red' },
+                    { text: `${checkAmountInt()}`, color: 'red' },
                     { text: ` levels.`, color: 'white' },
                 ]);
 
-            } else if (argsInt == playerLevels) {
+            } else if (checkAmountInt() === playerLevels) {
                 //this argument tells how many total points it takes to reach their current level
-                let pointsNeededForCurrentLevel = this.convertLevelsToPoints(argsInt,0);
+                let pointsNeededForCurrentLevel = this.convertLevelsToPoints(checkAmountInt(),0);
 
                 this.tellPlayerRaw(playerName, [
                     { text: `It took `, color: 'white' },
@@ -423,9 +446,9 @@ module.exports = Base => class extends Base {
         
     }
 
-    async simpleCheck(playerName) {
+    async simpleXpCheck(playerName) {
         let currentBalance = await this.readPlayerXpStore(playerName);
-        if (currentBalance == undefined) currentBalance = 0;
+        if (currentBalance === undefined) currentBalance = 0;
 
         let levelsStored = this.convertPointsToLevels(currentBalance)[0];
         let pointsStored = this.convertPointsToLevels(currentBalance)[1];

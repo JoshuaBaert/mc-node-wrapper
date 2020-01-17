@@ -4,8 +4,8 @@ module.exports = Base => class extends Base {
         super();
     }
 
-    //minecraft seperates levels and points you need to get both.
-    readPlayerExperiencePoints(playerName) {
+    //minecraft separates levels and points you need to get both.
+    getPlayerExperiencePoints(playerName) {
         return new Promise((resolve) => {
             const listenForData = (data) => {
                 let text = data.toString();
@@ -23,8 +23,8 @@ module.exports = Base => class extends Base {
         });
     }
 
-    //minecraft seperates levels and points you need to get both.
-    readPlayerExperienceLevels(playerName) {
+    //minecraft separates levels and points you need to get both.
+    getPlayerExperienceLevels(playerName) {
         return new Promise((resolve) => {
             const listenForData = (data) => {
                 let text = data.toString();
@@ -45,7 +45,7 @@ module.exports = Base => class extends Base {
 
     async addPlayerExperience(playerName, newExp) {
         //need to convert existing level/points into points, then add to that pointPool and convert the new total back.
-        let currentExp = this.convertLevelsToPoints(await this.readPlayerExperienceLevels(playerName),await this.readPlayerExperiencePoints(playerName));
+        let currentExp = this.convertLevelsToPoints(await this.getPlayerExperienceLevels(playerName),await this.getPlayerExperiencePoints(playerName));
         let totalExp = parseInt(newExp,10) + parseInt(currentExp,10);
         let newLevelArr = this.convertPointsToLevels(totalExp);
 
@@ -58,7 +58,7 @@ module.exports = Base => class extends Base {
     }
 
     async subtractPlayerExperience(playerName, removedExp) {
-        let currentExp = this.convertLevelsToPoints(await this.readPlayerExperienceLevels(playerName),await this.readPlayerExperiencePoints(playerName));
+        let currentExp = this.convertLevelsToPoints(await this.getPlayerExperienceLevels(playerName),await this.getPlayerExperiencePoints(playerName));
         let totalExp = parseInt(currentExp,10) - parseInt(removedExp,10);
         let newLevelArr = this.convertPointsToLevels(totalExp);
 
