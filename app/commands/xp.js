@@ -2,6 +2,33 @@ module.exports = Base => class extends Base {
     constructor() {
         super();
         this.giveOffers = {};
+        this.helpShortDescription.xp = [
+            'A suite of commands that allow you to store Experience in the server and trade that experience with other players. ex: ',
+            { text: '!xp store ', color: 'green' },
+        ];
+
+
+        this.helpFullDescription.xp = [
+            { text: '', color: 'white' },
+            { text: '!xp store ', color: 'green' },
+            'store all experience.\n',
+            { text: '!xp get ', color: 'green' },
+            'retrieve all stored experience.\n',
+            { text: '!xp give ', color: 'green' },
+            { text: 'PlayerName ', color: 'aqua' },
+            'offers all stored experience to another player.\n',
+            { text: '!xp check ', color: 'green' },
+            'see stored experience.\n\n',
+            'store, get, and gift partial amounts of experience.\n',
+            'ex: ',
+            { text: '!xp get ', color: 'green' },
+            { text: '300 ', color: 'light_purple' },
+            'will retrieve 300 experience points.\n',
+            'how many experience points needed to reach a level.\n',
+            'ex: ',
+            { text: '!xp check ', color: 'green' },
+            { text: '30 ', color: 'light_purple' },          
+        ];
     }
 
     handleXp(playerName, args) {
@@ -28,23 +55,8 @@ module.exports = Base => class extends Base {
 
     handleWrongInput(playerName) {
         //they got here by typing the wrong thing, will list the things they can type.
-        return this.whisperPlayerRaw(playerName, [
-            { text: `To store all experience, type `, color: 'white' },
-            { text: `!xp store`, color: 'green' },
-            { text: `.\nTo retrieve all stored experience, type `, color: 'white' },
-            { text: `!xp get`, color: 'green' },
-            { text: `.\nTo gift your stored experience to another player, type `, color: 'white' },
-            { text: `!xp give `, color: 'green' },
-            { text: `PlayerName`, color: 'aqua' },
-            { text: `.\nYou can also gift, store and retieve partial amounts of experience by appending a `, color: 'white' },
-            { text: `number`, color: 'red' },
-            { text: ` to the command.\nEG: `, color: 'white' },
-            { text: `!xp get 300`, color: 'green' },
-            { text: ` will retrieve 300 experience points.\nFinally, you may type `, color: 'white' },
-            { text: `!xp check`, color: 'green' },
-            { text: ` to to see your stored experience. Append a number to see how many experience points you need to reach a level.\nEG:`, color: 'white' },
-            { text: `!xp check 30`, color: 'green' },
-
+        return this.tellPlayerRaw(playerName, [
+            { text: `Not a command. type !help xp for a list of commands. `, color: 'white' },
         ]);;
     }
 
@@ -71,7 +83,7 @@ module.exports = Base => class extends Base {
             await this.updatePlayerXpStore(playerName, currentBalance + pointsRemovedAll);
 
             //informing player current point balance
-            this.whisperPlayerRaw(playerName, [
+            this.tellPlayerRaw(playerName, [
                 { text: `You have stored `, color: 'white' },
                 { text: `${pointsRemovedAll}`, color: 'red' },
                 { text: ` experience points.`, color: 'white' },
@@ -95,7 +107,7 @@ module.exports = Base => class extends Base {
                     await this.updatePlayerXpStore(playerName, currentBalance + pointsRemovedPartial);
 
                     //informing player current point balance
-                    this.whisperPlayerRaw(playerName, [
+                    this.tellPlayerRaw(playerName, [
                         { text: `You have stored `, color: 'white' },
                         { text: `${pointsRemovedPartial}`, color: 'red' },
                         { text: ` experience points.`, color: 'white' },
@@ -112,7 +124,7 @@ module.exports = Base => class extends Base {
                     await this.updatePlayerXpStore(playerName, currentBalance + pointsRemovedInsufficient);
 
                     //informing player current point balance
-                    this.whisperPlayerRaw(playerName, [
+                    this.tellPlayerRaw(playerName, [
                         { text: `Not enough experience points.\nStoring `, color: 'white' },
                         { text: `${pointsRemovedInsufficient}`, color: 'red' },
                         { text: ` experience points instead.`, color: 'white' },
@@ -122,7 +134,7 @@ module.exports = Base => class extends Base {
                 
             } else {
                 //They got here because they messed up
-                this.whisperPlayerRaw(playerName, [
+                this.tellPlayerRaw(playerName, [
                     { text: `Must input a positive number.\n`, color: 'red' },
                     { text: `!xp store 50`, color: 'green' },
                     { text: ` to store 50 experience points.`, color: 'red' },
@@ -146,7 +158,7 @@ module.exports = Base => class extends Base {
             await this.updatePlayerXpStore(playerName, currentBalance - pointsRetrievedAll);
 
             //informing player current point balance
-            this.whisperPlayerRaw(playerName, [
+            this.tellPlayerRaw(playerName, [
                 { text: `You have retrieved `, color: 'white' },
                 { text: `${pointsRetrievedAll}`, color: 'red' },
                 { text: ` experience points.\nYou have `, color: 'white' },
@@ -170,7 +182,7 @@ module.exports = Base => class extends Base {
                     await this.updatePlayerXpStore(playerName, currentBalance - pointsRetrievedPartial);
 
                     //informing player current point balance
-                    this.whisperPlayerRaw(playerName, [
+                    this.tellPlayerRaw(playerName, [
                         { text: `You have retrieved `, color: 'white' },
                         { text: `${pointsRetrievedPartial}`, color: 'red' },
                         { text: ` experience points.`, color: 'white' },
@@ -188,7 +200,7 @@ module.exports = Base => class extends Base {
                     await this.updatePlayerXpStore(playerName, currentBalance - pointsRetrievedInsufficient);
 
                     //informing player current point balance
-                    this.whisperPlayerRaw(playerName, [
+                    this.tellPlayerRaw(playerName, [
                         { text: `Not enough stored experience points.\nRetrieving `, color: 'white' },
                         { text: `${pointsRetrievedInsufficient}`, color: 'red' },
                         { text: ` experience points instead.`, color: 'white' },
@@ -198,7 +210,7 @@ module.exports = Base => class extends Base {
 
             } else {
                 //They got here because they messed up
-                this.whisperPlayerRaw(playerName, [
+                this.tellPlayerRaw(playerName, [
                     { text: `Must input a positive number.\n`, color: 'red' },
                     { text: `!xp get 50`, color: 'green' },
                     { text: ` would retrieve 50 experience points.`, color: 'red' },
@@ -220,14 +232,14 @@ module.exports = Base => class extends Base {
 
             if (!args[1]) {
                 //no specified amount offered, this will offer the entire amount stored.
-                this.whisperPlayerRaw(playerName, [
+                this.tellPlayerRaw(playerName, [
                     { text: `Offered `, color: 'white' },
                     { text: `${currentBalance}`, color: 'red' },
                     { text: ` stored experience points to `, color: 'white' },
                     { text: `${args[0]}.`, color: 'green' },
                 ]);
     
-                this.whisperPlayerRaw(args[0], [
+                this.tellPlayerRaw(args[0], [
                     { text: `${playerName} is offering you `, color: 'white' },
                     { text: `${currentBalance}`, color: 'red' },
                     { text: ` stored experience points.\nType `, color: 'white' },
@@ -244,14 +256,14 @@ module.exports = Base => class extends Base {
                     //offered amount must be a positive number.
 
                     if (argsInt <= currentBalance){
-                        this.whisperPlayerRaw(playerName, [
+                        this.tellPlayerRaw(playerName, [
                             { text: `Offered `, color: 'white' },
                             { text: `${argsInt}`, color: 'red' },
                             { text: ` stored experience points to `, color: 'white' },
                             { text: `${args[0]}.`, color: 'green' },
                         ]);
             
-                        this.whisperPlayerRaw(args[0], [
+                        this.tellPlayerRaw(args[0], [
                             { text: `${playerName} is offering you `, color: 'white' },
                             { text: `${argsInt}`, color: 'red' },
                             { text: ` stored experience points.\nType `, color: 'white' },
@@ -262,7 +274,7 @@ module.exports = Base => class extends Base {
                         this.giveOffers[args[0]] = [playerName,argsInt];
                     } else {
                         //They don't have enough stored xp for offered amount. will offer entire amount stored.
-                        this.whisperPlayerRaw(playerName, [
+                        this.tellPlayerRaw(playerName, [
                             { text: `You don't have enough Experience points stored. Offered `, color: 'white' },
                             { text: `${currentBalance}`, color: 'red' },
                             { text: ` points to `, color: 'white' },
@@ -270,7 +282,7 @@ module.exports = Base => class extends Base {
                             { text: `instead.`, color: 'white' },
                         ]);
             
-                        this.whisperPlayerRaw(args[0], [
+                        this.tellPlayerRaw(args[0], [
                             { text: `${playerName} is offering you `, color: 'white' },
                             { text: `${currentBalance}`, color: 'red' },
                             { text: ` stored experience points.\nType `, color: 'white' },
@@ -283,7 +295,7 @@ module.exports = Base => class extends Base {
                     
                 } else {
                     //They got here because they messed up
-                    this.whisperPlayerRaw(playerName, [
+                    this.tellPlayerRaw(playerName, [
                         { text: `Must input a positive number.\n`, color: 'red' },
                         { text: `!xp give playerName 50`, color: 'green' },
                         { text: ` would gift 50 experience points to that player.`, color: 'red' },
@@ -294,10 +306,10 @@ module.exports = Base => class extends Base {
         } else {
             // they got here because they messed up
             if (!args[0]) {
-                this.whisperPlayer(playerName, 'You need to target a player.', 'red');
+                this.tellPlayer(playerName, 'You need to target a player.', 'red');
                 
             } else {
-                this.whisperPlayerRaw(playerName, [
+                this.tellPlayerRaw(playerName, [
                     { text: `Player `, color: 'white' },
                     { text: `${args[0]}`, color: 'aqua' },
                     { text: ` is not logged in. \nDid you mean to type `, color: 'white' },
@@ -313,7 +325,7 @@ module.exports = Base => class extends Base {
         // then if there is send corrent amount of xp to the accepting player
         console.log(this.giveOffers[playerName])
         if (this.giveOffers[playerName] == undefined) {
-            this.whisperPlayer(playerName, `No pending experience point offers.`, 'red');
+            this.tellPlayer(playerName, `No pending experience point offers.`, 'red');
         } else {
             let offeringPlayer = this.giveOffers[playerName][0];
         
@@ -327,13 +339,13 @@ module.exports = Base => class extends Base {
                 await this.updatePlayerXpStore(offeringPlayer, currentBalance - this.giveOffers[playerName][1]);
 
                 this.simpleCheck(offeringPlayer);
-                this.whisperPlayer(offeringPlayer, 'Offer accepted');
+                this.tellPlayer(offeringPlayer, 'Offer accepted');
 
-                this.whisperPlayer(playerName, 'Offer accepted');
+                this.tellPlayer(playerName, 'Offer accepted');
                 this.giveOffers[playerName] = null;
 
             } else {
-                this.whisperPlayer(playerName, `No pending experience point offers.`, 'red');
+                this.tellPlayer(playerName, `No pending experience point offers.`, 'red');
             }
         }
         
@@ -351,7 +363,7 @@ module.exports = Base => class extends Base {
         let pointsStored = this.convertPointsToLevels(currentBalance)[1];
 
         if (!args[0]) {
-            this.whisperPlayerRaw(playerName, [
+            this.tellPlayerRaw(playerName, [
                 { text: `You have `, color: 'white' },
                 { text: `${currentBalance}`, color: 'red' },
                 { text: ` total stored experience points.\n`, color: 'white' },
@@ -369,7 +381,7 @@ module.exports = Base => class extends Base {
                 //this argument will tell the player how many points they would need to store to get down to that level
                 let pointsNeededToStore = totalPoints - this.convertLevelsToPoints(argsInt, 0);
 
-                this.whisperPlayerRaw(playerName, [
+                this.tellPlayerRaw(playerName, [
                     { text: `If you expend `, color: 'white' },
                     { text: `${pointsNeededToStore}`, color: 'red' },
                     { text: ` experience points, You'll have `, color: 'white' },
@@ -381,7 +393,7 @@ module.exports = Base => class extends Base {
                 //this argument will tell the player how many points they need to get to that level
                 let pointsNeededToGet = this.convertLevelsToPoints(argsInt, 0) - totalPoints;
 
-                this.whisperPlayerRaw(playerName, [
+                this.tellPlayerRaw(playerName, [
                     { text: `If you gain `, color: 'white' },
                     { text: `${pointsNeededToGet}`, color: 'red' },
                     { text: ` experience points, You'll have `, color: 'white' },
@@ -393,7 +405,7 @@ module.exports = Base => class extends Base {
                 //this argument tells how many total points it takes to reach their current level
                 let pointsNeededForCurrentLevel = this.convertLevelsToPoints(argsInt,0);
 
-                this.whisperPlayerRaw(playerName, [
+                this.tellPlayerRaw(playerName, [
                     { text: `It took `, color: 'white' },
                     { text: `${pointsNeededForCurrentLevel}`, color: 'red' },
                     { text: ` total experience points to reach this level.`, color: 'white' },
@@ -401,7 +413,7 @@ module.exports = Base => class extends Base {
 
             } else {
                 //they got here because they messed up.
-                this.whisperPlayerRaw(playerName, [
+                this.tellPlayerRaw(playerName, [
                     { text: `Must input a positive number.\n`, color: 'red' },
                     { text: `!xp check 20`, color: 'green' },
                     { text: ` tells you how many experience points are needed to reach that level.`, color: 'red' },
@@ -418,7 +430,7 @@ module.exports = Base => class extends Base {
         let levelsStored = this.convertPointsToLevels(currentBalance)[0];
         let pointsStored = this.convertPointsToLevels(currentBalance)[1];
 
-        this.whisperPlayerRaw(playerName, [
+        this.tellPlayerRaw(playerName, [
             { text: `You have `, color: 'white' },
             { text: `${currentBalance}`, color: 'red' },
             { text: ` total stored experience points.\n`, color: 'white' },
