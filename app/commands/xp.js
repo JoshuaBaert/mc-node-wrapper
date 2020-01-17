@@ -91,8 +91,8 @@ module.exports = Base => class extends Base {
             await this.simpleXpCheck(playerName);
 
         } else {
-             //make storeAmount an integer
-             let storeAmountInt = () => {
+            //make storeAmount an integer
+            let storeAmountInt = () => {
                 if (typeof parseInt(storeAmount, 10) === 'number') {
                      return parseInt(storeAmount, 10)
                 } else {
@@ -100,51 +100,49 @@ module.exports = Base => class extends Base {
                 }
             };
 
-            if (storeAmountInt() >= 0){
-
-                //need to handle when player inputs more experience points than they have
-                if (storeAmountInt() <= totalPoints) {
-                    //input less than or equal their total xp.
-
-                    //removing the experience points
-                    let pointsRemovedPartial = await this.subtractPlayerExperience(playerName, storeAmountInt());
-
-                    //adding those points to their xp store
-                    await this.updatePlayerXpStore(playerName, currentBalance + pointsRemovedPartial);
-
-                    //informing player current point balance
-                    this.tellPlayerRaw(playerName, [
-                        { text: `You have stored `, color: 'white' },
-                        { text: `${pointsRemovedPartial}`, color: 'red' },
-                        { text: ` experience points.`, color: 'white' },
-                    ]);
-                    await this.simpleXpCheck(playerName);
-
-                } else {
-                    //input too many levels.
-
-                    //just storing all thier xp.
-                    let pointsRemovedInsufficient = await this.subtractPlayerExperience(playerName, totalPoints);
-
-                    //adding those points to their xp store
-                    await this.updatePlayerXpStore(playerName, currentBalance + pointsRemovedInsufficient);
-
-                    //informing player current point balance
-                    this.tellPlayerRaw(playerName, [
-                        { text: `Not enough experience points.\nStoring `, color: 'white' },
-                        { text: `${pointsRemovedInsufficient}`, color: 'red' },
-                        { text: ` experience points instead.`, color: 'white' },
-                    ]);
-                    await this.simpleXpCheck(playerName);
-                }
-                
-            } else {
+            if (!(storeAmountInt() >= 0)){
                 //They got here because they messed up
                 this.tellPlayerRaw(playerName, [
                     { text: `Must input a positive number.\n`, color: 'red' },
                     { text: `!xp store 50`, color: 'green' },
                     { text: ` to store 50 experience points.`, color: 'red' },
                 ]);
+                return;
+            }
+            //need to handle when player inputs more experience points than they have
+            if (storeAmountInt() <= totalPoints) {
+                //input less than or equal their total xp.
+
+                //removing the experience points
+                let pointsRemovedPartial = await this.subtractPlayerExperience(playerName, storeAmountInt());
+
+                //adding those points to their xp store
+                await this.updatePlayerXpStore(playerName, currentBalance + pointsRemovedPartial);
+
+                //informing player current point balance
+                this.tellPlayerRaw(playerName, [
+                    { text: `You have stored `, color: 'white' },
+                    { text: `${pointsRemovedPartial}`, color: 'red' },
+                    { text: ` experience points.`, color: 'white' },
+                ]);
+                await this.simpleXpCheck(playerName);
+
+            } else {
+                //input too many levels.
+
+                //just storing all thier xp.
+                let pointsRemovedInsufficient = await this.subtractPlayerExperience(playerName, totalPoints);
+
+                //adding those points to their xp store
+                await this.updatePlayerXpStore(playerName, currentBalance + pointsRemovedInsufficient);
+
+                //informing player current point balance
+                this.tellPlayerRaw(playerName, [
+                    { text: `Not enough experience points.\nStoring `, color: 'white' },
+                    { text: `${pointsRemovedInsufficient}`, color: 'red' },
+                    { text: ` experience points instead.`, color: 'white' },
+                ]);
+                await this.simpleXpCheck(playerName);
             }
         }
 
@@ -182,51 +180,50 @@ module.exports = Base => class extends Base {
                 }
             };
             
-            if (getAmountInt() >= 0) {
-                //need to handle when player inputs more xp than they have xp stored
-                if (getAmountInt() <= currentBalance) {
-                    //input less than or equal the xp stored.
-
-                    //adding the xp equal to number input as getAmountInt
-                    let pointsRetrievedPartial = await this.addPlayerExperience(playerName, getAmountInt());
-
-                    //removing those points from their xp store
-                    await this.updatePlayerXpStore(playerName, currentBalance - pointsRetrievedPartial);
-
-                    //informing player current point balance
-                    this.tellPlayerRaw(playerName, [
-                        { text: `You have retrieved `, color: 'white' },
-                        { text: `${pointsRetrievedPartial}`, color: 'red' },
-                        { text: ` experience points.`, color: 'white' },
-                    ]);
-                    await this.simpleXpCheck(playerName);
-
-                    
-                } else {
-                    //input too much xp.
-
-                    //just retrieving all thier xp.
-                    let pointsRetrievedInsufficient = await this.addPlayerExperience(playerName, currentBalance);
-
-                    //removing those points from their xp store
-                    await this.updatePlayerXpStore(playerName, currentBalance - pointsRetrievedInsufficient);
-
-                    //informing player current point balance
-                    this.tellPlayerRaw(playerName, [
-                        { text: `Not enough stored experience points.\nRetrieving `, color: 'white' },
-                        { text: `${pointsRetrievedInsufficient}`, color: 'red' },
-                        { text: ` experience points instead.`, color: 'white' },
-                    ]);
-                    await this.simpleXpCheck(playerName);
-                }
-
-            } else {
+            if (!(getAmountInt() >= 0)) {
                 //They got here because they messed up
                 this.tellPlayerRaw(playerName, [
                     { text: `Must input a positive number.\n`, color: 'red' },
                     { text: `!xp get 50`, color: 'green' },
                     { text: ` would retrieve 50 experience points.`, color: 'red' },
                 ]);
+                return;
+            }                
+            //need to handle when player inputs more xp than they have xp stored
+            if (getAmountInt() <= currentBalance) {
+                //input less than or equal the xp stored.
+
+                //adding the xp equal to number input as getAmountInt
+                let pointsRetrievedPartial = await this.addPlayerExperience(playerName, getAmountInt());
+
+                //removing those points from their xp store
+                await this.updatePlayerXpStore(playerName, currentBalance - pointsRetrievedPartial);
+
+                //informing player current point balance
+                this.tellPlayerRaw(playerName, [
+                    { text: `You have retrieved `, color: 'white' },
+                    { text: `${pointsRetrievedPartial}`, color: 'red' },
+                    { text: ` experience points.`, color: 'white' },
+                ]);
+                await this.simpleXpCheck(playerName);
+
+                
+            } else {
+                //input too much xp.
+
+                //just retrieving all thier xp.
+                let pointsRetrievedInsufficient = await this.addPlayerExperience(playerName, currentBalance);
+
+                //removing those points from their xp store
+                await this.updatePlayerXpStore(playerName, currentBalance - pointsRetrievedInsufficient);
+
+                //informing player current point balance
+                this.tellPlayerRaw(playerName, [
+                    { text: `Not enough stored experience points.\nRetrieving `, color: 'white' },
+                    { text: `${pointsRetrievedInsufficient}`, color: 'red' },
+                    { text: ` experience points instead.`, color: 'white' },
+                ]);
+                await this.simpleXpCheck(playerName);
             }
         }
     }
@@ -270,57 +267,55 @@ module.exports = Base => class extends Base {
                     }
                 };
 
-                if (giftAmountInt() >= 0){
-                    //offered amount must be a positive number.
-
-                    if (giftAmountInt() <= currentBalance){
-                        this.tellPlayerRaw(playerName, [
-                            { text: `Offered `, color: 'white' },
-                            { text: `${giftAmountInt()}`, color: 'red' },
-                            { text: ` stored experience points to `, color: 'white' },
-                            { text: `${recieving}.`, color: 'green' },
-                        ]);
-            
-                        this.tellPlayerRaw(recieving, [
-                            { text: `${playerName} is offering you `, color: 'white' },
-                            { text: `${giftAmountInt()}`, color: 'red' },
-                            { text: ` stored experience points.\nType `, color: 'white' },
-                            { text: `!xp give accept`, color: 'green' },
-                            { text: ` to accept`, color: 'white' },
-                        ]);
-        
-                        this.giveOffers[recieving] = [playerName, giftAmountInt()];
-                    } else {
-                        //They don't have enough stored xp for offered amount. will offer entire amount stored.
-                        this.tellPlayerRaw(playerName, [
-                            { text: `You don't have enough Experience points stored. Offered `, color: 'white' },
-                            { text: `${currentBalance}`, color: 'red' },
-                            { text: ` points to `, color: 'white' },
-                            { text: `${recieving}.`, color: 'green' },
-                            { text: `instead.`, color: 'white' },
-                        ]);
-            
-                        this.tellPlayerRaw(recieving, [
-                            { text: `${playerName} is offering you `, color: 'white' },
-                            { text: `${currentBalance}`, color: 'red' },
-                            { text: ` stored experience points.\nType `, color: 'white' },
-                            { text: `!xp give accept`, color: 'green' },
-                            { text: ` to accept`, color: 'white' },
-                        ]);
-        
-                        this.giveOffers[recieving] = [playerName,currentBalance];
-                    }
-                    
-                } else {
+                if (!(giftAmountInt() >= 0)){
                     //They got here because they messed up
                     this.tellPlayerRaw(playerName, [
                         { text: `Must input a positive number.\n`, color: 'red' },
                         { text: `!xp give playerName 50`, color: 'green' },
                         { text: ` would gift 50 experience points to that player.`, color: 'red' },
                     ]);
+                    return;
+                }               
+                //offered amount must be a positive number.
+
+                if (giftAmountInt() <= currentBalance){
+                    this.tellPlayerRaw(playerName, [
+                        { text: `Offered `, color: 'white' },
+                        { text: `${giftAmountInt()}`, color: 'red' },
+                        { text: ` stored experience points to `, color: 'white' },
+                        { text: `${recieving}.`, color: 'green' },
+                    ]);
+        
+                    this.tellPlayerRaw(recieving, [
+                        { text: `${playerName} is offering you `, color: 'white' },
+                        { text: `${giftAmountInt()}`, color: 'red' },
+                        { text: ` stored experience points.\nType `, color: 'white' },
+                        { text: `!xp give accept`, color: 'green' },
+                        { text: ` to accept`, color: 'white' },
+                    ]);
+    
+                    this.giveOffers[recieving] = [playerName, giftAmountInt()];
+                } else {
+                    //They don't have enough stored xp for offered amount. will offer entire amount stored.
+                    this.tellPlayerRaw(playerName, [
+                        { text: `You don't have enough Experience points stored. Offered `, color: 'white' },
+                        { text: `${currentBalance}`, color: 'red' },
+                        { text: ` points to `, color: 'white' },
+                        { text: `${recieving}.`, color: 'green' },
+                        { text: `instead.`, color: 'white' },
+                    ]);
+        
+                    this.tellPlayerRaw(recieving, [
+                        { text: `${playerName} is offering you `, color: 'white' },
+                        { text: `${currentBalance}`, color: 'red' },
+                        { text: ` stored experience points.\nType `, color: 'white' },
+                        { text: `!xp give accept`, color: 'green' },
+                        { text: ` to accept`, color: 'white' },
+                    ]);
+    
+                    this.giveOffers[recieving] = [playerName,currentBalance];
                 }
-            }
-            
+            }           
         } else {
             // they got here because they messed up
             if (!recieving) {
@@ -343,29 +338,28 @@ module.exports = Base => class extends Base {
         // then if there is send corrent amount of xp to the accepting player
         if (this.giveOffers[playerName] === undefined) {
             this.tellPlayer(playerName, `No pending experience point offers.`, 'red');
-        } else {
-            let offeringPlayer = this.giveOffers[playerName][0];
-        
-            let currentBalance = await this.readPlayerXpStore(offeringPlayer);
-            if (currentBalance === undefined) currentBalance = 0;
-
-            if (offeringPlayer) {
-                //add points to recieving player
-                await this.addPlayerExperience(playerName, this.giveOffers[playerName][1]);
-                //removing those points from offering player xp store
-                await this.updatePlayerXpStore(offeringPlayer, currentBalance - this.giveOffers[playerName][1]);
-
-                this.simpleXpCheck(offeringPlayer);
-                this.tellPlayer(offeringPlayer, 'Offer accepted');
-
-                this.tellPlayer(playerName, 'Offer accepted');
-                this.giveOffers[playerName] = null;
-
-            } else {
-                this.tellPlayer(playerName, `No pending experience point offers.`, 'red');
-            }
+            return;
         }
-        
+        let offeringPlayer = this.giveOffers[playerName][0];
+    
+        let currentBalance = await this.readPlayerXpStore(offeringPlayer);
+        if (currentBalance === undefined) currentBalance = 0;
+
+        if (offeringPlayer) {
+            //add points to recieving player
+            await this.addPlayerExperience(playerName, this.giveOffers[playerName][1]);
+            //removing those points from offering player xp store
+            await this.updatePlayerXpStore(offeringPlayer, currentBalance - this.giveOffers[playerName][1]);
+
+            this.simpleXpCheck(offeringPlayer);
+            this.tellPlayer(offeringPlayer, 'Offer accepted');
+
+            this.tellPlayer(playerName, 'Offer accepted');
+            this.giveOffers[playerName] = null;
+
+        } else {
+            this.tellPlayer(playerName, `No pending experience point offers.`, 'red');
+        } 
     }
 
     async handleXpCheck(playerName, checkAmount) {
