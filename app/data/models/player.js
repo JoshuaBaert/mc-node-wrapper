@@ -18,15 +18,11 @@ const playerSchema = new mongoose.Schema({
         unique: true,
     },
     id: String,
-<<<<<<< HEAD
-    home: homeSchema,
-    xpStore: Number,
-=======
     home: homeSchema, // this is being depreciated
     homes: {
         type: Object,
     },
->>>>>>> d7ddebae2500f743a02efc455ad88dac10937662
+    xpStore: Number,
 });
 
 module.exports = mongoose.model('Player', playerSchema)

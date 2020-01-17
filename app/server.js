@@ -9,12 +9,8 @@ class OtherClasses {
 OtherClasses = require('./data')(OtherClasses);
 OtherClasses = require('./lib/cooldown')(OtherClasses);
 OtherClasses = require('./lib/entity')(OtherClasses);
-<<<<<<< HEAD
 OtherClasses = require('./lib/experience')(OtherClasses);
-OtherClasses = require('./lib/message')(OtherClasses);
-=======
 OtherClasses = require('./lib/tell')(OtherClasses);
->>>>>>> d7ddebae2500f743a02efc455ad88dac10937662
 OtherClasses = require('./lib/server-management')(OtherClasses);
 
 // Help needs to be first command to setup structure
@@ -110,15 +106,10 @@ module.exports = class Server extends OtherClasses {
                 return this.handleWarp(playerName, args);
             case 'location':
                 return this.handleLocation(playerName, args);
-<<<<<<< HEAD
-            case 'xp':
-                return this.handleXp(playerName, args);
-            case 'test':
-                return this.convertPointsToLevels(playerName, 2960);
-=======
             case 'locations':
                 return this.handleLocations(playerName, args);
->>>>>>> d7ddebae2500f743a02efc455ad88dac10937662
+            case 'xp':
+                return this.handleXp(playerName, args);
             default:
                 // dev color helper
                 if (isDev && baseCommand.toLowerCase() === 'colors') return this.tellColors(playerName);
