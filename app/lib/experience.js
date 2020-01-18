@@ -4,48 +4,27 @@ module.exports = Base => class extends Base {
         super();
     }
 
-    //minecraft separates levels and points you need to get both.
-    getPlayerExperiencePoints(playerName) {
+    getPlayerExperience(playerName, getData) {
         return new Promise((resolve) => {
             const listenForData = (data) => {
                 let text = data.toString();
-                let regEx = new RegExp(`.*\\s${playerName}\\shas\\s\\d+\\sexperience\\spoints`);
+                let regEx = new RegExp(`.*\\s${playerName}\\shas\\s\\d+\\sexperience\\s${getData}`);
 
                 if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForData);
 
-                let points = parseInt(text.split(' ')[4],10);
-                resolve(points);
+                let retrievedData = parseInt(text.split(' ')[4],10);
+                resolve(retrievedData);
             };
 
             this.serverProcess.stdout.on('data', listenForData);
-            this.writeToMine(`experience query ${playerName} points`);
-        });
-    }
-
-    //minecraft separates levels and points you need to get both.
-    getPlayerExperienceLevels(playerName) {
-        return new Promise((resolve) => {
-            const listenForData = (data) => {
-                let text = data.toString();
-                let regEx = new RegExp(`.*\\s${playerName}\\shas\\s\\d+\\sexperience\\slevels`);
-
-                if (!regEx.test(text)) return;
-                this.serverProcess.stdout.removeListener('data', listenForData);
-
-                let levels = parseInt(text.split(' ')[4],10);
-                console.log(levels);
-                resolve(levels);
-            };
-
-            this.serverProcess.stdout.on('data', listenForData);
-            this.writeToMine(`experience query ${playerName} levels`);
+            this.writeToMine(`experience query ${playerName} ${getData}`);
         });
     }
 
     async addPlayerExperience(playerName, newExp) {
         //need to convert existing level/points into points, then add to that pointPool and convert the new total back.
-        let currentExp = this.convertLevelsToPoints(await this.getPlayerExperienceLevels(playerName),await this.getPlayerExperiencePoints(playerName));
+        let currentExp = this.convertLevelsToPoints(await this.getPlayerExperience(playerName, 'levels'),await this.getPlayerExperience(playerName, 'points'));
         let totalExp = parseInt(newExp,10) + parseInt(currentExp,10);
         let [levels, points] = this.convertPointsToLevels(totalExp);
 
@@ -58,7 +37,7 @@ module.exports = Base => class extends Base {
     }
 
     async subtractPlayerExperience(playerName, removedExp) {
-        let currentExp = this.convertLevelsToPoints(await this.getPlayerExperienceLevels(playerName),await this.getPlayerExperiencePoints(playerName));
+        let currentExp = this.convertLevelsToPoints(await this.getPlayerExperience(playerName, 'levels'),await this.getPlayerExperience(playerName, 'points'));
         let totalExp = parseInt(currentExp,10) - parseInt(removedExp,10);
         let [levels, points] = this.convertPointsToLevels(totalExp);
 
