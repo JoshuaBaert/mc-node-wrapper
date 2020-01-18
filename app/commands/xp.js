@@ -340,72 +340,57 @@ module.exports = Base => class extends Base {
 
     async handleXpCheck(playerName, checkAmount) {       
         let totalPoints = this.totalPoints(playerName);
-        let currentBalance = this.currentBalance(playerName);
-
         let playerLevels = await this.getPlayerExperience(playerName, 'levels');
 
-        let levelsStored = this.convertPointsToLevels(currentBalance)[0];
-        let pointsStored = this.convertPointsToLevels(currentBalance)[1];
-
         if (!checkAmount) {
+            this.simpleXpCheck(playerName);
+            return;
+        }
+        //make checkAmount an integer
+        let checkAmountInt = this.amountInt(checkAmount);
+
+        if (checkAmountInt < playerLevels && checkAmountInt >= 0) {
+            //this argument will tell the player how many points they would need to store to get down to that level
+            let pointsNeededToStore = totalPoints - this.convertLevelsToPoints(checkAmountInt, 0);
+
             this.tellPlayerRaw(playerName, [
-                { text: `You have `, color: 'white' },
-                { text: `${currentBalance}`, color: 'red' },
-                { text: ` total stored experience points.\n`, color: 'white' },
-                { text: `${levelsStored}`, color: 'red' },
-                { text: ` levels with `, color: 'white' },
-                { text: `${pointsStored}`, color: 'red' },
-                { text: ` remaining experience points.`, color: 'white' },
+                { text: `If you expend `, color: 'white' },
+                { text: `${pointsNeededToStore}`, color: 'red' },
+                { text: ` experience points, You'll have `, color: 'white' },
+                { text: `${checkAmountInt}`, color: 'red' },
+                { text: ` levels.`, color: 'white' },
+            ]);
+
+        } else if (checkAmountInt > playerLevels) {
+            //this argument will tell the player how many points they need to get to that level
+            let pointsNeededToGet = this.convertLevelsToPoints(checkAmountInt, 0) - totalPoints;
+
+            this.tellPlayerRaw(playerName, [
+                { text: `If you gain `, color: 'white' },
+                { text: `${pointsNeededToGet}`, color: 'red' },
+                { text: ` experience points, You'll have `, color: 'white' },
+                { text: `${checkAmountInt}`, color: 'red' },
+                { text: ` levels.`, color: 'white' },
+            ]);
+
+        } else if (checkAmountInt === playerLevels) {
+            //this argument tells how many total points it takes to reach their current level
+            let pointsNeededForCurrentLevel = this.convertLevelsToPoints(checkAmountInt,0);
+
+            this.tellPlayerRaw(playerName, [
+                { text: `It took `, color: 'white' },
+                { text: `${pointsNeededForCurrentLevel}`, color: 'red' },
+                { text: ` total experience points to reach this level.`, color: 'white' },
             ]);
 
         } else {
-             //make checkAmount an integer
-             let checkAmountInt = this.amountInt(checkAmount);
-
-            if (checkAmountInt < playerLevels && checkAmountInt >= 0) {
-                //this argument will tell the player how many points they would need to store to get down to that level
-                let pointsNeededToStore = totalPoints - this.convertLevelsToPoints(checkAmountInt, 0);
-
-                this.tellPlayerRaw(playerName, [
-                    { text: `If you expend `, color: 'white' },
-                    { text: `${pointsNeededToStore}`, color: 'red' },
-                    { text: ` experience points, You'll have `, color: 'white' },
-                    { text: `${checkAmountInt}`, color: 'red' },
-                    { text: ` levels.`, color: 'white' },
-                ]);
-
-            } else if (checkAmountInt > playerLevels) {
-                //this argument will tell the player how many points they need to get to that level
-                let pointsNeededToGet = this.convertLevelsToPoints(checkAmountInt, 0) - totalPoints;
-
-                this.tellPlayerRaw(playerName, [
-                    { text: `If you gain `, color: 'white' },
-                    { text: `${pointsNeededToGet}`, color: 'red' },
-                    { text: ` experience points, You'll have `, color: 'white' },
-                    { text: `${checkAmountInt}`, color: 'red' },
-                    { text: ` levels.`, color: 'white' },
-                ]);
-
-            } else if (checkAmountInt === playerLevels) {
-                //this argument tells how many total points it takes to reach their current level
-                let pointsNeededForCurrentLevel = this.convertLevelsToPoints(checkAmountInt,0);
-
-                this.tellPlayerRaw(playerName, [
-                    { text: `It took `, color: 'white' },
-                    { text: `${pointsNeededForCurrentLevel}`, color: 'red' },
-                    { text: ` total experience points to reach this level.`, color: 'white' },
-                ]);
-
-            } else {
-                //they got here because they messed up.
-                this.tellPlayerRaw(playerName, [
-                    { text: `Must input a positive number.\n`, color: 'red' },
-                    { text: `!xp check 20`, color: 'green' },
-                    { text: ` tells you how many experience points are needed to reach that level.`, color: 'red' },
-                ]);
-            }
-        }
-        
+            //they got here because they messed up.
+            this.tellPlayerRaw(playerName, [
+                { text: `Must input a positive number.\n`, color: 'red' },
+                { text: `!xp check 20`, color: 'green' },
+                { text: ` tells you how many experience points are needed to reach that level.`, color: 'red' },
+            ]);
+        }  
     }
 
     amountInt(amount) {
@@ -416,20 +401,20 @@ module.exports = Base => class extends Base {
         }
     };
 
-    totalPoints(playerName) {
+    async totalPoints(playerName) {
         let playerLevels = await this.getPlayerExperience(playerName, 'levels');
         let playerPoints = await this.getPlayerExperience(playerName, 'points');        
         return this.convertLevelsToPoints(playerLevels, playerPoints);
     };
 
-    currentBalance(playerName) {
+    async currentBalance(playerName) {
         //checking current xpStore balance
-        if (this.readPlayerXpStore(playerName) === undefined) return 0
-        else return this.readPlayerXpStore(playerName);
+        if (await this.readPlayerXpStore(playerName) === undefined) return 0
+        else return await this.readPlayerXpStore(playerName);
     };
 
     async simpleXpCheck(playerName) {
-        let currentBalance = this.currentBalance(playerName);
+        let currentBalance = await this.currentBalance(playerName);
 
         let levelsStored = this.convertPointsToLevels(currentBalance)[0];
         let pointsStored = this.convertPointsToLevels(currentBalance)[1];
