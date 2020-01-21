@@ -138,6 +138,28 @@ module.exports = Base => class extends Base {
         })
     };
 
+    updatePlayerXpAutoStore(playerName, toggle) {
+        return new Promise((resolve, reject) =>{
+            Player.updateOne(
+                { name: playerName }, 
+                { xpAutoStore: toggle},
+                (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                },
+            )
+        })
+    };
+
+    readPlayerXpAutoStore(playerName) {
+        return new Promise((resolve) => {
+            Player.findOne({ name: playerName }, (err, player) => {
+                if (err) return reject(err);
+                resolve(player.xpAutoStore);   
+            })
+        })
+    };
+
     createLocation(name, world, pos, rot) {
         return new Promise((resolve, reject) => {
             let location = new Location({

@@ -23,6 +23,7 @@ const playerSchema = new mongoose.Schema({
         type: Object,
     },
     xpStore: Number,
+    xpAutoStore: false,
 });
 
 module.exports = mongoose.model('Player', playerSchema)

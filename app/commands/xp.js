@@ -40,6 +40,8 @@ module.exports = Base => class extends Base {
                 switch (args[0].toLowerCase()) {
                 case 'store':
                     return this.handleXpStore(playerName, args[1]);
+                case 'autostore':
+                    return this.handleXpAutoStore(playerName);
                 case 'get':
                     return this.handleXpGet(playerName, args[1]);
                 case 'give':
@@ -129,6 +131,11 @@ module.exports = Base => class extends Base {
             { text: ` experience points.`, color: 'white' },
         ]);
         await this.simpleXpCheck(playerName);
+    };
+
+    async handleXpAutoStore(playerName) {
+        //player will turn on and off the autostore using just !xp autostore
+        
     };
 
     async handleXpGet(playerName, getAmount) {
