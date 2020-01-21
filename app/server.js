@@ -9,6 +9,7 @@ class OtherClasses {
 OtherClasses = require('./data')(OtherClasses);
 OtherClasses = require('./lib/cooldown')(OtherClasses);
 OtherClasses = require('./lib/entity')(OtherClasses);
+OtherClasses = require('./lib/experience')(OtherClasses);
 OtherClasses = require('./lib/tell')(OtherClasses);
 OtherClasses = require('./lib/server-management')(OtherClasses);
 
@@ -19,6 +20,7 @@ OtherClasses = require('./commands/help')(OtherClasses);
 OtherClasses = require('./commands/home')(OtherClasses);
 OtherClasses = require('./commands/location')(OtherClasses);
 OtherClasses = require('./commands/warp')(OtherClasses);
+OtherClasses = require('./commands/xp')(OtherClasses);
 
 module.exports = class Server extends OtherClasses {
     constructor(jarPath) {
@@ -74,7 +76,6 @@ module.exports = class Server extends OtherClasses {
     log(data) {
         let text = data.toString();
         process.stdout.write(text);
-
         // listens for ! commands
         if (/<\w+>\s!/.test(text)) return this.handleCommand(text);
 
@@ -107,6 +108,8 @@ module.exports = class Server extends OtherClasses {
                 return this.handleLocation(playerName, args);
             case 'locations':
                 return this.handleLocations(playerName, args);
+            case 'xp':
+                return this.handleXp(playerName, args);
             default:
                 // dev color helper
                 if (isDev && baseCommand.toLowerCase() === 'colors') return this.tellColors(playerName);

@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "debug": "npm start",
     "shutdown": "node ./scripts/shutdown.js",
     "start": "npm run start:docker-compose && npm run start:node",
     "start:docker-compose": "docker-compose -f ./docker-compose.dev.yml up -d",

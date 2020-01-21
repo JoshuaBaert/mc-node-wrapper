@@ -22,6 +22,7 @@ const playerSchema = new mongoose.Schema({
     homes: {
         type: Object,
     },
+    xpStore: Number,
 });
 
 module.exports = mongoose.model('Player', playerSchema)
