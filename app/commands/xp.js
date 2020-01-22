@@ -12,6 +12,8 @@ module.exports = Base => class extends Base {
             { text: '', color: 'white' },
             { text: '!xp store ', color: 'green' },
             'store all experience.\n',
+            { text: '!xp autostore ', color: 'green' },
+            'automatically store experience every 3 minutes.\n',
             { text: '!xp get ', color: 'green' },
             'retrieve all stored experience.\n',
             { text: '!xp give ', color: 'green' },
@@ -135,10 +137,87 @@ module.exports = Base => class extends Base {
 
     async handleXpAutoStore(playerName) {
         //player will turn on and off the autostore using just !xp autostore
-        
+        //If autostore is already set to true
+        if (await this.readPlayerXpAutoStore(playerName)) {
+            await this.xpAutoStoreDisable(playerName);
+        }
+        else {
+            //set autostore to true
+            await this.updatePlayerXpAutoStore(playerName, true);
+            this.tellPlayerRaw(playerName, [
+                { text: `Autostore is `, color: 'white' },
+                { text: `${await this.xpAutoStoreOnOff(playerName)}`, color: 'light_purple' },
+                { text: ` .\nThis will store your experience every 3 minutes.\n Type `, color: 'white' },
+                { text: `!xp autostore`, color: 'green' },
+                { text: ` again or `, color: 'white' },
+                { text: `!xp get`, color: 'green' },
+                { text: ` to turn off.`, color: 'white' },
+            ]);
+            //            
+            await this.checkXpAutoStore(playerName);
+        }
     };
 
+    async xpAutoStoreDisable(playerName) {
+        //set autostore to false
+        await this.updatePlayerXpAutoStore(playerName, false);
+        this.tellPlayerRaw(playerName, [
+            { text: `Autostore is `, color: 'white' },
+            { text: `${await this.xpAutoStoreOnOff(playerName)}`, color: 'light_purple' },
+            { text: ` .\nType `, color: 'white' },
+            { text: `!xp autostore`, color: 'green' },
+            { text: ` to turn on.`, color: 'white' },
+        ]);
+        clearInterval(this.xpAutoStoreInterval());
+    }
+
+    async xpAutoStoreOnOff(playerName) {
+        if (await this.readPlayerXpAutoStore(playerName)) {
+            return 'ON';
+        } else {
+            return 'OFF'
+        }
+    }
+
+    xpAutoStoreInterval(toggle) {
+        return setInterval(() => {
+            toggle = true;
+            console.log(toggle)
+        }, 1000 * 10 * 1);
+    }
+
+    async checkXpAutoStore(playerName) {
+        console.log(await this.readPlayerXpAutoStore(playerName))
+        if (await this.readPlayerXpAutoStore(playerName)) {
+            let toggle = false;
+
+            this.xpAutoStoreInterval(toggle);
+
+            console.log(toggle);
+
+            while (toggle) {
+                //what is the total number of experience points a player has?
+                let totalPoints = await this.totalPoints(playerName);
+
+                //checking current xpStore balance
+                let currentBalance = await this.currentBalance(playerName);
+
+                await this.storeAll(playerName, totalPoints, currentBalance);
+                toggle = false;
+            }
+        }      
+    }
+
+    // async whenAutoStoreFalse(playerName) {
+    //     clearInterval(this.whenAutoStoreFalse);
+    // }
+
     async handleXpGet(playerName, getAmount) {
+        //set autostore to false. this will ensure player can properly use the xp they get from the store.
+        if (await this.readPlayerXpAutoStore(playerName)) {
+            await this.xpAutoStoreDisable(playerName);
+        }
+
         //checking current xpStore balance
         let currentBalance = await this.currentBalance(playerName);
 

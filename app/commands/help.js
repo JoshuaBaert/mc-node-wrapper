@@ -12,7 +12,8 @@ module.exports = Base => class extends Base {
         this.helpFullDescription = {};
     }
 
-    welcomeMessage(playerName) {
+    async welcomeMessage(playerName) {
+        let onOrOff = await this.xpAutoStoreOnOff(playerName);
         this.tellPlayerRaw(playerName, [
             'Hey ',
             { text: playerName, color: 'aqua' },
@@ -20,6 +21,11 @@ module.exports = Base => class extends Base {
             '\nWe have some custom commands to encourage playing together.\nTry typing',
             { text: ' !help', color: 'green' },
             ' for more information.',
+        ]);
+        this.tellPlayerRaw(playerName, [
+            { text: '!xp autostore', color: 'green' },
+            { text: ' is ', color: 'white' },
+            { text: onOrOff, color: 'light_purple' },
         ]);
     }
 
