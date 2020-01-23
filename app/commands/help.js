@@ -13,7 +13,7 @@ module.exports = Base => class extends Base {
     }
 
     async welcomeMessage(playerName) {
-        let onOrOff = await this.xpAutoStoreOnOff(playerName);
+        let onOrOff = await this.xpInformPlayerAutoStoreOnOff(playerName);
         this.tellPlayerRaw(playerName, [
             'Hey ',
             { text: playerName, color: 'aqua' },

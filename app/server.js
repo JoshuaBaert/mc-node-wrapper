@@ -87,6 +87,8 @@ module.exports = class Server extends OtherClasses {
                 .map(x => x.trim());
             return this.handlePlayerLogin(playerName, uuid);
         }
+
+        // lets us know when someone logs out of the server
     };
 
     handleCommand(text) {
@@ -129,6 +131,11 @@ module.exports = class Server extends OtherClasses {
     async handlePlayerLogin(playerName, uuid) {
         this.checkPlayerRecord(playerName, uuid);
         await this.welcomeMessage(playerName);
-        await this.checkXpAutoStore(playerName);
+        await this.updateAutoStoreOnList(playerName);
+    }
+
+    async handlePlayerLogout(playerName) {
+        //still need to complete this function. needed so we can stop trying to store all of a players xp when they log out if thier autostore is on.
+        await this.updateAutoStoreOnList(playerName);
     }
 };
