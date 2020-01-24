@@ -7,7 +7,6 @@ module.exports = Base => class extends Base {
             { text: '!xp store ', color: 'green' },
         ];
 
-
         this.helpFullDescription.xp = [
             { text: '', color: 'white' },
             { text: '!xp store ', color: 'green' },
@@ -134,6 +133,44 @@ module.exports = Base => class extends Base {
         ]);
         await this.simpleXpCheck(playerName);
     };
+
+    async handleXpAutoStore(playerName) {
+        //player will turn on and off the autostore using just !xp autostore
+        //If autostore is already set to true
+        if (await this.readPlayerXpAutoStore(playerName)) {
+            await this.xpAutoStoreDisable(playerName);
+        }
+        else {
+            await this.xpAutoStoreEnable(playerName);
+        }
+    };
+
+    //functions related to turning autostore on and off.
+    async xpAutoStoreEnable(playerName) {
+        //set autostore to true
+        await this.updatePlayerXpAutoStore(playerName, true);
+        this.tellPlayerRaw(playerName, [
+            { text: `Autostore is `, color: 'white' },
+            { text: `OFF`, color: 'light_purple' },
+            { text: ` .\nThis will store your experience every 3 minutes.\n Type `, color: 'white' },
+            { text: `!xp autostore`, color: 'green' },
+            { text: ` again or `, color: 'white' },
+            { text: `!xp get`, color: 'green' },
+            { text: ` to turn off.`, color: 'white' },
+        ]);   
+    }
+
+    async xpAutoStoreDisable(playerName) {
+        //set autostore to false
+        await this.updatePlayerXpAutoStore(playerName, false);
+        this.tellPlayerRaw(playerName, [
+            { text: `Autostore is `, color: 'white' },
+            { text: `ON`, color: 'light_purple' },
+            { text: ` .\nType `, color: 'white' },
+            { text: `!xp autostore`, color: 'green' },
+            { text: ` to turn on.`, color: 'white' },
+        ]); 
+    }
 
     async handleXpGet(playerName, getAmount) {
         //set autostore to false. this will ensure player can properly use the xp they get from the store.

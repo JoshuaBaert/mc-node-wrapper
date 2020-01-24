@@ -12,6 +12,7 @@ OtherClasses = require('./lib/entity')(OtherClasses);
 OtherClasses = require('./lib/experience')(OtherClasses);
 OtherClasses = require('./lib/tell')(OtherClasses);
 OtherClasses = require('./lib/server-management')(OtherClasses);
+OtherClasses = require('./lib/xpAutostore')(OtherClasses);
 
 // Help needs to be first command to setup structure
 OtherClasses = require('./commands/help')(OtherClasses);
@@ -87,8 +88,6 @@ module.exports = class Server extends OtherClasses {
                 .map(x => x.trim());
             return this.handlePlayerLogin(playerName, uuid);
         }
-
-        // lets us know when someone logs out of the server
     };
 
     handleCommand(text) {
@@ -112,6 +111,9 @@ module.exports = class Server extends OtherClasses {
                 return this.handleLocations(playerName, args);
             case 'xp':
                 return this.handleXp(playerName, args);
+            case 'test': 
+                return this.storeXpAutoStorePlayersTrue();
+
             default:
                 // dev color helper
                 if (isDev && baseCommand.toLowerCase() === 'colors') return this.tellColors(playerName);
@@ -131,11 +133,11 @@ module.exports = class Server extends OtherClasses {
     async handlePlayerLogin(playerName, uuid) {
         this.checkPlayerRecord(playerName, uuid);
         await this.welcomeMessage(playerName);
-        await this.updateAutoStoreOnList(playerName);
+        // await this.updateAutoStoreOnList(playerName);
     }
 
-    async handlePlayerLogout(playerName) {
+    // async handlePlayerLogout(playerName) {
         //still need to complete this function. needed so we can stop trying to store all of a players xp when they log out if thier autostore is on.
-        await this.updateAutoStoreOnList(playerName);
-    }
+        // await this.updateAutoStoreOnList(playerName);
+    // }
 };
