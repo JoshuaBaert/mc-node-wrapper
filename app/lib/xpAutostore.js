@@ -1,63 +1,28 @@
 module.exports = Base => class extends Base {
     constructor() {
         super();
-        // this.autoStoreOnList = [];
     }
 
-    storePlayersXpAutoStoreTrue() {
-        //only storing for players that are online.
+    async storePlayersXpAutoStoreTrue() {
+        //might be nice to make this available through the whole node wrapper and not just this individual method, but I need to see what Josh says.
+        async function asyncForEach(array, callback) {
+            for (let index = 0; index < array.length; index++) {
+              await callback(array[index], index, array);
+            }
+        }
+
+        //All players that are online.
         let loggedInPlayers = await this.getListOfOnlinePlayers();
+        //All players who have AutoStore turned on including those who are offline.
+        let autoStoreOnPlayers = await this.readPlayersXpAutoStoreTrue();
+        let asoPlayerNames = autoStoreOnPlayers.map(player => player.name);
+        //Only players who are online and have autostore turned on.
+        let filteredAutostorePlayers = asoPlayerNames.filter(player => loggedInPlayers.includes(player));
 
-        this.readPlayersXpAutoStoreTrue()
+        return await asyncForEach(filteredAutostorePlayers, async (playerName) => {
+            await this.storeAll(playerName, await this.totalPoints(playerName), await this.currentBalance(playerName))
+        })
     }
 
-
-//
-
-    //dont worry about how to start it.
-    //have 1 function maybe interval. dont give it any arguments.
-    //should find all players that have autoxp on that are logged in and store xp for them.
-    //get all players who have autostore true and use that in function
-
-
-    // async xpAutoStoreInterval(players) {
-    //     return setInterval(() => {
-    //         for (let i = 0; i < players.length; i++) {
-    //             //getting playerName
-    //             let playerName = players[i];
-
-    //              //what is the total number of experience points a player has?
-    //             let totalPoints = await this.totalPoints(playerName);
-
-    //             //checking current xpStore balance
-    //             let currentBalance = await this.currentBalance(playerName);
-
-    //             //storing playerName's experience
-    //             await this.storeAll(playerName, totalPoints, currentBalance);
-    //         }
-    //     }, 1000 * 10 * 1);
-    // }
-
-    // async autoStoreIntervalOnOff(players) {
-    //     if (this.autoStoreOnList.length >= 1) {
-    //         await this.xpAutoStoreInterval(players);
-    //     } else {
-    //         clearInterval(await this.xpAutoStoreInterval(players));
-    //     }
-    // }
-
-    // async updateAutoStoreOnList(playerName) {
-    //     let loggedInPlayers = await this.getListOfOnlinePlayers();
-
-    //     //If player is online and their autostore is turned on, putting them in array.
-    //     if (await this.readPlayerXpAutoStore(playerName) && loggedInPlayers.indexOf(playerName) !== -1) {
-    //         if (this.autoStoreOnList.indexOf(playerName) === -1) this.autoStoreOnList.push(playerName)
-
-    //     //if that isn't true we need to remove them from the array.
-    //     } else {
-    //         if (this.autoStoreOnList.indexOf(playerName) !== -1) this.autoStoreOnList.splice(this.autoStoreOnList.indexOf(playerName),1)
-    //     }
-    // }
-
-
+    
 }

@@ -13,8 +13,8 @@ module.exports = Base => class extends Base {
     }
 
     async welcomeMessage(playerName) {
-        let onOrOff = () => {
-            if (this.readPlayerXpAutoStore(playerName)) {
+        let onOrOff = async () => {
+            if (await this.readPlayerXpAutoStore(playerName)) {
                 return "ON"
             } else return "OFF"
         };
@@ -30,7 +30,7 @@ module.exports = Base => class extends Base {
         this.tellPlayerRaw(playerName, [
             { text: '!xp autostore', color: 'green' },
             { text: ' is ', color: 'white' },
-            { text: onOrOff(), color: 'light_purple' },
+            { text: await onOrOff(), color: 'light_purple' },
         ]);
     }
 

@@ -139,8 +139,7 @@ module.exports = Base => class extends Base {
         //If autostore is already set to true
         if (await this.readPlayerXpAutoStore(playerName)) {
             await this.xpAutoStoreDisable(playerName);
-        }
-        else {
+        } else {
             await this.xpAutoStoreEnable(playerName);
         }
     };
@@ -151,7 +150,7 @@ module.exports = Base => class extends Base {
         await this.updatePlayerXpAutoStore(playerName, true);
         this.tellPlayerRaw(playerName, [
             { text: `Autostore is `, color: 'white' },
-            { text: `OFF`, color: 'light_purple' },
+            { text: `ON`, color: 'light_purple' },
             { text: ` .\nThis will store your experience every 3 minutes.\n Type `, color: 'white' },
             { text: `!xp autostore`, color: 'green' },
             { text: ` again or `, color: 'white' },
@@ -165,7 +164,7 @@ module.exports = Base => class extends Base {
         await this.updatePlayerXpAutoStore(playerName, false);
         this.tellPlayerRaw(playerName, [
             { text: `Autostore is `, color: 'white' },
-            { text: `ON`, color: 'light_purple' },
+            { text: `OFF`, color: 'light_purple' },
             { text: ` .\nType `, color: 'white' },
             { text: `!xp autostore`, color: 'green' },
             { text: ` to turn on.`, color: 'white' },

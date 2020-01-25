@@ -112,7 +112,7 @@ module.exports = class Server extends OtherClasses {
             case 'xp':
                 return this.handleXp(playerName, args);
             case 'test': 
-                return this.storeXpAutoStorePlayersTrue();
+                return this.storePlayersXpAutoStoreTrue();
 
             default:
                 // dev color helper
@@ -132,12 +132,6 @@ module.exports = class Server extends OtherClasses {
 
     async handlePlayerLogin(playerName, uuid) {
         this.checkPlayerRecord(playerName, uuid);
-        await this.welcomeMessage(playerName);
-        // await this.updateAutoStoreOnList(playerName);
+        await this.welcomeMessage(playerName);       
     }
-
-    // async handlePlayerLogout(playerName) {
-        //still need to complete this function. needed so we can stop trying to store all of a players xp when they log out if thier autostore is on.
-        // await this.updateAutoStoreOnList(playerName);
-    // }
 };
