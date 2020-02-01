@@ -97,8 +97,12 @@ module.exports = Base => class extends Base {
                 if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForPlayers);
 
-                let players = text.split('players online: ')[1].split(', ');
-                resolve(players);
+                let onlineNumber = parseInt(text.split(' ')[4],10);
+
+                if (onlineNumber > 0) {
+                    let players = text.split('players online: ')[1].split(', ');
+                    resolve(players);
+                } else resolve([])
             };
 
             this.serverProcess.stdout.on('data', listenForPlayers);

@@ -12,6 +12,7 @@ OtherClasses = require('./lib/entity')(OtherClasses);
 OtherClasses = require('./lib/experience')(OtherClasses);
 OtherClasses = require('./lib/tell')(OtherClasses);
 OtherClasses = require('./lib/server-management')(OtherClasses);
+OtherClasses = require('./lib/xpAutostore')(OtherClasses);
 
 // Help needs to be first command to setup structure
 OtherClasses = require('./commands/help')(OtherClasses);
@@ -129,5 +130,6 @@ module.exports = class Server extends OtherClasses {
     async handlePlayerLogin(playerName, uuid) {
         this.checkPlayerRecord(playerName, uuid);
         this.welcomeMessage(playerName);
+        await this.xpAutoStoreInform(playerName);
     }
 };

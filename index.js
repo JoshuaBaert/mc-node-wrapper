@@ -32,6 +32,8 @@ server.on('connection', (socket) => {
 
 if (!fs.existsSync(`./backups`)) fs.mkdirSync(`./backups/`);
 
+// Every 30 minutes
+let autoStoreCronTime = ' */30 * * * * ';
 // Mon - Sat at 4am
 let shortCronTime = '0 0 4 * * 1-6';
 // Sun at 4am each week
@@ -53,6 +55,16 @@ new CronJob(
     async () => {
         await mcServer.saveServer();
         await backup('server', './backups/long', 12);
+    },
+    null,
+    true,
+    'America/Boise',
+);
+
+new CronJob(
+    autoStoreCronTime,
+    async () => {
+        await mcServer.storePlayersXpAutoStoreTrue();
     },
     null,
     true,

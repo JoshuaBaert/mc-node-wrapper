@@ -7,7 +7,6 @@ module.exports = Base => class extends Base {
             { text: '!xp store ', color: 'green' },
         ];
 
-
         this.helpFullDescription.xp = [
             { text: '', color: 'white' },
             { text: '!xp store ', color: 'green' },
@@ -18,16 +17,18 @@ module.exports = Base => class extends Base {
             { text: 'PlayerName ', color: 'aqua' },
             'offers all stored experience to another player.\n',
             { text: '!xp check ', color: 'green' },
-            'see stored experience.\n\n',
+            'see stored experience and status of autostore.\n',
+            { text: '!xp autostore ', color: 'green' },
+            'Turn on and off a switch to store experience every 30 minutes.\n\n',
             'store, get, and gift partial amounts of experience.\n',
             'ex: ',
             { text: '!xp get ', color: 'green' },
             { text: '300 ', color: 'light_purple' },
             'will retrieve 300 experience points.\n',
-            'how many experience points needed to reach a level.\n',
+            'See how many experience points needed to reach a level.\n',
             'ex: ',
             { text: '!xp check ', color: 'green' },
-            { text: '30 ', color: 'light_purple' },          
+            { text: '30 \n', color: 'light_purple' },
         ];
     }
 
@@ -40,6 +41,8 @@ module.exports = Base => class extends Base {
                 switch (args[0].toLowerCase()) {
                 case 'store':
                     return this.handleXpStore(playerName, args[1]);
+                case 'autostore':
+                    return this.handleXpAutoStore(playerName);
                 case 'get':
                     return this.handleXpGet(playerName, args[1]);
                 case 'give':
@@ -56,8 +59,11 @@ module.exports = Base => class extends Base {
     handleWrongInput(playerName) {
         //they got here by typing the wrong thing, will list the things they can type.
         return this.tellPlayerRaw(playerName, [
-            { text: `Not a command. type !help xp for a list of commands. `, color: 'white' },
-        ]);;
+            { text: `Not a command.\n`, color: 'red' },
+            { text: `Type `, color: 'white' },
+            { text: `!help xp`, color: 'green' },
+            { text: ` for a list of commands.`, color: 'white' },
+        ]);
     }
 
     async handleXpStore(playerName, storeAmount) {
@@ -131,7 +137,48 @@ module.exports = Base => class extends Base {
         await this.simpleXpCheck(playerName);
     };
 
+    async handleXpAutoStore(playerName) {
+        //turn on or off the autostore.
+        if (await this.readPlayerXpAutoStore(playerName)) {
+            await this.updatePlayerXpAutoStore(playerName, false);
+            await this.xpAutoStoreInform(playerName, 'OFF');
+        } else {
+            await this.updatePlayerXpAutoStore(playerName, true);
+            await this.xpAutoStoreInform(playerName, 'ON');
+        }
+    };
+
+    async xpAutoStoreInform(playerName, status) {
+        //this allows us to call the function even in cases where we wont already know what the status is.
+        //If we do know the status, we can skip a database read and make our code more performant.
+        if (!status) {
+            let onOrOff = async () => {
+                if (await this.readPlayerXpAutoStore(playerName)) {
+                    return "ON"
+                } else return "OFF"
+            };
+    
+            this.tellPlayerRaw(playerName, [
+                { text: '!xp autostore', color: 'green' },
+                { text: ' is ', color: 'white' },
+                { text: `${await onOrOff()}`, color: 'light_purple' },
+            ]);
+            return;
+        }
+        this.tellPlayerRaw(playerName, [
+            { text: '!xp autostore', color: 'green' },
+            { text: ' is ', color: 'white' },
+            { text: `${status}`, color: 'light_purple' },
+        ]);
+    };
+
     async handleXpGet(playerName, getAmount) {
+        //If !xp autostore is on, turn off. this will ensure player can properly use the xp they get from the store.
+        if (await this.readPlayerXpAutoStore(playerName)) {
+            await this.updatePlayerXpAutoStore(playerName, false);
+            await this.xpAutoStoreInform(playerName, 'OFF');
+        }
+
         //checking current xpStore balance
         let currentBalance = await this.currentBalance(playerName);
 
@@ -315,14 +362,16 @@ module.exports = Base => class extends Base {
         } 
     }
 
-    async handleXpCheck(playerName, checkAmount) {       
+    async handleXpCheck(playerName, checkAmount) {    
+        if (!checkAmount) {
+            await this.simpleXpCheck(playerName);
+            await this.xpAutoStoreInform(playerName);
+            return;
+        }
+
         let totalPoints = await this.totalPoints(playerName);
         let playerLevels = await this.getPlayerExperience(playerName, 'levels');
 
-        if (!checkAmount) {
-            this.simpleXpCheck(playerName);
-            return;
-        }
         //make checkAmount an integer
         let checkAmountInt = this.amountInt(checkAmount);
 
@@ -363,9 +412,9 @@ module.exports = Base => class extends Base {
         } else {
             //they got here because they messed up.
             this.tellPlayerRaw(playerName, [
-                { text: `Must input a positive number.\n`, color: 'red' },
+                { text: `Must input a positive number.\n`, color: 'red' },,
                 { text: `!xp check 20`, color: 'green' },
-                { text: ` tells you how many experience points are needed to reach that level.`, color: 'red' },
+                { text: ` tells you how many experience points are needed to reach that level.`, color: 'white' },
             ]);
         }  
     }
