@@ -19,7 +19,7 @@ module.exports = Base => class extends Base {
             { text: '!xp check ', color: 'green' },
             'see stored experience.\n',
             { text: '!xp autostore ', color: 'green' },
-            'automatically store experience every 30 minutes.\n\n',
+            'Turn on and off a switch to store experience every 30 minutes.\n\n',
             'store, get, and gift partial amounts of experience.\n',
             'ex: ',
             { text: '!xp get ', color: 'green' },
@@ -29,10 +29,6 @@ module.exports = Base => class extends Base {
             'ex: ',
             { text: '!xp check ', color: 'green' },
             { text: '30 \n', color: 'light_purple' },
-            'Check the status of your autostore.\n',
-            'ex: ',
-            { text: '!xp check ', color: 'green' },
-            { text: 'autostore ', color: 'light_purple' },
         ];
     }
 
@@ -367,28 +363,9 @@ module.exports = Base => class extends Base {
     }
 
     async handleXpCheck(playerName, checkAmount) {    
-        if (checkAmount && checkAmount.toLowerCase() === 'autostore') {
-            await this.xpAutoStoreInform(playerName);
-            if (await this.readPlayerXpAutoStore(playerName)) {
-                this.tellPlayerRaw(playerName, [
-                    { text: `Type `, color: 'white' },
-                    { text: `!xp autostore`, color: 'green' },
-                    { text: ` or `, color: 'white' },
-                    { text: `!xp get`, color: 'green' },
-                    { text: ` to turn off.`, color: 'white' },
-                ]);
-                return;
-            }
-            this.tellPlayerRaw(playerName, [
-                { text: `Type `, color: 'white' },
-                { text: `!xp autostore`, color: 'green' },
-                { text: ` to turn on.`, color: 'white' },
-            ]);
-            return;
-        }
-
         if (!checkAmount) {
-            this.simpleXpCheck(playerName);
+            await this.simpleXpCheck(playerName);
+            await this.xpAutoStoreInform(playerName);
             return;
         }
 
@@ -435,9 +412,7 @@ module.exports = Base => class extends Base {
         } else {
             //they got here because they messed up.
             this.tellPlayerRaw(playerName, [
-                { text: `Must input a positive number or`, color: 'red' },
-                { text: ` "autostore"`, color: 'white' },
-                { text: `.\n`, color: 'red' },
+                { text: `Must input a positive number.\n`, color: 'red' },,
                 { text: `!xp check 20`, color: 'green' },
                 { text: ` tells you how many experience points are needed to reach that level.`, color: 'white' },
             ]);
