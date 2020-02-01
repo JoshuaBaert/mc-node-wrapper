@@ -151,7 +151,7 @@ module.exports = Base => class extends Base {
         this.tellPlayerRaw(playerName, [
             { text: `Autostore is `, color: 'white' },
             { text: `ON`, color: 'light_purple' },
-            { text: ` .\nThis will store your experience every 3 minutes.\n Type `, color: 'white' },
+            { text: ` .\nThis will store your experience every 30 minutes.\n Type `, color: 'white' },
             { text: `!xp autostore`, color: 'green' },
             { text: ` again or `, color: 'white' },
             { text: `!xp get`, color: 'green' },

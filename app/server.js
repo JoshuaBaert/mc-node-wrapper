@@ -111,8 +111,6 @@ module.exports = class Server extends OtherClasses {
                 return this.handleLocations(playerName, args);
             case 'xp':
                 return this.handleXp(playerName, args);
-            case 'test': 
-                return this.storePlayersXpAutoStoreTrue();
 
             default:
                 // dev color helper

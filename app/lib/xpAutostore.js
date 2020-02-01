@@ -4,7 +4,6 @@ module.exports = Base => class extends Base {
     }
 
     async storePlayersXpAutoStoreTrue() {
-        //might be nice to make this available through the whole node wrapper and not just this individual method, but I need to see what Josh says.
         async function asyncForEach(array, callback) {
             for (let index = 0; index < array.length; index++) {
               await callback(array[index], index, array);
@@ -22,7 +21,5 @@ module.exports = Base => class extends Base {
         return await asyncForEach(filteredAutostorePlayers, async (playerName) => {
             await this.storeAll(playerName, await this.totalPoints(playerName), await this.currentBalance(playerName))
         })
-    }
-
-    
+    }  
 }
