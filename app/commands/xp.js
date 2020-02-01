@@ -17,7 +17,7 @@ module.exports = Base => class extends Base {
             { text: 'PlayerName ', color: 'aqua' },
             'offers all stored experience to another player.\n',
             { text: '!xp check ', color: 'green' },
-            'see stored experience.\n',
+            'see stored experience and status of autostore.\n',
             { text: '!xp autostore ', color: 'green' },
             'Turn on and off a switch to store experience every 30 minutes.\n\n',
             'store, get, and gift partial amounts of experience.\n',
