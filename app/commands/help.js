@@ -12,13 +12,7 @@ module.exports = Base => class extends Base {
         this.helpFullDescription = {};
     }
 
-    async welcomeMessage(playerName) {
-        let onOrOff = async () => {
-            if (await this.readPlayerXpAutoStore(playerName)) {
-                return "ON"
-            } else return "OFF"
-        };
-        
+    welcomeMessage(playerName) {
         this.tellPlayerRaw(playerName, [
             'Hey ',
             { text: playerName, color: 'aqua' },
@@ -26,11 +20,6 @@ module.exports = Base => class extends Base {
             '\nWe have some custom commands to encourage playing together.\nTry typing',
             { text: ' !help', color: 'green' },
             ' for more information.',
-        ]);
-        this.tellPlayerRaw(playerName, [
-            { text: '!xp autostore', color: 'green' },
-            { text: ' is ', color: 'white' },
-            { text: await onOrOff(), color: 'light_purple' },
         ]);
     }
 

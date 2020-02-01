@@ -129,6 +129,7 @@ module.exports = class Server extends OtherClasses {
 
     async handlePlayerLogin(playerName, uuid) {
         this.checkPlayerRecord(playerName, uuid);
-        await this.welcomeMessage(playerName);
+        this.welcomeMessage(playerName);
+        await this.xpAutoStoreInform(playerName);
     }
 };
