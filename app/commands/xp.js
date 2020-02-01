@@ -12,7 +12,7 @@ module.exports = Base => class extends Base {
             { text: '!xp store ', color: 'green' },
             'store all experience.\n',
             { text: '!xp autostore ', color: 'green' },
-            'automatically store experience every 3 minutes.\n',
+            'automatically store experience every 30 minutes.\n',
             { text: '!xp get ', color: 'green' },
             'retrieve all stored experience.\n',
             { text: '!xp give ', color: 'green' },
@@ -135,8 +135,7 @@ module.exports = Base => class extends Base {
     };
 
     async handleXpAutoStore(playerName) {
-        //player will turn on and off the autostore using just !xp autostore
-        //If autostore is already set to true
+        //turn on or off the autostore.
         if (await this.readPlayerXpAutoStore(playerName)) {
             await this.xpAutoStoreDisable(playerName);
         } else {
@@ -144,7 +143,6 @@ module.exports = Base => class extends Base {
         }
     };
 
-    //functions related to turning autostore on and off.
     async xpAutoStoreEnable(playerName) {
         //set autostore to true
         await this.updatePlayerXpAutoStore(playerName, true);
@@ -172,7 +170,7 @@ module.exports = Base => class extends Base {
     }
 
     async handleXpGet(playerName, getAmount) {
-        //set autostore to false. this will ensure player can properly use the xp they get from the store.
+        //If !xp autostore is on, turn off. this will ensure player can properly use the xp they get from the store.
         if (await this.readPlayerXpAutoStore(playerName)) {
             await this.xpAutoStoreDisable(playerName);
         }

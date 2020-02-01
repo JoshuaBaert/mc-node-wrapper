@@ -111,7 +111,6 @@ module.exports = class Server extends OtherClasses {
                 return this.handleLocations(playerName, args);
             case 'xp':
                 return this.handleXp(playerName, args);
-
             default:
                 // dev color helper
                 if (isDev && baseCommand.toLowerCase() === 'colors') return this.tellColors(playerName);
@@ -130,6 +129,6 @@ module.exports = class Server extends OtherClasses {
 
     async handlePlayerLogin(playerName, uuid) {
         this.checkPlayerRecord(playerName, uuid);
-        await this.welcomeMessage(playerName);       
+        await this.welcomeMessage(playerName);
     }
 };

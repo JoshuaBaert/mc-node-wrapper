@@ -23,7 +23,6 @@ module.exports = Base => class extends Base {
             // Use a loop to make sure we read all available data.
             while ((chunk = process.stdin.read()) !== null) {
                 this.write(chunk);
-                //thinking of putting async autoStoreIntervalOnOff(this.autoStoreOnList) here. need to make sure that will work the way i think it will.
             }
         });
 
