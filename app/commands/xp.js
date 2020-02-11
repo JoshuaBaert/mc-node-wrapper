@@ -39,18 +39,18 @@ module.exports = Base => class extends Base {
         } else {
             (() => {
                 switch (args[0].toLowerCase()) {
-                    case 'store':
-                        return this.handleXpStore(playerName, args[1]);
-                    case 'autostore':
-                        return this.handleXpAutoStore(playerName);
-                    case 'get':
-                        return this.handleXpGet(playerName, args[1]);
-                    case 'give':
-                        return this.handleXpGive(playerName, args[1], args[2]);
-                    case 'check':
-                        return this.handleXpCheck(playerName, args[1]);
-                    default:
-                        return this.handleWrongXpInput(playerName);             
+                case 'store':
+                    return this.handleXpStore(playerName, args[1]);
+                case 'autostore':
+                    return this.handleXpAutoStore(playerName);
+                case 'get':
+                    return this.handleXpGet(playerName, args[1]);
+                case 'give':
+                    return this.handleXpGive(playerName, args[1], args[2]);
+                case 'check':
+                    return this.handleXpCheck(playerName, args[1]);
+                default:
+                    return this.handleWrongXpInput(playerName);             
                 }
             })();
         }

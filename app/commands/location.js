@@ -16,12 +16,12 @@ module.exports = Base => class extends Base {
     handleLocation(playerName, args) {
         (() => {
             switch (args[0]) {
-                case 'set':
-                    return this.setNewLocation(playerName, args.slice(1));
-                case 'remove':
-                    return this.removeLocation(playerName, args.slice(1));
-                default:
-                    return;
+            case 'set':
+                return this.setNewLocation(playerName, args.slice(1));
+            case 'remove':
+                return this.removeLocation(playerName, args.slice(1));
+            default:
+                return;
             }
         })();
     }
