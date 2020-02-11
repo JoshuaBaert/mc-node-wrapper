@@ -35,28 +35,28 @@ module.exports = Base => class extends Base {
     handleXp(playerName, args) {
         //choose a function based on the args.   
         if (!args[0]) {
-            return this.handleWrongInput(playerName);
+            return this.handleWrongXpInput(playerName);
         } else {
             (() => {
                 switch (args[0].toLowerCase()) {
-                case 'store':
-                    return this.handleXpStore(playerName, args[1]);
-                case 'autostore':
-                    return this.handleXpAutoStore(playerName);
-                case 'get':
-                    return this.handleXpGet(playerName, args[1]);
-                case 'give':
-                    return this.handleXpGive(playerName, args[1], args[2]);
-                case 'check':
-                    return this.handleXpCheck(playerName, args[1]);
-                default:
-                    return this.handleWrongInput(playerName);             
+                    case 'store':
+                        return this.handleXpStore(playerName, args[1]);
+                    case 'autostore':
+                        return this.handleXpAutoStore(playerName);
+                    case 'get':
+                        return this.handleXpGet(playerName, args[1]);
+                    case 'give':
+                        return this.handleXpGive(playerName, args[1], args[2]);
+                    case 'check':
+                        return this.handleXpCheck(playerName, args[1]);
+                    default:
+                        return this.handleWrongXpInput(playerName);             
                 }
             })();
         }
     }
 
-    handleWrongInput(playerName) {
+    handleWrongXpInput(playerName) {
         //they got here by typing the wrong thing, will list the things they can type.
         return this.tellPlayerRaw(playerName, [
             { text: `Not a command.\n`, color: 'red' },
