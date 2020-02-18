@@ -14,13 +14,12 @@ module.exports = Base => class extends Base {
             { text: '!warp ', color: 'green' },
             { text: 'PlayerName ', color: 'aqua' },
             'sends a warp request to another player.\n',
-            'They will have to accept the request first.\n(has 15 minute cooldown if accepted)\n\n',
             { text: '!warp accept', color: 'green' },
-            ' accepts a warp request from the next player in the queue.',
+            ' accepts a warp request from the next player in the queue.\n',
             { text: '!warp decline', color: 'green' },
-            ' declines a warp request from the next player in the queue.',
+            ' declines a warp request from the next player in the queue.\n',
             { text: '!warp queue', color: 'green' },
-            ' lists players who have sent you a warp request.',
+            ' lists players who have sent you a warp request.\n',
             { text: '!warp accept/decline all', color: 'green' },
             ' accepts or declines warp requests from all players in the queue.',
         ];
@@ -68,15 +67,22 @@ module.exports = Base => class extends Base {
             { text: `Type `, color: 'white' },
             { text: `!help warp`, color: 'green' },
             { text: ` for a list of commands.\n`, color: 'white' },
-            { text: `If you meant to type the name of a player, make sure they're logged in, and that it's spelled right.`, color: 'white' },
+            { text: `If you meant to type the name of a player, make sure it's spelled right, and that they're logged in.`, color: 'white' },
         ]);
     }
 
-    async handleWarpRequest(playerName, warpTo) {  
+    handleWarpRequest(playerName, warpTo) {  
         //cooldownCheck goes here
         if (this.cooldownCheck('warp', playerName) == true) return;
 
-        //if player is not already on warpTo's queue:
+        //if playerName is already in the queue of a player
+        for (let k in this.warpRequests) {
+            if (this.warpRequests[k].includes(playerName)) {
+                return this.tellPlayer(requestingPlayer, `Already sent a request to ${k}.`, 'red');
+            }
+        } 
+
+        //if playerName is not already on warpTo's queue:
         if (this.addToQueue(warpTo, playerName) == false) {
             this.tellPlayerRaw(playerName, ['Sent warp request to ', { text: warpTo, color: 'green' }]);
 
@@ -88,11 +94,11 @@ module.exports = Base => class extends Base {
             return;
         }
 
-        //player is already on queue
+        //playerName is already on queue
         this.tellPlayer(requestingPlayer, `Already sent a request to that player.`, 'red');  
     }
 
-    handleWarpAccept(playerName, args) {
+    handleWarpAccept(playerName, all) {
         //instantiate warp queue if it hasn't been instantiated yet.
         if (!this.warpRequests[playerName]) this.warpRequests[playerName] = [];
         
@@ -102,41 +108,99 @@ module.exports = Base => class extends Base {
             return;
         }
 
-        //needs work\/\/
-        // then if there is warp them to the accepting player
-        let requestingPlayer = this.warpRequests[playerName];
-        if (requestingPlayer) {
+        if (!all) {
+            //warp requesting player to the accepting player
+            let requestingPlayer = this.warpRequests[playerName][0];
+
+            //execute warp and remove from array
             this.writeToMine(`tp ${requestingPlayer} ${playerName}`);
             this.tellPlayer(requestingPlayer, 'Warp accepted');
             this.tellPlayer(playerName, 'Warp accepted');
-            this.warpRequests[playerName] = null;
+            this.warpRequests[playerName].shift();
 
             //cooldownStart goes here.
             this.cooldownStart('warp', requestingPlayer);
 
-        } 
-    }
-
-    handleWarpDecline(playerName, args) {
-        // if it is accept see if there is a player that requested a warp
-        // then if there is warp them to the accepting player
-        let requestingPlayer = this.warpRequests[playerName];
-        if (requestingPlayer) {
-            this.writeToMine(`tp ${requestingPlayer} ${playerName}`);
-            this.tellPlayer(requestingPlayer, 'Warp accepted');
-            this.tellPlayer(playerName, 'Warp accepted');
+        } else if (all === 'all') {
+            this.warpRequests[playerName].forEach(requestingPlayer => {
+                //execute warp on each
+                this.writeToMine(`tp ${requestingPlayer} ${playerName}`);
+                this.tellPlayer(requestingPlayer, 'Warp accepted');
+    
+                //cooldownStart goes here.
+                this.cooldownStart('warp', requestingPlayer);
+            });
+    
+            //clear requests from queue
             this.warpRequests[playerName] = null;
-
-            //cooldownStart goes here.
-            this.cooldownStart('warp', requestingPlayer);
+            this.tellPlayer(playerName, 'All Warp requests accepted');
 
         } else {
+            return this.tellPlayerRaw(playerName, [
+                { text: `Not a command.\n`, color: 'red' },
+                { text: `Did you mean `, color: 'white' },
+                { text: `!warp accept all`, color: 'green' },
+                { text: `?`, color: 'white' },
+            ]);
+        }
+    }
+
+    handleWarpDecline(playerName, all) {
+        //instantiate warp queue if it hasn't been instantiated yet.
+        if (!this.warpRequests[playerName]) this.warpRequests[playerName] = [];
+        
+        // if no players on the queue
+        if (this.warpRequests[playerName].length === 0) {
             this.tellPlayer(playerName, `No pending warp requests.`, 'red');
+            return;
+        }
+
+        if (!all) {
+            //decline requesting player
+            let requestingPlayer = this.warpRequests[playerName][0];
+
+            //decline request and remove from array
+            this.tellPlayer(requestingPlayer, 'Warp declined');
+            this.tellPlayer(playerName, 'Warp declined');
+            this.warpRequests[playerName].shift();
+
+        } else if (all === 'all') {
+            this.warpRequests[playerName].forEach(requestingPlayer => {
+                //decline each
+                this.tellPlayer(requestingPlayer, 'Warp declined');
+            });
+    
+            //clear requests from queue
+            this.warpRequests[playerName] = null;
+            this.tellPlayer(playerName, 'All Warp requests declined');
+
+        } else {
+            return this.tellPlayerRaw(playerName, [
+                { text: `Not a command.\n`, color: 'red' },
+                { text: `Did you mean `, color: 'white' },
+                { text: `!warp decline all`, color: 'green' },
+                { text: `?`, color: 'white' },
+            ]);
         }
     }
 
     handleWarpQueue(playerName) {
+        //instantiate warp queue if it hasn't been instantiated yet.
+        if (!this.warpRequests[acceptingPlayer]) this.warpRequests[acceptingPlayer] = [];
 
+        // if no players on the queue
+        if (this.warpRequests[playerName].length === 0) {
+            this.tellPlayer(playerName, `No pending warp requests.`, 'red');
+            return;
+        }
+
+        this.tellPlayer(playerName, 'The following players have pending warp requests:');
+        //list all players on queue
+        this.warpRequests[playerName].forEach(requestingPlayer => {
+            this.tellPlayerRaw(playerName, [
+                { text: `${requestingPlayer}`, color: 'aqua' },
+            ]);
+        });
     }
 
     addToQueue(acceptingPlayer, requestingPlayer) {
