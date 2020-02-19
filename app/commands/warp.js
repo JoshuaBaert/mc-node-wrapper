@@ -78,11 +78,11 @@ module.exports = Base => class extends Base {
         //if playerName is already in the queue of a player
         for (let k in this.warpRequests) {
             if (this.warpRequests[k].includes(playerName)) {
-                return this.tellPlayer(requestingPlayer, `Already sent a request to ${k}.`, 'red');
+                return this.tellPlayer(playerName, `Already sent a request to ${k}.`, 'red');
             }
         } 
 
-        //if playerName is not already on warpTo's queue:
+        //if playerName is not already on warpTo's queue addToQueue puts them on it.
         if (this.addToQueue(warpTo, playerName) == false) {
             this.tellPlayerRaw(playerName, ['Sent warp request to ', { text: warpTo, color: 'green' }]);
 
@@ -91,6 +91,10 @@ module.exports = Base => class extends Base {
                 { text: `!warp accept`, color: 'green' },
                 { text: ` to accept`, color: 'white' },
             ]);
+
+            //puts a timer so that if player request doesn't get a response they're removed from queue.
+            const queueTime = 1000 * 60 * 3
+            this.queueTimer(warpTo, playerName, queueTime)
             return;
         }
 
@@ -216,5 +220,15 @@ module.exports = Base => class extends Base {
 
         //if player is on queue
         return true;
+    }
+
+    queueTimer(acceptingPlayer, requestingPlayer, time) {
+        //it's necessary to remove players from queues after some time so they don't get trapped if their request is never accepted/rejected
+        setTimeout(() => {
+            const index = this.warpRequests[acceptingPlayer].indexOf(requestingPlayer);
+            if (index > -1) {
+                this.warpRequests[acceptingPlayer].splice(index, 1);
+            }
+        }, time);
     }
 };
