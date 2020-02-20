@@ -1,0 +1,13 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Refresh Minecraft Server
+      run: curl -X POST -H "Content-Type: application/json" -d '{"passPhrase":"${{ secrets.webhookSecret }}"}' htto://baert.io:${{secrets.webhookPort}}/minecraft-master
