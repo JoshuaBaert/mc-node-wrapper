@@ -35,7 +35,7 @@ module.exports = Base => class extends Base {
     handleXp(playerName, args) {
         //choose a function based on the args.   
         if (!args[0]) {
-            return this.handleWrongInput(playerName);
+            return this.handleWrongXpInput(playerName);
         } else {
             (() => {
                 switch (args[0].toLowerCase()) {
@@ -50,13 +50,13 @@ module.exports = Base => class extends Base {
                 case 'check':
                     return this.handleXpCheck(playerName, args[1]);
                 default:
-                    return this.handleWrongInput(playerName);             
+                    return this.handleWrongXpInput(playerName);             
                 }
             })();
         }
     }
 
-    handleWrongInput(playerName) {
+    handleWrongXpInput(playerName) {
         //they got here by typing the wrong thing, will list the things they can type.
         return this.tellPlayerRaw(playerName, [
             { text: `Not a command.\n`, color: 'red' },
