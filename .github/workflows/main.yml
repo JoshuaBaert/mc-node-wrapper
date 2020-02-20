@@ -9,4 +9,4 @@ jobs:
     - uses: actions/checkout@v2
     - name: curl
       run: |-
-        curl -X POST -H 'Content-Type: application/json' -d '{"passPhrase":"${{ secrets.webhookSecret }}"}' htto://baert.io:${{secrets.webhookPort}}/minecraft-master
+        curl -X POST -H 'Content-Type: application/json' -d '{"passPhrase":"${{ secrets.webhookSecret }}"}' http://baert.io:${{secrets.webhookPort}}/minecraft-master
