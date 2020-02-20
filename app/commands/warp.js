@@ -80,6 +80,9 @@ module.exports = Base => class extends Base {
             }
         } 
 
+        //instantiate warp queue if it hasn't been instantiated yet.
+        if (!this.warpRequests[warpTo]) this.warpRequests[warpTo] = [];
+
         //if playerName is not already on warpTo's queue addToQueue puts them on it.
         if (this.addToQueue(warpTo, playerName) == false) {
             this.tellPlayerRaw(playerName, ['Sent warp request to ', { text: warpTo, color: 'green' }]);
@@ -204,9 +207,6 @@ module.exports = Base => class extends Base {
     }
 
     addToQueue(acceptingPlayer, requestingPlayer) {
-        //instantiate warp queue if it hasn't been instantiated yet.
-        if (!this.warpRequests[acceptingPlayer]) this.warpRequests[acceptingPlayer] = [];
-
         //if player is NOT already on queue...
         if (this.warpRequests[acceptingPlayer].indexOf(requestingPlayer) === -1) {
             //...push requesting player to back of queue
