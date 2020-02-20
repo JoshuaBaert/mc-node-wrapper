@@ -38,14 +38,7 @@ module.exports = Base => class extends Base {
         if (!args[0]) {
             return this.handleWrongWarpInput(playerName);
         } else {
-            let loggedInPlayers = await this.getListOfOnlinePlayers();
-            if (loggedInPlayers.indexOf(args[0]) !== -1) {
-                // If the first word is a players name then make a request for warp
-                let warpTo = args[0]
-                return this.handleWarpRequest(playerName, warpTo);
-            }
-
-            (() => {
+            (async () => {
                 switch (args[0].toLowerCase()) {
                 case 'accept':
                     return this.handleWarpAccept(playerName, args[1]);
@@ -54,7 +47,12 @@ module.exports = Base => class extends Base {
                 case 'queue':
                     return this.handleWarpQueue(playerName);
                 default:
-                    return this.handleWrongWarpInput(playerName);             
+                    let loggedInPlayers = await this.getListOfOnlinePlayers();
+                    if (loggedInPlayers.indexOf(args[0]) !== -1) {
+                        // If the first word is a players name then make a request for warp
+                        let warpTo = args[0]
+                        return this.handleWarpRequest(playerName, warpTo);
+                    } else return this.handleWrongWarpInput(playerName);             
                 }
             })();
         }
@@ -196,13 +194,13 @@ module.exports = Base => class extends Base {
             return;
         }
 
-        this.tellPlayer(playerName, 'The following players have pending warp requests:');
-        //list all players on queue
-        this.warpRequests[playerName].forEach(requestingPlayer => {
-            this.tellPlayerRaw(playerName, [
-                { text: `${requestingPlayer}`, color: 'aqua' },
-            ]);
-        });
+        this.tellPlayerRaw(playerName, [
+            'The following players have pending warp requests:\n',
+            //list all players on queue
+            ...(this.warpRequests[playerName].map((requestingPlayer) => {
+                return { text: requestingPlayer + '\n', color: 'aqua' };
+            })),
+        ]);
     }
 
     checkIsInQueueAndAdd(acceptingPlayer, requestingPlayer) {
