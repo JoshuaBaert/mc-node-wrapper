@@ -2,6 +2,8 @@ module.exports = Base => class extends Base {
     constructor() {
         super();
         this.warpRequests = {};
+        //two minute timer
+        this.queueWait = 1000 * 60 * 2
 
         this.helpShortDescription.warp = [
             'Teleport to another player ex: ',
@@ -25,7 +27,7 @@ module.exports = Base => class extends Base {
         ];
     }
 
-    async handleWarp(playerName, args) {       
+    async handleWarp(playerName, args) {
         // Check to see if the player is in the end if so don't allow anything home related
         // I could have checked upon request if the recipient is in the end but decided it wasn't worth the extra code
         if ((await this.getPlayerDimension(playerName)) === 'minecraft:the_end') {
@@ -39,8 +41,7 @@ module.exports = Base => class extends Base {
             let loggedInPlayers = await this.getListOfOnlinePlayers();
             if (loggedInPlayers.indexOf(args[0]) !== -1) {
                 // If the first word is a players name then make a request for warp
-                let index = loggedInPlayers.indexOf(args[0]);
-                let warpTo = loggedInPlayers[index];
+                let warpTo = args[0]
                 return this.handleWarpRequest(playerName, warpTo);
             }
 
@@ -83,8 +84,8 @@ module.exports = Base => class extends Base {
         //instantiate warp queue if it hasn't been instantiated yet.
         if (!this.warpRequests[warpTo]) this.warpRequests[warpTo] = [];
 
-        //if playerName is not already on warpTo's queue addToQueue puts them on it.
-        if (this.addToQueue(warpTo, playerName) == false) {
+        //if playerName is not already on warpTo's queue checkIsInQueueAndAdd puts them on it.
+        if (this.checkIsInQueueAndAdd(warpTo, playerName) == false) {
             this.tellPlayerRaw(playerName, ['Sent warp request to ', { text: warpTo, color: 'green' }]);
 
             this.tellPlayerRaw(warpTo, [
@@ -94,10 +95,8 @@ module.exports = Base => class extends Base {
                 { text: `!warp decline`, color: 'green' },
             ]);
 
-            //2 minute timer. if player request doesn't get a response they're removed from queue.
-            const queueTime = 1000 * 60 * 2
-            this.queueTimer(warpTo, playerName, queueTime)
-            return;
+            //If player request doesn't get a response they're removed from queue.
+            this.queueTimer(warpTo, playerName, this.queueWait)
         } 
     }
 
@@ -206,7 +205,7 @@ module.exports = Base => class extends Base {
         });
     }
 
-    addToQueue(acceptingPlayer, requestingPlayer) {
+    checkIsInQueueAndAdd(acceptingPlayer, requestingPlayer) {
         //if player is NOT already on queue...
         if (this.warpRequests[acceptingPlayer].indexOf(requestingPlayer) === -1) {
             //...push requesting player to back of queue
