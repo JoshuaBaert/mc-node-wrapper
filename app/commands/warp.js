@@ -3,7 +3,7 @@ module.exports = Base => class extends Base {
         super();
         this.warpRequests = {};
         //two minute timer
-        this.queueWait = 1000 * 60 * 2
+        this.queueTimerLength = 1000 * 60 * 2
 
         this.helpShortDescription.warp = [
             'Teleport to another player ex: ',
@@ -96,7 +96,7 @@ module.exports = Base => class extends Base {
             ]);
 
             //If player request doesn't get a response they're removed from queue.
-            this.queueTimer(warpTo, playerName, this.queueWait)
+            this.queueTimer(warpTo, playerName, this.queueTimerLength)
         } 
     }
 
