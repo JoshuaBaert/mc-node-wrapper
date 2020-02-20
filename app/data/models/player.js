@@ -1,14 +1,32 @@
 const mongoose = require('mongoose');
 
-const locationSchema = new mongoose.Schema({
+
+const homeSchema = new mongoose.Schema({
     pos: [{ type: Number }],
     rot: [{ type: Number }],
+    world: String,
 }, { _id: false });
 
 const playerSchema = new mongoose.Schema({
-    name: String,
+    _version: {
+        type: Number,
+        default: 2,
+    },
+    name: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     id: String,
-    home: locationSchema,
+    home: homeSchema, // this is being depreciated
+    homes: {
+        type: Object,
+    },
+    xpStore: Number,
+    xpAutoStore: {
+        type: Boolean,
+        default: false,
+    }
 });
 
-module.exports = mongoose.model('Player', playerSchema);
+module.exports = mongoose.model('Player', playerSchema)

@@ -2,18 +2,27 @@
   "name": "mine-node",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "start": "docker-compose -f ./docker-compose.dev.yml up -d && cross-env NODE_ENV=development nodemon --ignore \"server/**\" --inspect ./app.js",
+    "debug": "npm start",
+    "shutdown": "node ./scripts/shutdown.js",
+    "start": "npm run start:docker-compose && npm run start:node",
+    "start:docker-compose": "docker-compose -f ./docker-compose.dev.yml up -d",
+    "start:node": "npx cross-env NODE_ENV=development nodemon --ignore \"server/**\" --inspect ./index.js",
     "start:container": "npm ci && npm run start:prod",
-    "start:prod": "node ./app.js"
+    "start:prod": "node ./index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.0",
-    "mongoose": "^5.7.7"
+    "bestzip": "^2.1.5",
+    "cron": "^1.7.2",
+    "dotenv": "^8.2.0",
+    "mongoose": "^5.7.7",
+    "rimraf": "^3.0.0",
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
     "cross-env": "^6.0.3",

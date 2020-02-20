@@ -1,9 +1,10 @@
 .idea
 node_modules
 server
+backups
 db
 
-__current_version.txt
-*.minecraft-server.jar
-
+.env
 test.js
+.vscode
+

@@ -5,13 +5,13 @@ services:
     container_name: mine-node
     build:
       context: ./
-      dockerfile: ./Dockerfile
+      dockerfile: ./docker/prod.node-java.dockerfile
     restart: always
     deploy:
       resources:
         limits:
-          cpus: '2.0'
-          memory: '4096M'
+          cpus: '4.0'
+          memory: '6144M'
         reservations:
           cpus: '0.25'
           memory: '1024M'
@@ -19,7 +19,7 @@ services:
       - ./:/app/
     ports:
       - 25565:25565
-      - 9229:9229
+      - ${KILL_PORT}:${KILL_PORT}
     working_dir: /app/
     entrypoint: 'npm run start:container'
     links:
@@ -34,8 +34,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
-    ports:
-      - 27017:27017
     volumes:
       - ./db:/data/db
     networks:
