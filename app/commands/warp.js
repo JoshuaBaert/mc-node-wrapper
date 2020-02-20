@@ -36,12 +36,11 @@ module.exports = Base => class extends Base {
         if (!args[0]) {
             return this.handleWrongWarpInput(playerName);
         } else {
-            let warpTo;
             let loggedInPlayers = await this.getListOfOnlinePlayers();
             if (loggedInPlayers.indexOf(args[0]) !== -1) {
                 // If the first word is a players name then make a request for warp
                 let index = loggedInPlayers.indexOf(args[0]);
-                warpTo = loggedInPlayers[index];
+                let warpTo = loggedInPlayers[index];
                 return this.handleWarpRequest(playerName, warpTo);
             }
 
