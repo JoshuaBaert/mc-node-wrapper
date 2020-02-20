@@ -1,0 +1,15 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: curl
+      run: |-
+        curl -X POST -H 'Content-Type: application/json' -d '{"passPhrase":"${{ secrets.webhookSecret }}"}' http://baert.io:${{secrets.webhookPort}}/minecraft-master
