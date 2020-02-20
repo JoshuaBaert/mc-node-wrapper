@@ -25,11 +25,11 @@ module.exports = Base => class extends Base {
         ];
     }
 
-    async handleWarp(playerName, args) {
+    async handleWarp(playerName, args) {       
         // Check to see if the player is in the end if so don't allow anything home related
         // I could have checked upon request if the recipient is in the end but decided it wasn't worth the extra code
         if ((await this.getPlayerDimension(playerName)) === 'minecraft:the_end') {
-            return this.tellPlayer(playerName, 'Sorry can not use the warp command in the end', 'red');
+            return this.tellPlayer(playerName, 'Sorry cannot use the warp command in the end', 'red');
         }
         
         //choose a function based on the args.   
@@ -40,13 +40,13 @@ module.exports = Base => class extends Base {
             let loggedInPlayers = await this.getListOfOnlinePlayers();
             if (loggedInPlayers.indexOf(args[0]) !== -1) {
                 // If the first word is a players name then make a request for warp
-                warpTo = loggedInPlayers.indexOf(args[0]);
+                let index = loggedInPlayers.indexOf(args[0]);
+                warpTo = loggedInPlayers[index];
+                return this.handleWarpRequest(playerName, warpTo);
             }
 
             (() => {
                 switch (args[0].toLowerCase()) {
-                case `${warpTo}`:
-                    return this.handleWarpRequest(playerName, warpTo);
                 case 'accept':
                     return this.handleWarpAccept(playerName, args[1]);
                 case 'decline':
@@ -63,11 +63,10 @@ module.exports = Base => class extends Base {
     handleWrongWarpInput(playerName) {
         //they got here by typing the wrong thing, will list the things they can type.
         return this.tellPlayerRaw(playerName, [
-            { text: `Not a command.\n`, color: 'red' },
+            { text: `If you meant to type the name of a player, make sure it's spelled right, and that they're logged in.\n`, color: 'white' },
             { text: `Type `, color: 'white' },
             { text: `!help warp`, color: 'green' },
-            { text: ` for a list of commands.\n`, color: 'white' },
-            { text: `If you meant to type the name of a player, make sure it's spelled right, and that they're logged in.`, color: 'white' },
+            { text: ` for a list of commands.\n`, color: 'white' },   
         ]);
     }
 
@@ -89,17 +88,15 @@ module.exports = Base => class extends Base {
             this.tellPlayerRaw(warpTo, [
                 { text: `Do you want to accept warp from ${playerName}? \nType `, color: 'white' },
                 { text: `!warp accept`, color: 'green' },
-                { text: ` to accept`, color: 'white' },
+                { text: ` to accept, otherwise type `, color: 'white' },
+                { text: `!warp decline`, color: 'green' },
             ]);
 
-            //puts a timer so that if player request doesn't get a response they're removed from queue.
-            const queueTime = 1000 * 60 * 3
+            //2 minute timer. if player request doesn't get a response they're removed from queue.
+            const queueTime = 1000 * 60 * 2
             this.queueTimer(warpTo, playerName, queueTime)
             return;
-        }
-
-        //playerName is already on queue
-        this.tellPlayer(requestingPlayer, `Already sent a request to that player.`, 'red');  
+        } 
     }
 
     handleWarpAccept(playerName, all) {
@@ -136,7 +133,7 @@ module.exports = Base => class extends Base {
             });
     
             //clear requests from queue
-            this.warpRequests[playerName] = null;
+            this.warpRequests[playerName] = [];
             this.tellPlayer(playerName, 'All Warp requests accepted');
 
         } else {
@@ -175,7 +172,7 @@ module.exports = Base => class extends Base {
             });
     
             //clear requests from queue
-            this.warpRequests[playerName] = null;
+            this.warpRequests[playerName] = [];
             this.tellPlayer(playerName, 'All Warp requests declined');
 
         } else {
@@ -190,7 +187,7 @@ module.exports = Base => class extends Base {
 
     handleWarpQueue(playerName) {
         //instantiate warp queue if it hasn't been instantiated yet.
-        if (!this.warpRequests[acceptingPlayer]) this.warpRequests[acceptingPlayer] = [];
+        if (!this.warpRequests[playerName]) this.warpRequests[playerName] = [];
 
         // if no players on the queue
         if (this.warpRequests[playerName].length === 0) {
@@ -228,6 +225,8 @@ module.exports = Base => class extends Base {
             const index = this.warpRequests[acceptingPlayer].indexOf(requestingPlayer);
             if (index > -1) {
                 this.warpRequests[acceptingPlayer].splice(index, 1);
+                this.tellPlayer(acceptingPlayer, `Failed to respond to ${requestingPlayer}.`);
+                this.tellPlayer(requestingPlayer, `${acceptingPlayer} did not respond.`);
             }
         }, time);
     }
