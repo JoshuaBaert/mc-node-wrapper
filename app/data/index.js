@@ -72,6 +72,10 @@ module.exports = Base => class extends Base {
 
     }
 
+    createSharedHome(playerOne, playerTwo, pos, rot, world, homeName) {
+        
+    }
+
     readPlayerHome(playerName, homeName = '_default') {
         return new Promise((resolve) => {
             Player.findOne({ name: playerName }, (err, player) => {

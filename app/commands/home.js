@@ -41,6 +41,8 @@ module.exports = Base => class extends Base {
             return this.listHomes(playerName);
         case 'set':
             return this.setHome(playerName, args[1]);
+        case 'share':
+            return this.handleShareHome(playerName, args[1], args[2])
         default:
             return this.teleportHome(playerName, args[0]);
         }
@@ -89,8 +91,8 @@ module.exports = Base => class extends Base {
     }
 
     async setHome(playerName, homeName) {
-        if (homeName && !(/[a-z]/i).test(homeName)) {
-            return this.tellPlayer(playerName, `Invalid home name ${homeName}. Must use only letters`, 'red');
+        if (homeName && !(/[a-z0-9]/i).test(homeName)) {
+            return this.tellPlayer(playerName, `Invalid home name ${homeName}. Can only contain letters and numbers`, 'red');
         }
         // Get Position & Rotation
         let position = await this.getPlayerPosition(playerName);
@@ -104,5 +106,29 @@ module.exports = Base => class extends Base {
             { text: homeName ? homeName + ' ' : '', color: 'light_purple' },
             `home to [${position.join(', ')}]`,
         ]);
+    }
+
+    handleShareHome(playerName, acceptOrCompanion, altName) {
+        //this is a big function so we're breaking it down into several parts, this is the switch that handles shareHome
+        switch (acceptOrCompanion) {
+            case 'accept':
+                return this.shareHomeAccept(playerName, altName);
+            case 'decline':
+                return this.shareHomeDecline(playerName, altName);
+            default:
+                return this.shareHomeSet(playerName, acceptOrCompanion, altName);
+        }
+    }
+
+    shareHomeAccept(playerName, altName) {
+        //"playerName wants to share a home with you at X,Y,Z coordinates, You may accept or decline"
+    }
+
+    shareHomeDecline(playerName, altName) {
+
+    }
+
+    shareHomeSet(playerName, companion, altName) {
+        
     }
 };
