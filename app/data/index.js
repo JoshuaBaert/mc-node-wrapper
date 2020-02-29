@@ -72,8 +72,35 @@ module.exports = Base => class extends Base {
 
     }
 
-    createSharedHome(playerOne, playerTwo, pos, rot, world, homeName) {
-        
+    createSharedHome(playerOne, playerTwo, pos, rot, world, homeName = playerTwo) {
+        return new Promise((resolve, reject) => {
+            Player.findOne({ name: playerOne }, (err, player) => {
+                if (err) return reject(err);
+
+                if (!player.shareHomes) {
+                    player.shareHomes = {
+                        [playerTwo]: { homeName: homeName, pos: pos, rot: rot, world },
+                    };
+                    return player.save((err) => {
+                        if (err) return reject(err);
+                        resolve(player);
+                    });
+                }
+
+                if (!player.shareHomes.hasOwnProperty(playerTwo)) {
+                    player.shareHomes = {
+                        ...player.shareHomes,
+                        [playerTwo]: { homeName: homeName, pos: pos, rot: rot, world },
+                    };
+                    return player.save((err) => {
+                        if (err) return reject(err);
+                        resolve(player);
+                    });
+                }
+
+                return this.tellPlayer(playerOne, `You already have set a shared home with ${playerTwo}`, 'red');
+            });
+        });
     }
 
     readPlayerHome(playerName, homeName = '_default') {

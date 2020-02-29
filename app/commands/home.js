@@ -128,7 +128,13 @@ module.exports = Base => class extends Base {
 
     }
 
-    shareHomeSet(playerName, companion, altName) {
-        
+    async shareHomeSet(playerName, companion, playerAltName, companionAltName) {
+        // Get Position & Rotation
+        let position = await this.getPlayerPosition(playerName);
+        let rotation = await this.getPlayerRotation(playerName);
+        let world = await this.getPlayerDimension(playerName);
+
+        await this.createSharedHome(playerName, companion, position, rotation, world, playerAltName);
+        await this.createSharedHome(companion, playerName, position, rotation, world, companionAltName);
     }
 };
