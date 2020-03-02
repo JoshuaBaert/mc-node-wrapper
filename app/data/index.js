@@ -79,7 +79,7 @@ module.exports = Base => class extends Base {
 
                 if (!player.shareHomes) {
                     player.shareHomes = {
-                        [playerTwo]: { homeName: homeName, pos: pos, rot: rot, world },
+                        [homeName]: { sharePlayer: playerTwo, pos: pos, rot: rot, world },
                     };
                     return player.save((err) => {
                         if (err) return reject(err);
@@ -87,10 +87,16 @@ module.exports = Base => class extends Base {
                     });
                 }
 
-                if (!player.shareHomes.hasOwnProperty(playerTwo)) {
+                for (home in player.shareHomes) {
+                    if (player.shareHomes[home].sharePlayer === playerTwo) {
+                        return this.tellPlayer(playerOne, `You already set a shared home with ${playerTwo}`, 'red');
+                    }
+                }               
+
+                if (!player.shareHomes.hasOwnProperty(homeName) && !player.homes.hasOwnProperty(homeName)) {
                     player.shareHomes = {
                         ...player.shareHomes,
-                        [playerTwo]: { homeName: homeName, pos: pos, rot: rot, world },
+                        [homeName]: { sharePlayer: playerTwo, pos: pos, rot: rot, world },
                     };
                     return player.save((err) => {
                         if (err) return reject(err);
@@ -98,17 +104,20 @@ module.exports = Base => class extends Base {
                     });
                 }
 
-                return this.tellPlayer(playerOne, `You already have set a shared home with ${playerTwo}`, 'red');
+                return this.tellPlayer(playerOne, `You already have a home with this name`, 'red');
             });
         });
     }
 
     readPlayerHome(playerName, homeName = '_default') {
+        //this applies to homes and shared homes
         return new Promise((resolve) => {
             Player.findOne({ name: playerName }, (err, player) => {
                 if (err) return reject(err);
                 if (player.homes) {
                     resolve(player.homes[homeName]);
+                } else if (player.shareHomes) {
+                    resolve(player.shareHomes[homeName])
                 } else {
                     resolve(null);
                 }
@@ -120,11 +129,33 @@ module.exports = Base => class extends Base {
         return new Promise((resolve, reject) => {
             Player.findOne({ name: playerName }, (err, player) => {
                 if (err) return reject(err);
-                if (player.homes) {
-                    resolve(Object.entries(player.homes)
-                        .map(([key]) => key)
-                        .filter(x => x != '_default'),
-                    );
+                if (player.homes || player.shareHomes) {
+                    //we can now resolve a list of all homes and shared homes of the player
+                    if (player.homes && player.shareHomes) {
+                        let homesEntries = Object.entries(player.homes);
+                        let shareHomesEntries = Object.entries(player.shareHomes);
+                        let combinedEntries = [...homesEntries, ...shareHomesEntries];
+
+                        resolve(combinedEntries
+                            .map(([key]) => key)
+                            .filter(x => x != '_default'),
+                        );
+                    }
+
+                    if (player.homes) {
+                        resolve(Object.entries(player.homes)
+                            .map(([key]) => key)
+                            .filter(x => x != '_default'),
+                        );
+                    }
+
+                    if (player.shareHomes) {
+                        resolve(Object.entries(player.shareHomes)
+                            .map(([key]) => key)
+                            .filter(x => x != '_default'),
+                        );
+                    }
+                    
                 } else {
                     resolve(null);
                 }

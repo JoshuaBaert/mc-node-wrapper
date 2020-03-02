@@ -52,7 +52,7 @@ module.exports = Base => class extends Base {
         //cooldown check goes here
         if (this.cooldownCheck('home', playerName) === true) return;
 
-        // grab and see if players home exists
+        // grab and see if players home exists. (also checks shared homes)
         let playerHome = await this.readPlayerHome(playerName, homeName);
 
         if (playerHome) {
@@ -64,6 +64,7 @@ module.exports = Base => class extends Base {
                 `is not set yet.`,
             ]);
         }
+        
         //cooldown start goes here
         this.cooldownStart('home', playerName);
     }
@@ -134,7 +135,10 @@ module.exports = Base => class extends Base {
         let rotation = await this.getPlayerRotation(playerName);
         let world = await this.getPlayerDimension(playerName);
 
+        //creating home for player who set
         await this.createSharedHome(playerName, companion, position, rotation, world, playerAltName);
+
+        //creating home for player who accepted
         await this.createSharedHome(companion, playerName, position, rotation, world, companionAltName);
     }
 };
