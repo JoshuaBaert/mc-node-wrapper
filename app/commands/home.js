@@ -1,7 +1,7 @@
 module.exports = Base => class extends Base {
     constructor() {
         super();
-
+        this.shareRequests = {};
         this.helpShortDescription.home = [
             'set a home you can teleport back to ex: ',
             { text: '!home set', color: 'green' },
@@ -10,18 +10,36 @@ module.exports = Base => class extends Base {
         this.helpFullDescription.home = [
             { text: '', color: 'white' },
             { text: '!home set ', color: 'green' },
-            'sets your home to your current location.\n',
+            'sets your default home to your current location.\n',
             { text: '!home ', color: 'green' },
             'send you back home. (has 15 minute cooldown)\n\n',
-            'Multiple homes you can up to 2 named homes\n',
+
+            'Can set up to 2 named personal homes\n',
             'ex: ',
             { text: '!home set ', color: 'green' },
-            { text: 'homeName ', color: 'light_purple' },
-            'then ',
-            { text: '!home ', color: 'green' },
             { text: 'homeName\n', color: 'light_purple' },
+
+            'Can set 1 shared home with each other player. \n',
+            'ex: ',
+            { text: '!home share ', color: 'green' },
+            { text: 'playerName ', color: 'aqua' },
+            'then teleport to it with:\n',
+            { text: '!home ', color: 'green' },
+            { text: 'playerName\n', color: 'light_purple' },
+
+            'Or set a custom name for a shared home.\n',
+            'ex: ',
+            { text: '!home share ', color: 'green' },
+            { text: 'playerName ', color: 'aqua' },
+            { text: 'homeName\n', color: 'light_purple' },
+            'Other player must accept before the shared home may be used. \n',
+
+            'To teleport to a personal or shared home, type:\n',
+            { text: '!home ', color: 'green' },
+            { text: 'homeName\n\n', color: 'light_purple' },
+            
             { text: '!home list ', color: 'green' },
-            'lists your homes\n',
+            'lists all your homes\n',
             { text: '!home delete ', color: 'green' },
             { text: 'homeName ', color: 'light_purple' },
             'deletes a home from your list',
@@ -71,7 +89,7 @@ module.exports = Base => class extends Base {
 
     async deleteHome(playerName, homeName) {
         if (!homeName) return this.tellPlayer(playerName, 'You must provide a home to delete', 'red');
-        
+
         //note: deletes from either Player.homes or Player.shareHomes
         await this.deletePlayerHome(playerName, homeName);
         this.tellPlayer(playerName, 'Home deleted', 'green');
@@ -110,36 +128,99 @@ module.exports = Base => class extends Base {
         ]);
     }
 
-    handleShareHome(playerName, acceptOrCompanion, altName) {
-        //this is a big function so we're breaking it down into several parts, this is the switch that handles shareHome
+    async handleShareHome(playerName, acceptOrCompanion, altName) {
         switch (acceptOrCompanion) {
-            case 'accept':
-                return this.shareHomeAccept(playerName, altName);
-            case 'decline':
-                return this.shareHomeDecline(playerName, altName);
-            default:
-                return this.shareHomeSet(playerName, acceptOrCompanion, altName);
+        case 'accept':
+            return this.shareHomeAccept(playerName, altName);
+        default:
+            let loggedInPlayers = await this.getListOfOnlinePlayers();
+            if (loggedInPlayers.indexOf(acceptOrCompanion) !== -1) {
+                // If is a players name then make a request to share a home.
+                let shareWith = acceptOrCompanion
+                return this.shareHomeRequest(playerName, shareWith, altName);
+            } else return this.tellPlayerRaw(playerName, [
+                { text: `If you meant to type the name of a player, make sure it's spelled right, and that they're logged in.\n`, color: 'white' },
+                { text: `Type `, color: 'white' },
+                { text: `!help home`, color: 'green' },
+                { text: ` for a list of commands.\n`, color: 'white' },   
+            ]);
         }
     }
 
-    shareHomeAccept(playerName, altName) {
-        //"playerName wants to share a home with you at X,Y,Z coordinates, You may accept or decline"
+    shareHomeRequest(playerName, shareWith, altName) {
+        this.tellPlayerRaw(playerName, ['Sent request to share a home with ', { text: shareWith, color: 'green' }]);
+
+        this.tellPlayerRaw(shareWith, [
+            { text: `would you like to share a home with ${playerName}?\n`, color: 'white' },
+            { text: `Type `, color: 'white' },
+            { text: `!home share accept `, color: 'green' },
+            { text: `at the desired location of your shared home.\n`, color: 'white' },
+            { text: `If you'd like a custom name for your home, type `, color: 'white' },
+            { text: `!home share accept `, color: 'green' },
+            { text: `homeName`, color: 'light_purple' },
+        ]);
+
+        if (altName) {
+            this.shareRequests[shareWith] = [playerName, altName]
+        } else this.shareRequests[shareWith] = [playerName, shareWith]
+        
     }
 
-    shareHomeDecline(playerName, altName) {
+    async shareHomeAccept(playerName, altName) {
+        if (this.shareRequests[playerName] === undefined) {
+            this.tellPlayer(playerName, `No pending shared home requests.`, 'red');
+            return;
+        }
 
-    }
+        let requestingPlayer = this.shareRequests[playerName][0];
+        let requestingAltName = this.shareRequests[playerName][1];
 
-    async shareHomeSet(playerName, companion, playerAltName, companionAltName) {
-        // Get Position & Rotation
-        let position = await this.getPlayerPosition(playerName);
-        let rotation = await this.getPlayerRotation(playerName);
-        let world = await this.getPlayerDimension(playerName);
+        if (requestingPlayer) {
+            // Get Position & Rotation of accepting player, this is where the shared home will be located.
+            let position = await this.getPlayerPosition(playerName);
+            let rotation = await this.getPlayerRotation(playerName);
+            let world = await this.getPlayerDimension(playerName);
 
-        //creating home for player who set
+            //setting for accepting player
+            await this.createSharedHome(playerName, requestingPlayer, position, rotation, world, altName);
+            this.tellPlayerRaw(playerName, [
+                `Setting your `,
+                { text: altName ? altName + ' ' : '', color: 'light_purple' },
+                ` shared home with `,
+                {text: requestingPlayer, color: 'aqua'},
+                ` to [${position.join(', ')}]\n`,
+                `Type `,
+                { text: altName ? '!home ' + altName : '!home ' + requestingPlayer, color: 'green' },
+                ` to teleport there.`
+            ]);
+
+            //setting for requesting player
+            await this.createSharedHome(requestingPlayer, playerName, position, rotation, world, requestingAltName);
+            this.tellPlayerRaw(requestingPlayer, [
+                `Setting your `,
+                { text: requestingAltName !== playerName ? requestingAltName + ' ' : '', color: 'light_purple' },
+                ` shared home with `,
+                {text: playerName, color: 'aqua'},
+                ` to [${position.join(', ')}]\n`,
+                `Type `,
+                { text: requestingAltName !== playerName ? '!home ' + requestingAltName : '!home ' + playerName, color: 'green' },
+                ` to teleport there.`
+            ]);
+
+            this.shareRequests[playerName] = null;
+        } else this.tellPlayer(playerName, `No pending shared home requests.`, 'red');
+        
+
+        //creating home for player who accepted
         await this.createSharedHome(playerName, companion, position, rotation, world, playerAltName);
+        this.tellPlayerRaw(playerName, [
+            `Setting your `,
+            { text: homeName ? homeName + ' ' : '', color: 'light_purple' },
+            `home to [${position.join(', ')}]`,
+        ]);
 
         //creating home for player who accepted
         await this.createSharedHome(companion, playerName, position, rotation, world, companionAltName);
     }
+
 };

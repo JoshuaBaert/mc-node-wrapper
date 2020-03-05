@@ -341,8 +341,8 @@ module.exports = Base => class extends Base {
             this.tellPlayer(playerName, `No pending experience point offers.`, 'red');
             return;
         }
-        let offeringPlayer = this.giveOffers[playerName][0];
-    
+
+        let offeringPlayer = this.giveOffers[playerName][0];   
         let currentBalance = await this.currentBalance(offeringPlayer);
 
         if (offeringPlayer) {
