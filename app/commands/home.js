@@ -71,7 +71,8 @@ module.exports = Base => class extends Base {
 
     async deleteHome(playerName, homeName) {
         if (!homeName) return this.tellPlayer(playerName, 'You must provide a home to delete', 'red');
-
+        
+        //note: deletes from either Player.homes or Player.shareHomes
         await this.deletePlayerHome(playerName, homeName);
         this.tellPlayer(playerName, 'Home deleted', 'green');
     }
