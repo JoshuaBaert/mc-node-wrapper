@@ -32,7 +32,6 @@ module.exports = Base => class extends Base {
             { text: '!home share ', color: 'green' },
             { text: 'playerName ', color: 'aqua' },
             { text: 'homeName\n', color: 'light_purple' },
-            'Other player must accept before the shared home may be used. \n',
 
             'To teleport to a personal or shared home, type:\n',
             { text: '!home ', color: 'green' },
@@ -147,15 +146,21 @@ module.exports = Base => class extends Base {
         }
     }
 
-    shareHomeRequest(playerName, shareWith, altName) {
+    async shareHomeRequest(playerName, shareWith, altName) {
+        let list = await this.readPlayerHomeList(playerName);
+        let index = list.indexOf(altName);
+        if (index > -1) {
+            return this.tellPlayer(playerName, 'You already have a home with this name. Delete that home first.', 'red')
+        };
+
         this.tellPlayerRaw(playerName, ['Sent request to share a home with ', { text: shareWith, color: 'green' }]);
 
         this.tellPlayerRaw(shareWith, [
             { text: `would you like to share a home with ${playerName}?\n`, color: 'white' },
             { text: `Type `, color: 'white' },
             { text: `!home share accept `, color: 'green' },
-            { text: `at the desired location of your shared home.\n`, color: 'white' },
-            { text: `If you'd like a custom name for your home, type `, color: 'white' },
+            { text: `at the desired location.\n`, color: 'white' },
+            { text: `To set a custom name, type `, color: 'white' },
             { text: `!home share accept `, color: 'green' },
             { text: `homeName`, color: 'light_purple' },
         ]);
@@ -172,6 +177,12 @@ module.exports = Base => class extends Base {
             return;
         }
 
+        let list = await this.readPlayerHomeList(playerName);
+        let index = list.indexOf(altName);
+        if (index > -1) {
+            return this.tellPlayer(playerName, 'You already have a home with this name. Delete that home first.', 'red')
+        };
+
         let requestingPlayer = this.shareRequests[playerName][0];
         let requestingAltName = this.shareRequests[playerName][1];
 
@@ -186,7 +197,7 @@ module.exports = Base => class extends Base {
             this.tellPlayerRaw(playerName, [
                 `Setting your `,
                 { text: altName ? altName + ' ' : '', color: 'light_purple' },
-                ` shared home with `,
+                `shared home with `,
                 {text: requestingPlayer, color: 'aqua'},
                 ` to [${position.join(', ')}]\n`,
                 `Type `,
@@ -199,7 +210,7 @@ module.exports = Base => class extends Base {
             this.tellPlayerRaw(requestingPlayer, [
                 `Setting your `,
                 { text: requestingAltName !== playerName ? requestingAltName + ' ' : '', color: 'light_purple' },
-                ` shared home with `,
+                `shared home with `,
                 {text: playerName, color: 'aqua'},
                 ` to [${position.join(', ')}]\n`,
                 `Type `,
@@ -209,18 +220,6 @@ module.exports = Base => class extends Base {
 
             this.shareRequests[playerName] = null;
         } else this.tellPlayer(playerName, `No pending shared home requests.`, 'red');
-        
-
-        //creating home for player who accepted
-        await this.createSharedHome(playerName, companion, position, rotation, world, playerAltName);
-        this.tellPlayerRaw(playerName, [
-            `Setting your `,
-            { text: homeName ? homeName + ' ' : '', color: 'light_purple' },
-            `home to [${position.join(', ')}]`,
-        ]);
-
-        //creating home for player who accepted
-        await this.createSharedHome(companion, playerName, position, rotation, world, companionAltName);
     }
 
 };
