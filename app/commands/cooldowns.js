@@ -20,8 +20,6 @@ module.exports = Base => class extends Base {
         let cooldownArr = Object.values(this.onCooldownMap[playerName]);
         let everyOutput = cooldownArr.every((i) => i === false);
 
-        console.log(cooldownArr, ' ', everyOutput)
-
         if (everyOutput === true) {
             return this.tellPlayer(playerName, 'All your commands are ready to use.', 'green')
         };
