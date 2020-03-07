@@ -43,6 +43,10 @@ module.exports = Base => class extends Base {
         return new Promise((resolve, reject) => {
             Player.findOne({ name: playerName }, (err, player) => {
                 if (err) return reject(err);
+                
+                if (player.shareHomes && player.shareHomes.hasOwnProperty(homeName)) {
+                    return reject(new Error('name used by shared home'));
+                }
 
                 if (!player.homes) {
                     player.homes = {
@@ -53,6 +57,7 @@ module.exports = Base => class extends Base {
                         resolve(player);
                     });
                 }
+
                 let homeEntries = Object.entries(player.toObject().homes);
 
                 if (player.homes[homeName] || homeEntries.length < 3) {
@@ -66,18 +71,71 @@ module.exports = Base => class extends Base {
                     });
                 }
 
-                return this.tellPlayer(playerName, 'Cannot have more than 2 extra homes', 'red');
+                return reject(new Error('more than 2 personal homes'));
             });
         });
 
     }
 
+    createSharedHome(playerOne, playerTwo, pos, rot, world, homeName = playerTwo) {
+        return new Promise((resolve, reject) => {
+            Player.findOne({ name: playerOne }, (err, player) => {
+                if (err) return reject(err);
+
+                if (!player.shareHomes) {
+                    player.shareHomes = {
+                        [homeName]: { sharePlayer: playerTwo, pos: pos, rot: rot, world },
+                    };
+                    return player.save((err) => {
+                        if (err) return reject(err);
+                        resolve(player);
+                    });
+                }
+
+                for (let home in player.shareHomes) {   
+                    //if a sharedHome has already been created with playerTwo rewrite previous home                
+                    if (player.shareHomes[home].sharePlayer === playerTwo) {                       
+                        let shareHomes = { ...player.shareHomes };
+                        delete shareHomes[home];
+                        player.shareHomes = shareHomes;
+
+                        player.shareHomes = {
+                            ...player.shareHomes,
+                            [homeName]: { sharePlayer: playerTwo, pos: pos, rot: rot, world },
+                        }; 
+
+                        return player.save((err) => {
+                            if (err) return reject(err);
+                            resolve(player);
+                        });                                             
+                    }
+                }               
+
+                if (!player.shareHomes.hasOwnProperty(homeName)) {
+                    player.shareHomes = {
+                        ...player.shareHomes,
+                        [homeName]: { sharePlayer: playerTwo, pos: pos, rot: rot, world },
+                    };
+                    return player.save((err) => {
+                        if (err) return reject(err);
+                        resolve(player);
+                    });
+                }
+
+                return reject(new Error('name used by home'));
+            });
+        });
+    }
+
     readPlayerHome(playerName, homeName = '_default') {
+        //this applies to homes and shared homes
         return new Promise((resolve) => {
             Player.findOne({ name: playerName }, (err, player) => {
                 if (err) return reject(err);
-                if (player.homes) {
+                if (player.homes && player.homes[homeName]) {
                     resolve(player.homes[homeName]);
+                } else if (player.shareHomes) {
+                    resolve(player.shareHomes[homeName])
                 } else {
                     resolve(null);
                 }
@@ -89,11 +147,33 @@ module.exports = Base => class extends Base {
         return new Promise((resolve, reject) => {
             Player.findOne({ name: playerName }, (err, player) => {
                 if (err) return reject(err);
-                if (player.homes) {
-                    resolve(Object.entries(player.homes)
-                        .map(([key]) => key)
-                        .filter(x => x != '_default'),
-                    );
+                if (player.homes || player.shareHomes) {
+                    //we can now resolve a list of all homes and shared homes of the player
+                    if (player.homes && player.shareHomes) {
+                        let homesEntries = Object.entries(player.homes);
+                        let shareHomesEntries = Object.entries(player.shareHomes);
+                        let combinedEntries = [...homesEntries, ...shareHomesEntries];
+
+                        resolve(combinedEntries
+                            .map(([key]) => key)
+                            .filter(x => x != '_default'),
+                        );
+                    }
+
+                    if (player.homes) {
+                        resolve(Object.entries(player.homes)
+                            .map(([key]) => key)
+                            .filter(x => x != '_default'),
+                        );
+                    }
+
+                    if (player.shareHomes) {
+                        resolve(Object.entries(player.shareHomes)
+                            .map(([key]) => key)
+                            .filter(x => x != '_default'),
+                        );
+                    }
+                    
                 } else {
                     resolve(null);
                 }
@@ -105,10 +185,17 @@ module.exports = Base => class extends Base {
         return new Promise((resolve, reject) => {
             Player.findOne({ name: playerName }, (err, player) => {
                 if (err) return reject(err);
-                if (!player.homes[homeName]) return resolve(false);
-                let homes = { ...player.homes };
-                delete homes[homeName];
-                player.homes = homes;
+                //can now delete from either homes or shareHomes
+                if (player.homes[homeName]) {
+                    let homes = { ...player.homes };
+                    delete homes[homeName];
+                    player.homes = homes;
+                } else if (player.shareHomes[homeName]) {
+                    let shareHomes = { ...player.shareHomes };
+                    delete shareHomes[homeName];
+                    player.shareHomes = shareHomes;
+                } else return resolve(false)
+
                 player.save(() => {
                     resolve(true);
                 });
