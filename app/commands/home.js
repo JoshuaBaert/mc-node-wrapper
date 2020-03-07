@@ -119,7 +119,16 @@ module.exports = Base => class extends Base {
         let world = await this.getPlayerDimension(playerName);
 
         // Saving players position and rotation for use later
-        await this.createPlayerHome(playerName, position, rotation, world, homeName);
+        try {
+            await this.createPlayerHome(playerName, position, rotation, world, homeName);
+        } catch (err) {
+            if(err.message = 'name used by shared home') {
+                return this.tellPlayer(playerName, 'You already have a shared home with this name. Delete that home first.', 'red')
+            };
+            if(err.message = 'more than 2 personal homes') {
+                return this.tellPlayer(playerName, 'Cannot have more than 2 extra homes', 'red')
+            };
+        }
         this.tellPlayerRaw(playerName, [
             `Setting your `,
             { text: homeName ? homeName + ' ' : '', color: 'light_purple' },
@@ -152,6 +161,14 @@ module.exports = Base => class extends Base {
         if (index > -1) {
             return this.tellPlayer(playerName, 'You already have a home with this name. Delete that home first.', 'red')
         };
+
+        let position = await this.getPlayerPosition(playerName);
+        let requestingPosition = await this.getPlayerPosition(shareWith);
+
+        //if players are more than 100 blocks apart in any direction, return
+        if (Math.abs(position[0] - requestingPosition[0] > 100 || Math.abs(position[1] - requestingPosition[1]) > 100 || Math.abs(position[2] - requestingPosition[2]) > 100)) {
+            return this.tellPlayer(playerName, `Must be with 100 blocks of each other.`, 'red')
+        }
 
         this.tellPlayerRaw(playerName, ['Sent request to share a home with ', { text: shareWith, color: 'green' }]);
 
@@ -187,13 +204,26 @@ module.exports = Base => class extends Base {
         let requestingAltName = this.shareRequests[playerName][1];
 
         if (requestingPlayer) {
-            // Get Position & Rotation of accepting player, this is where the shared home will be located.
+            // Get world, Position & Rotation of accepting player, this is where the shared home will be located.
+            // get requesting player position to test distance.
             let position = await this.getPlayerPosition(playerName);
             let rotation = await this.getPlayerRotation(playerName);
             let world = await this.getPlayerDimension(playerName);
+            let requestingPosition = await this.getPlayerPosition(requestingPlayer)
+
+            //if players are more than 100 blocks apart in any direction, return
+            if (Math.abs(position[0] - requestingPosition[0] > 100 || Math.abs(position[1] - requestingPosition[1]) > 100 || Math.abs(position[2] - requestingPosition[2]) > 100)) {
+                return this.tellPlayer(playerName, `Must be with 100 blocks of each other.`, 'red')
+            }
 
             //setting for accepting player
-            await this.createSharedHome(playerName, requestingPlayer, position, rotation, world, altName);
+            try {
+                await this.createSharedHome(playerName, requestingPlayer, position, rotation, world, altName);
+            } catch (err) {
+                if (err.message = 'name used by home') {
+                    return this.tellPlayer(playerName, `You already have a home with this name. Delete that home first.`, 'red')
+                }
+            }          
             this.tellPlayerRaw(playerName, [
                 `Setting your `,
                 { text: altName ? altName + ' ' : '', color: 'light_purple' },
@@ -206,7 +236,13 @@ module.exports = Base => class extends Base {
             ]);
 
             //setting for requesting player
-            await this.createSharedHome(requestingPlayer, playerName, position, rotation, world, requestingAltName);
+            try {
+                await this.createSharedHome(requestingPlayer, playerName, position, rotation, world, requestingAltName);
+            } catch (err) {
+                if (err.message = 'name used by home') {
+                    return this.tellPlayer(requestingPlayer, `You already have a home with this name. Delete that home first.`, 'red')
+                }
+            }            
             this.tellPlayerRaw(requestingPlayer, [
                 `Setting your `,
                 { text: requestingAltName !== playerName ? requestingAltName + ' ' : '', color: 'light_purple' },

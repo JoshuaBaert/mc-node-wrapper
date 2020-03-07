@@ -45,7 +45,7 @@ module.exports = Base => class extends Base {
                 if (err) return reject(err);
                 
                 if (player.shareHomes && player.shareHomes.hasOwnProperty(homeName)) {
-                    return this.tellPlayer(playerName, `You already have a shared home with this name. Delete that home first.`, 'red');
+                    return reject(new Error('name used by shared home'));
                 }
 
                 if (!player.homes) {
@@ -71,7 +71,7 @@ module.exports = Base => class extends Base {
                     });
                 }
 
-                return this.tellPlayer(playerName, 'Cannot have more than 2 extra homes', 'red');
+                return reject(new Error('more than 2 personal homes'));
             });
         });
 
@@ -103,7 +103,6 @@ module.exports = Base => class extends Base {
                             ...player.shareHomes,
                             [homeName]: { sharePlayer: playerTwo, pos: pos, rot: rot, world },
                         }; 
-                        this.tellPlayer(playerOne, `Updated shared home.`, 'red');
 
                         return player.save((err) => {
                             if (err) return reject(err);
@@ -123,7 +122,7 @@ module.exports = Base => class extends Base {
                     });
                 }
 
-                return this.tellPlayer(playerOne, `You already have a home with this name. Delete that home first.`, 'red');
+                return reject(new Error('name used by home'));
             });
         });
     }
