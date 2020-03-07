@@ -18,6 +18,7 @@ OtherClasses = require('./lib/xpAutostore')(OtherClasses);
 OtherClasses = require('./commands/help')(OtherClasses);
 
 // Command imports
+OtherClasses = require('./commands/cooldowns')(OtherClasses);
 OtherClasses = require('./commands/home')(OtherClasses);
 OtherClasses = require('./commands/location')(OtherClasses);
 OtherClasses = require('./commands/warp')(OtherClasses);
@@ -99,16 +100,18 @@ module.exports = class Server extends OtherClasses {
 
         (async () => {
             switch (baseCommand.toLowerCase()) {
+            case 'cooldowns':
+                return this.handleCooldowns(playerName);                
             case 'help':
                 return this.handleHelp(playerName, args);
             case 'home':
                 return this.handleHome(playerName, args);
-            case 'warp':
-                return this.handleWarp(playerName, args);
             case 'location':
                 return this.handleLocation(playerName, args);
             case 'locations':
                 return this.handleLocations(playerName, args);
+            case 'warp':
+                return this.handleWarp(playerName, args);                        
             case 'xp':
                 return this.handleXp(playerName, args);
             default:
