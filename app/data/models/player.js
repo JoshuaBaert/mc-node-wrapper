@@ -22,6 +22,9 @@ const playerSchema = new mongoose.Schema({
     homes: {
         type: Object,
     },
+    shareHomes: {
+        type: Object,
+    },
     xpStore: Number,
     xpAutoStore: {
         type: Boolean,
