@@ -169,8 +169,7 @@ module.exports = Base => class extends Base {
 
                     if (player.shareHomes) {
                         resolve(Object.entries(player.shareHomes)
-                            .map(([key]) => key)
-                            .filter(x => x != '_default'),
+                            .map(([key]) => key),
                         );
                     }
                     
