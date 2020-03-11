@@ -2,11 +2,11 @@ module.exports = Base => class extends Base {
     constructor() {
         super();
 
-        this.helpShortDescription.home = [
+        this.helpShortDescription.cooldowns = [
             'Check which commands are on cooldown.',
         ];
 
-        this.helpFullDescription.home = [
+        this.helpFullDescription.cooldowns = [
             { text: '', color: 'white' },
             { text: '!cooldowns ', color: 'green' },
             'Tells you how long you need to wait to use each command currently on cooldown.',          
