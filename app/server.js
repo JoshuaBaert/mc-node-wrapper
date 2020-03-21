@@ -114,7 +114,7 @@ module.exports = class Server extends OtherClasses {
             case 'warp':
                 return this.handleWarp(playerName, args);
             case 'welcome':
-                return this.handleWarp(playerName, args);                         
+                return this.handleWelcome(playerName, args);                         
             case 'xp':
                 return this.handleXp(playerName, args);
             default:
@@ -135,7 +135,6 @@ module.exports = class Server extends OtherClasses {
 
     async handlePlayerLogin(playerName, uuid) {
         await this.checkPlayerRecord(playerName, uuid);
-        this.welcomeMessage(playerName);
-        await this.xpAutoStoreInform(playerName);
+        await this.displayWelcome(playerName);
     }
 };

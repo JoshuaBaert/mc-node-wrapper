@@ -12,17 +12,6 @@ module.exports = Base => class extends Base {
         this.helpFullDescription = {};
     }
 
-    welcomeMessage(playerName) {
-        this.tellPlayerRaw(playerName, [
-            'Hey ',
-            { text: playerName, color: 'aqua' },
-            '.\nWelcome to the Baert\'s Minecraft server.',
-            '\nWe have some custom commands to encourage playing together.\nTry typing',
-            { text: ' !help', color: 'green' },
-            ' for more information.',
-        ]);
-    }
-
     handleHelp(playerName, args) {
         if (!args[0]) return this.basicHelp(playerName);
 

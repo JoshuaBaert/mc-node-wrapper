@@ -202,6 +202,41 @@ module.exports = Base => class extends Base {
         });
     }
 
+    readPlayerWelcome(playerName) {
+        //this applies to homes and shared homes
+        return new Promise((resolve) => {
+            Player.findOne({ name: playerName }, (err, player) => {
+                if (err) return reject(err);
+                resolve(player.welcome);            
+            });
+        });
+    }
+
+    updatePlayerWelcome(playerName, input) {
+        return new Promise((resolve, reject) => {
+            Player.findOne({ name: playerName }, (err, player) => {
+                if (err) return reject(err);
+                
+                //if input is currently in the array, we remove it
+                if (player.welcome.indexOf(input) !== -1) {
+                    let welcome = [...player.welcome];
+                    welcome.splice(player.welcome.indexOf(input),1)
+                    player.welcome = welcome;
+
+                //if it is not, we add it and sort alphabetically.
+                } else {
+                    let welcome = [...player.welcome, input];
+                    welcome.sort();
+                    player.welcome = welcome;                   
+                };
+
+                player.save(() => {
+                    resolve(true);
+                });
+            });
+        });
+    }
+
     updatePlayerXpStore(playerName, newXp) {
         return new Promise((resolve, reject) =>{
             Player.updateOne(
