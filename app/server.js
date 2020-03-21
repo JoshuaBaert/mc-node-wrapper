@@ -22,6 +22,7 @@ OtherClasses = require('./commands/cooldowns')(OtherClasses);
 OtherClasses = require('./commands/home')(OtherClasses);
 OtherClasses = require('./commands/location')(OtherClasses);
 OtherClasses = require('./commands/warp')(OtherClasses);
+OtherClasses = require('./commands/welcome')(OtherClasses);
 OtherClasses = require('./commands/xp')(OtherClasses);
 
 module.exports = class Server extends OtherClasses {
@@ -111,7 +112,9 @@ module.exports = class Server extends OtherClasses {
             case 'locations':
                 return this.handleLocations(playerName, args);
             case 'warp':
-                return this.handleWarp(playerName, args);                        
+                return this.handleWarp(playerName, args);
+            case 'welcome':
+                return this.handleWarp(playerName, args);                         
             case 'xp':
                 return this.handleXp(playerName, args);
             default:
