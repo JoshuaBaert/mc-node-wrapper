@@ -220,7 +220,7 @@ module.exports = Base => class extends Base {
                 //if input is currently in the array, we remove it
                 if (player.welcome.indexOf(input) !== -1) {
                     let welcome = [...player.welcome];
-                    welcome.splice(player.welcome.indexOf(input),1)
+                    welcome.splice(welcome.indexOf(input),1)
                     player.welcome = welcome;
 
                 //if it is not, we add it and sort alphabetically.
