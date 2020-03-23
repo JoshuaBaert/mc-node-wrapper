@@ -141,10 +141,10 @@ module.exports = Base => class extends Base {
         //turn on or off the autostore.
         if (await this.readPlayerXpAutoStore(playerName)) {
             await this.updatePlayerXpAutoStore(playerName, false);
-            await this.xpAutoStoreInform(playerName, 'OFF');
+            await this.xpAutoStoreInformMessage(playerName, 'OFF');
         } else {
             await this.updatePlayerXpAutoStore(playerName, true);
-            await this.xpAutoStoreInform(playerName, 'ON');
+            await this.xpAutoStoreInformMessage(playerName, 'ON');
         }
     };
 
@@ -158,25 +158,30 @@ module.exports = Base => class extends Base {
                 } else return "OFF"
             };
     
-            this.tellPlayerRaw(playerName, [
+            return [
                 { text: '!xp autostore', color: 'green' },
                 { text: ' is ', color: 'white' },
                 { text: `${await onOrOff()}`, color: 'light_purple' },
-            ]);
-            return;
+            ];
         }
-        this.tellPlayerRaw(playerName, [
+        return [
             { text: '!xp autostore', color: 'green' },
             { text: ' is ', color: 'white' },
             { text: `${status}`, color: 'light_purple' },
-        ]);
+        ];
     };
+
+    async xpAutoStoreInformMessage(playerName, status) {
+        //separated out the tellPlayerRaw from the above function so we can use that code elsewhere without sending too many messages to the player.
+        let message = await this.xpAutoStoreInform(playerName, status)
+        this.tellPlayerRaw(playerName, message)
+    }
 
     async handleXpGet(playerName, getAmount) {
         //If !xp autostore is on, turn off. this will ensure player can properly use the xp they get from the store.
         if (await this.readPlayerXpAutoStore(playerName)) {
             await this.updatePlayerXpAutoStore(playerName, false);
-            await this.xpAutoStoreInform(playerName, 'OFF');
+            await this.xpAutoStoreInformMessage(playerName, 'OFF');
         }
 
         //checking current xpStore balance
@@ -365,7 +370,7 @@ module.exports = Base => class extends Base {
     async handleXpCheck(playerName, checkAmount) {    
         if (!checkAmount) {
             await this.simpleXpCheck(playerName);
-            await this.xpAutoStoreInform(playerName);
+            await this.xpAutoStoreInformMessage(playerName);
             return;
         }
 

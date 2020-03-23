@@ -13,7 +13,7 @@ module.exports = Base => class extends Base {
     }
 
     handleHelp(playerName, args) {
-        if (!args[0]) return this.basicHelp(playerName);
+        if (!args[0]) return this.basicHelpMessage(playerName);
 
         if (args[0] && this.helpFullDescription[args[0]]) {
             this.tellPlayerRaw(playerName, this.helpFullDescription[args[0]]);
@@ -27,7 +27,7 @@ module.exports = Base => class extends Base {
 
     }
 
-    basicHelp(playerName) {
+    basicHelp() {
         let messages = Object.entries(this.helpShortDescription)
             // Sorts commands alphabetically
             .sort(([keyA], [keyB]) => {
@@ -49,11 +49,18 @@ module.exports = Base => class extends Base {
 
 
         // Adds before and after text then sends to player
-        this.tellPlayerRaw(playerName, [
+        return [
             { text: '', color: 'white' },
             ...messages,
             '\n\nFor more about a single command try something like: ',
             { text: '!help home', color: 'green' },
-        ]);
+        ];
     }
+
+    basicHelpMessage(playerName) {
+        //separated out the tellPlayerRaw from the above function so we can use that code elsewhere without sending too many messages to the player.
+        let message = this.basicHelp()
+        this.tellPlayerRaw(playerName, message)
+    }
+
 };

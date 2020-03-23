@@ -82,7 +82,7 @@ module.exports = Base => class extends Base {
         ];
     }
 
-    welcomeOnline(playerName) {
+    async welcomeOnline(playerName) {
         let loggedInPlayers = await this.getListOfOnlinePlayers();
         loggedInPlayers.splice(loggedInPlayers.indexOf(playerName),1);
 
@@ -102,41 +102,14 @@ module.exports = Base => class extends Base {
     }
 
     welcomeHelp() {
-        let messages = Object.entries(this.helpShortDescription)
-        // Sorts commands alphabetically
-        .sort(([keyA], [keyB]) => {
-            if (keyA < keyB) return -1;
-            if (keyA > keyB) return 1;
-            return 0;
-        })
-        // Transforms command and adds command name to text
-        .map((x) => {
-            let description = x[1].slice();
-            description.unshift({ text: ': ', color: 'white' });
-            description.unshift({ text: `!${x[0]}`, color: 'green' });
-            return description;
-        })
-        // reduces all commands into one tellraw array
-        .reduce((a, b) => {
-            return [...a, '\n', ...b];
-        });
-
-
-        // Adds before and after text
-        return [
-            { text: '', color: 'white' },
-            ...messages,
-            '\n\nFor more about a single command try something like: ',
-            { text: '!help home', color: 'green' },
-        ];
+        return basicHelp();
     }
 
     welcomeCooldowns(playerName) {
-
+        return buildCooldownsMessage(playerName);
     }
 
-    welcomeAutostore(playerName) {
-
+    async welcomeAutostore(playerName) {
+        return await xpAutoStoreInform(playerName)
     }
-
-}
+};
