@@ -46,14 +46,34 @@ module.exports = Base => class extends Base {
     async displayWelcome(playerName) {
         //reads welcome array and builds a welcome message out of the componenets.
         let welcomeArray = await readPlayerWelcome(playerName);
-
         let combinedMessage = [
             'Hey ',
             { text: playerName, color: 'aqua' },           
         ];
 
+        for (let i = 0; i < welcomeArray.length; i++) {
+            let addMessage;
 
+            switch(i) {
+                case 'a':
+                    addMessage = this.welcomeDefault()
+                    break;
+                case 'b':
+                    addMessage = await this.welcomeOnline(playerName)
+                    break;
+                case 'c':
+                    addMessage = this.welcomeHelp()
+                    break;
+                case 'd':
+                    addMessage = this.welcomeCooldowns(playerName)
+                    break;
+                case 'e':
+                    addMessage = await this.welcomeAutostore(playerName)
+            };
 
+            combinedMessage = [...combinedMessage, ...addMessage];
+        }
+        
         this.tellPlayerRaw(playerName, combinedMessage) 
     }
 
@@ -65,7 +85,7 @@ module.exports = Base => class extends Base {
 
     handleWrongWelcomeInput(playerName) {
         //they got here by typing the wrong thing, will list the things they can type.
-        return this.tellPlayerRaw(playerName, [
+        this.tellPlayerRaw(playerName, [
             { text: `Not a command.\n`, color: 'red' },
             { text: `Type `, color: 'white' },
             { text: `!help welcome`, color: 'green' },
