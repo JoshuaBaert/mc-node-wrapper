@@ -45,16 +45,17 @@ module.exports = Base => class extends Base {
     
     async displayWelcome(playerName) {
         //reads welcome array and builds a welcome message out of the componenets.
-        let welcomeArray = await readPlayerWelcome(playerName);
+        let welcomeArray = await this.readPlayerWelcome(playerName);
         let combinedMessage = [
             'Hey ',
-            { text: playerName, color: 'aqua' },           
+            { text: playerName, color: 'aqua' },
+            '.',           
         ];
 
         for (let i = 0; i < welcomeArray.length; i++) {
-            let addMessage;
+            let addMessage = [];
 
-            switch(i) {
+            switch(welcomeArray[i]) {
                 case 'a':
                     addMessage = this.welcomeDefault()
                     break;
@@ -71,7 +72,7 @@ module.exports = Base => class extends Base {
                     addMessage = await this.welcomeAutostore(playerName)
             };
 
-            combinedMessage = [...combinedMessage, ...addMessage];
+            combinedMessage = [...combinedMessage, ['\n'], ...addMessage];
         }
         
         this.tellPlayerRaw(playerName, combinedMessage) 
@@ -79,7 +80,10 @@ module.exports = Base => class extends Base {
 
     async toggleInput(playerName, input) {
         //if input is in welcome array in the player scema, take it out of the array, and vice versa.
-        await updatePlayerWelcome(playerName, this.welcomeOptions[input]);
+        await this.updatePlayerWelcome(playerName, this.welcomeOptions[input]);
+        this.tellPlayerRaw(playerName, [
+            { text: `Welcome updated.`, color: 'red' },
+        ]);
         await this.displayWelcome(playerName);
     }
 
@@ -95,7 +99,7 @@ module.exports = Base => class extends Base {
 
     welcomeDefault() {
         return [
-            '.\nWelcome to the Baert\'s Minecraft server.',
+            'Welcome to the Baert\'s Minecraft server.',
             '\nWe have some custom commands to encourage playing together.\nTry typing',
             { text: ' !help', color: 'green' },
             ' for more information.',
@@ -122,14 +126,14 @@ module.exports = Base => class extends Base {
     }
 
     welcomeHelp() {
-        return basicHelp();
+        return this.basicHelp();
     }
 
     welcomeCooldowns(playerName) {
-        return buildCooldownsMessage(playerName);
+        return this.buildCooldownsMessage(playerName);
     }
 
     async welcomeAutostore(playerName) {
-        return await xpAutoStoreInform(playerName)
+        return await this.xpAutoStoreInform(playerName)
     }
 };
