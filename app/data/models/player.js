@@ -27,7 +27,7 @@ const playerSchema = new mongoose.Schema({
     },
     welcome: {
         type: Array,
-        default: ['a']
+        default: ['a','z']
     },
     xpStore: Number,
     xpAutoStore: {

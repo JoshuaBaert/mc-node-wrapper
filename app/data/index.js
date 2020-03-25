@@ -217,6 +217,10 @@ module.exports = Base => class extends Base {
             Player.findOne({ name: playerName }, (err, player) => {
                 if (err) return reject(err);
                 
+                if (input === 'reset') {
+                    player.welcome = ['a','z']
+                }
+
                 //if input is currently in the array, we remove it
                 if (player.welcome.indexOf(input) !== -1) {
                     let welcome = [...player.welcome];
