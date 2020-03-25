@@ -10,6 +10,7 @@ OtherClasses = require('./data')(OtherClasses);
 OtherClasses = require('./lib/cooldown')(OtherClasses);
 OtherClasses = require('./lib/entity')(OtherClasses);
 OtherClasses = require('./lib/experience')(OtherClasses);
+OtherClasses = require('./lib/hints')(OtherClasses);
 OtherClasses = require('./lib/tell')(OtherClasses);
 OtherClasses = require('./lib/server-management')(OtherClasses);
 OtherClasses = require('./lib/xpAutostore')(OtherClasses);
