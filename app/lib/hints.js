@@ -50,7 +50,7 @@ module.exports = Base => class extends Base {
             [
                 "Want to see who's online first thing? type ",
                 { text: '!welcome online', color: 'green' },
-            ]
+            ],
             [
                 'Pssst. did you know you can see your welcome message again by typing ',
                 { text: '!welcome', color: 'green' },
