@@ -7,18 +7,11 @@ module.exports = Base => class extends Base {
             'online': 'b',
             'help': 'c',
             'cooldowns': 'd',
-            'autostore': 'e',
-            'version': 'f',
+            'xp': 'e',
+            'autostore': 'f',          
             'hints': 'z',
             'reset': 'reset'
         };
-
-        this.serverVersion = [
-            { text: 'version: 0.66', color: 'green' },
-            '\nThis update adds custom welcome messages. type ',
-            { text: '!help welcome', color: 'green' },
-            ' for more info.\nThis includes a handful of hints aimed to help players discover new features.'
-        ];
 
         this.helpShortDescription.welcome = [
             'Customize the message that greets you when you login. ex: ',
@@ -31,19 +24,21 @@ module.exports = Base => class extends Base {
             ' displays your current welcome message.\n', 
             { text: '!welcome reset', color: 'green' },
             ' resets to the basic message.\n\n',
-            { text: 'You may toggle on/off any of the following options.\nAny option toggled on will display when you log in.\n', color: 'white' },
+            { text: 'Customize the welcome message with the info you\'re most interested in.\nExperiment with the following options:\n', color: 'white' },
             { text: '!welcome default', color: 'green' },
-            ' displays a general welcome message\n',
+            ', ',
             { text: '!welcome online', color: 'green' },
-            ' lists online players.\n',            
+            ', ',            
             { text: '!welcome help', color: 'green' },
-            ' lists available commands.\n',
+            ', ',
             { text: '!welcome cooldowns', color: 'green' },
-            ' displays status of command cooldowns.\n',
+            ', ',
+            { text: '!welcome xp', color: 'green' },
+            ', ',
             { text: '!welcome autostore', color: 'green' },
-            ' displays status of your xp autostore.\n',
+            ', ',
             { text: '!welcome hints', color: 'green' },
-            ' gives a random hint about different server commands.\n',
+            '.',
         ];
     }
 
@@ -83,10 +78,10 @@ module.exports = Base => class extends Base {
                     addMessage = this.welcomeCooldowns(playerName)
                     break;
                 case 'e':
-                    addMessage = await this.welcomeAutostore(playerName)
+                    addMessage = await this.welcomeXp(playerName)
                     break;
                 case 'f':
-                    addMessage = this.welcomeVersion()
+                    addMessage = await this.welcomeAutostore(playerName)
                     break;
                 case 'z':
                     addMessage = this.welcomeHints()
@@ -142,7 +137,9 @@ module.exports = Base => class extends Base {
         }
 
         return [
-            'Nobody else is logged in.',
+            '',
+            { text: 'Nobody', color: 'red' },
+            ' else is logged in.',
         ]
     }
 
@@ -154,12 +151,12 @@ module.exports = Base => class extends Base {
         return this.buildCooldownsMessage(playerName);
     }
 
-    async welcomeAutostore(playerName) {
-        return await this.xpAutoStoreInform(playerName)
+    async welcomeXp(playerName) {
+        return await this.simpleXpCheck(playerName);
     }
 
-    welcomeVersion() {
-        return this.serverVersion
+    async welcomeAutostore(playerName) {
+        return await this.xpAutoStoreInform(playerName)
     }
 
     welcomeHints() {
