@@ -46,7 +46,7 @@ module.exports = Base => class extends Base {
         if (!args[0]) return await this.displayWelcome(playerName);
 
         if (args[0] && this.welcomeOptions[args[0]]) {
-            await this.toggleInput(playerName, args);
+            await this.toggleInput(playerName, this.welcomeOptions[args[0]]);
         } else {
             this.handleWrongWelcomeInput(playerName);
         }
@@ -95,13 +95,43 @@ module.exports = Base => class extends Base {
 
     async toggleInput(playerName, input) {
         //if input is 'reset' it resets to basic message
-        //if input is in welcome array in the player scema, take it out of the array, and vice versa.
-        await this.updatePlayerWelcome(playerName, this.welcomeOptions[input]);
-        this.tellPlayerRaw(playerName, [
-            { text: `Welcome updated.`, color: 'red' },
-        ]);
-        await this.displayWelcome(playerName);
+        if (input === 'reset') {
+            await this.updatePlayerWelcome(playerName, ['a','z']);
+            this.tellPlayerRaw(playerName, [
+                { text: `Welcome updated.`, color: 'red' },
+            ]);
+            await this.displayWelcome(playerName);
+            return;
+        }
+
+        let welcomeArray = await this.readPlayerWelcome(playerName);
+
+        //if input is currently in the array, we remove it
+        if (welcomeArray.indexOf(input) !== -1) {
+            let welcome = welcomeArray;
+            welcome.splice(welcome.indexOf(input),1)
+
+            await this.updatePlayerWelcome(playerName, welcome); 
+            this.tellPlayerRaw(playerName, [
+                { text: `Welcome updated.`, color: 'red' },
+            ]);
+            await this.displayWelcome(playerName);
+            return;   
+        
+        //if it is not, we add it and sort alphabetically.
+        } else {
+            let welcome = [...welcomeArray, input];
+            welcome.sort();
+            
+            await this.updatePlayerWelcome(playerName, welcome); 
+            this.tellPlayerRaw(playerName, [
+                { text: `Welcome updated.`, color: 'red' },
+            ]);
+            await this.displayWelcome(playerName);
+            return;
+        };     
     }
+
 
     handleWrongWelcomeInput(playerName) {
         //they got here by typing the wrong thing, will list the things they can type.

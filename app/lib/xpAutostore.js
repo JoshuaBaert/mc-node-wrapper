@@ -6,6 +6,7 @@ module.exports = Base => class extends Base {
     async storePlayersXpAutoStoreTrue() {
         //when function is called, stores xp of all players who are online and have !xp autostore turned on.
 
+        //this allows forEach to be used with async/await
         async function asyncForEach(array, callback) {
             for (let index = 0; index < array.length; index++) {
               await callback(array[index], index, array);

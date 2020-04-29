@@ -136,6 +136,17 @@ module.exports = class Server extends OtherClasses {
 
     async handlePlayerLogin(playerName, uuid) {
         await this.checkPlayerRecord(playerName, uuid);
+
+        //this allows use of setTimeout with async/await
+        async function wait(ms) {
+            return new Promise(resolve => {
+                setTimeout(resolve, ms);
+            });
+        }
+
+        //ran into issues where server was ahead of Minecraft and this prevented this.displayWelcome from running, so a delay has been introduced.
+        await wait(500)
         await this.displayWelcome(playerName);
+
     }
 };
