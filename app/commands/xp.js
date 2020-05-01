@@ -105,7 +105,7 @@ module.exports = Base => class extends Base {
                     { text: `${pointsRemovedPartial}`, color: 'red' },
                     { text: ` experience points.`, color: 'white' },
                 ]);
-                await this.simpleXpCheck(playerName);
+                await this.simpleXpCheckMessage(playerName);
 
             } else {
                 //input too many levels.
@@ -134,17 +134,17 @@ module.exports = Base => class extends Base {
             { text: `${pointsRemovedAll}`, color: 'red' },
             { text: ` experience points.`, color: 'white' },
         ]);
-        await this.simpleXpCheck(playerName);
+        await this.simpleXpCheckMessage(playerName);
     };
 
     async handleXpAutoStore(playerName) {
         //turn on or off the autostore.
         if (await this.readPlayerXpAutoStore(playerName)) {
             await this.updatePlayerXpAutoStore(playerName, false);
-            await this.xpAutoStoreInform(playerName, 'OFF');
+            await this.xpAutoStoreInformMessage(playerName, 'OFF');
         } else {
             await this.updatePlayerXpAutoStore(playerName, true);
-            await this.xpAutoStoreInform(playerName, 'ON');
+            await this.xpAutoStoreInformMessage(playerName, 'ON');
         }
     };
 
@@ -158,25 +158,30 @@ module.exports = Base => class extends Base {
                 } else return "OFF"
             };
     
-            this.tellPlayerRaw(playerName, [
+            return [
                 { text: '!xp autostore', color: 'green' },
                 { text: ' is ', color: 'white' },
                 { text: `${await onOrOff()}`, color: 'light_purple' },
-            ]);
-            return;
+            ];
         }
-        this.tellPlayerRaw(playerName, [
+        return [
             { text: '!xp autostore', color: 'green' },
             { text: ' is ', color: 'white' },
             { text: `${status}`, color: 'light_purple' },
-        ]);
+        ];
     };
+
+    async xpAutoStoreInformMessage(playerName, status) {
+        //separated out the tellPlayerRaw from the above function so we can use that code elsewhere without sending too many messages to the player.
+        let message = await this.xpAutoStoreInform(playerName, status)
+        this.tellPlayerRaw(playerName, message)
+    }
 
     async handleXpGet(playerName, getAmount) {
         //If !xp autostore is on, turn off. this will ensure player can properly use the xp they get from the store.
         if (await this.readPlayerXpAutoStore(playerName)) {
             await this.updatePlayerXpAutoStore(playerName, false);
-            await this.xpAutoStoreInform(playerName, 'OFF');
+            await this.xpAutoStoreInformMessage(playerName, 'OFF');
         }
 
         //checking current xpStore balance
@@ -214,7 +219,7 @@ module.exports = Base => class extends Base {
                     { text: `${pointsRetrievedPartial}`, color: 'red' },
                     { text: ` experience points.`, color: 'white' },
                 ]);
-                await this.simpleXpCheck(playerName);
+                await this.simpleXpCheckMessage(playerName);
 
                 
             } else {
@@ -351,7 +356,7 @@ module.exports = Base => class extends Base {
             //removing those points from offering player xp store
             await this.updatePlayerXpStore(offeringPlayer, currentBalance - this.giveOffers[playerName][1]);
 
-            await this.simpleXpCheck(offeringPlayer);
+            await this.simpleXpCheckMessage(offeringPlayer);
             this.tellPlayer(offeringPlayer, 'Offer accepted');
 
             this.tellPlayer(playerName, 'Offer accepted');
@@ -364,8 +369,8 @@ module.exports = Base => class extends Base {
 
     async handleXpCheck(playerName, checkAmount) {    
         if (!checkAmount) {
-            await this.simpleXpCheck(playerName);
-            await this.xpAutoStoreInform(playerName);
+            await this.simpleXpCheckMessage(playerName);
+            await this.xpAutoStoreInformMessage(playerName);
             return;
         }
 
@@ -425,7 +430,7 @@ module.exports = Base => class extends Base {
         let levelsStored = this.convertPointsToLevels(currentBalance)[0];
         let pointsStored = this.convertPointsToLevels(currentBalance)[1];
 
-        this.tellPlayerRaw(playerName, [
+        return [
             { text: `You have `, color: 'white' },
             { text: `${currentBalance}`, color: 'red' },
             { text: ` total stored experience points.\n`, color: 'white' },
@@ -433,7 +438,13 @@ module.exports = Base => class extends Base {
             { text: ` levels with `, color: 'white' },
             { text: `${pointsStored}`, color: 'red' },
             { text: ` remaining experience points.`, color: 'white' },
-        ]);        
+        ];        
+    }
+
+    async simpleXpCheckMessage(playerName) {
+        //separated out the tellPlayerRaw from the above function so we can use that code elsewhere without sending too many messages to the player.
+        let message = await this.simpleXpCheck(playerName)
+        this.tellPlayerRaw(playerName, message)
     }
 
     amountInt(amount) {

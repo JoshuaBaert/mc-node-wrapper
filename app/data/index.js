@@ -202,6 +202,30 @@ module.exports = Base => class extends Base {
         });
     }
 
+    readPlayerWelcome(playerName) {
+        //this applies to homes and shared homes
+        return new Promise((resolve) => {
+            Player.findOne({ name: playerName }, (err, player) => {
+                if (err) return reject(err);
+                resolve(player.welcome);            
+            });
+        });
+    }
+
+    updatePlayerWelcome(playerName, newArr) {
+        return new Promise((resolve, reject) =>{
+            Player.updateOne(
+                { name: playerName }, 
+                { welcome: newArr},
+                (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                },
+            )
+        })
+    }
+
+
     updatePlayerXpStore(playerName, newXp) {
         return new Promise((resolve, reject) =>{
             Player.updateOne(
