@@ -14,6 +14,12 @@ module.exports = Base => class extends Base {
     }
 
     handleCooldowns(playerName) {
+        //separated out the tellPlayerRaw from the below function so we can use that code elsewhere without sending too many messages to the player.
+        let message = this.buildCooldownsMessage()
+        this.tellPlayerRaw(playerName, message)
+    }
+
+    buildCooldownsMessage(playerName) {
         //instantiate playerName variable if it hasn't been instantiated yet.
         if (!this.onCooldownMap[playerName]) this.onCooldownMap[playerName] = {};
 
@@ -21,7 +27,7 @@ module.exports = Base => class extends Base {
         let everyOutput = cooldownArr.every((i) => i === false);
 
         if (everyOutput === true) {
-            return this.tellPlayer(playerName, 'All your commands are ready to use.', 'green')
+            return [{text: 'All your commands are ready to use.', color: 'green'}]
         };
 
         let combinedMessage = [{ text: `Commands on cooldown:\n`, color: 'green' },];
@@ -44,6 +50,6 @@ module.exports = Base => class extends Base {
             }  
         }
 
-        this.tellPlayerRaw(playerName, combinedMessage);
+        return combinedMessage;
     }
 }

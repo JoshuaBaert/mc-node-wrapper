@@ -10,6 +10,7 @@ OtherClasses = require('./data')(OtherClasses);
 OtherClasses = require('./lib/cooldown')(OtherClasses);
 OtherClasses = require('./lib/entity')(OtherClasses);
 OtherClasses = require('./lib/experience')(OtherClasses);
+OtherClasses = require('./lib/hints')(OtherClasses);
 OtherClasses = require('./lib/tell')(OtherClasses);
 OtherClasses = require('./lib/server-management')(OtherClasses);
 OtherClasses = require('./lib/xpAutostore')(OtherClasses);
@@ -22,6 +23,7 @@ OtherClasses = require('./commands/cooldowns')(OtherClasses);
 OtherClasses = require('./commands/home')(OtherClasses);
 OtherClasses = require('./commands/location')(OtherClasses);
 OtherClasses = require('./commands/warp')(OtherClasses);
+OtherClasses = require('./commands/welcome')(OtherClasses);
 OtherClasses = require('./commands/xp')(OtherClasses);
 
 module.exports = class Server extends OtherClasses {
@@ -111,7 +113,9 @@ module.exports = class Server extends OtherClasses {
             case 'locations':
                 return this.handleLocations(playerName, args);
             case 'warp':
-                return this.handleWarp(playerName, args);                        
+                return this.handleWarp(playerName, args);
+            case 'welcome':
+                return this.handleWelcome(playerName, args);                         
             case 'xp':
                 return this.handleXp(playerName, args);
             default:
@@ -132,7 +136,17 @@ module.exports = class Server extends OtherClasses {
 
     async handlePlayerLogin(playerName, uuid) {
         await this.checkPlayerRecord(playerName, uuid);
-        this.welcomeMessage(playerName);
-        await this.xpAutoStoreInform(playerName);
+
+        //this allows use of setTimeout with async/await
+        async function wait(ms) {
+            return new Promise(resolve => {
+                setTimeout(resolve, ms);
+            });
+        }
+
+        //ran into issues where server was ahead of Minecraft and this prevented this.displayWelcome from running, so a delay has been introduced.
+        await wait(500)
+        await this.displayWelcome(playerName);
+
     }
 };
