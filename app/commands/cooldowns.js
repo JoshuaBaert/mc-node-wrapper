@@ -15,7 +15,7 @@ module.exports = Base => class extends Base {
 
     handleCooldowns(playerName) {
         //separated out the tellPlayerRaw from the below function so we can use that code elsewhere without sending too many messages to the player.
-        let message = this.buildCooldownsMessage()
+        let message = this.buildCooldownsMessage(playerName)
         this.tellPlayerRaw(playerName, message)
     }
 
