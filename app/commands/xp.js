@@ -422,7 +422,7 @@ module.exports = Base => class extends Base {
         } else {
             //they got here because they messed up.
             this.tellPlayerRaw(playerName, [
-                { text: `Must input a positive number.\n`, color: 'red' },,
+                { text: `Must input a positive number.\n`, color: 'red' },
                 { text: `!xp check 20`, color: 'green' },
                 { text: ` tells you how many experience points are needed to reach that level.`, color: 'white' },
             ]);
@@ -454,14 +454,16 @@ module.exports = Base => class extends Base {
 
     async handleXpSet(playerName, setLevel) {
         //They got here because they messed up.
-        if (!level) {
-            this.tellPlayerRaw(playerName, [
-                { text: `Specify the level you want to set your experience to.\n`, color: 'red' },,
+        if (!setLevel) {
+            return this.tellPlayerRaw(playerName, [
+                { text: `Specify the level you want to set your experience to.\n`, color: 'red' },
                 { text: `!xp set 20`, color: 'green' },
                 { text: ` will set your experience level to 20 if you have enough points stored.`, color: 'white' },
             ]);
-            return;
         }
+
+        //checking current xpStore balance
+        let currentBalance = await this.currentBalance(playerName);
 
         let totalPoints = await this.totalPoints(playerName);
         let playerLevels = await this.getPlayerExperience(playerName, 'levels');
@@ -481,8 +483,8 @@ module.exports = Base => class extends Base {
 
             //informing player current point balance
             this.tellPlayerRaw(playerName, [
-                { text: `Experience set to level `, color: 'white' },
-                { text: `${setLevelInt}.\n`, color: 'red' },
+                { text: `Experience set to `, color: 'white' },
+                { text: `level ${setLevelInt}.\n`, color: 'red' },
                 { text: `You have stored `, color: 'white' },
                 { text: `${pointsRemovedPartial}`, color: 'red' },
                 { text: ` experience points.`, color: 'white' },
@@ -493,6 +495,16 @@ module.exports = Base => class extends Base {
             //retrieve points get to setLevel
             let pointsNeededToGet = this.convertLevelsToPoints(setLevelInt, 0) - totalPoints;
 
+            if (pointsNeededToGet > currentBalance) {
+                this.tellPlayerRaw(playerName, [
+                    { text: `Cannot set experience to this level.\n`, color: 'red' },
+                    { text: ` Not enough stored experience.\nGain `, color: 'white' },
+                    { text: `${pointsNeededToGet - currentBalance}`, color: 'red' },
+                    { text: ` more experience points.`, color: 'white' },
+                ]);
+                return;
+            }
+
             //adding the experience points
             let pointsRetrievedPartial = await this.addPlayerExperience(playerName, pointsNeededToGet);
 
@@ -501,8 +513,8 @@ module.exports = Base => class extends Base {
 
             //informing player current point balance
             this.tellPlayerRaw(playerName, [
-                { text: `Experience set to level `, color: 'white' },
-                { text: `${setLevelInt}.\n`, color: 'red' },
+                { text: `Experience set to `, color: 'white' },
+                { text: `level ${setLevelInt}.\n`, color: 'red' },
                 { text: `You have retrieved `, color: 'white' },
                 { text: `${pointsRetrievedPartial}`, color: 'red' },
                 { text: ` experience points.`, color: 'white' },
@@ -512,7 +524,7 @@ module.exports = Base => class extends Base {
         } else {
             //they got here because they messed up.
             this.tellPlayerRaw(playerName, [
-                { text: `Must input a positive number.\n`, color: 'red' },,
+                { text: `Must input a positive number.\n`, color: 'red' },
                 { text: `!xp set 20`, color: 'green' },
                 { text: ` will set your experience level to 20 if you have enough points stored.`, color: 'white' },
             ]);
