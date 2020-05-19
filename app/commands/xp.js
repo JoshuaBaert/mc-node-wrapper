@@ -29,6 +29,9 @@ module.exports = Base => class extends Base {
             'ex: ',
             { text: '!xp check ', color: 'green' },
             { text: '30 \n', color: 'light_purple' },
+            { text: '!xp set ', color: 'green' },
+            { text: '30 ', color: 'light_purple' },
+            'will store/retrieve experience needed to reach given level.\n',
         ];
     }
 
@@ -49,6 +52,8 @@ module.exports = Base => class extends Base {
                     return this.handleXpGive(playerName, args[1], args[2]);
                 case 'check':
                     return this.handleXpCheck(playerName, args[1]);
+                case 'set':
+                    return this.handleXpSet(playerName, args[1]);
                 default:
                     return this.handleWrongXpInput(playerName);             
                 }
@@ -417,7 +422,7 @@ module.exports = Base => class extends Base {
         } else {
             //they got here because they messed up.
             this.tellPlayerRaw(playerName, [
-                { text: `Must input a positive number.\n`, color: 'red' },,
+                { text: `Must input a positive number.\n`, color: 'red' },
                 { text: `!xp check 20`, color: 'green' },
                 { text: ` tells you how many experience points are needed to reach that level.`, color: 'white' },
             ]);
@@ -445,6 +450,91 @@ module.exports = Base => class extends Base {
         //separated out the tellPlayerRaw from the above function so we can use that code elsewhere without sending too many messages to the player.
         let message = await this.simpleXpCheck(playerName)
         this.tellPlayerRaw(playerName, message)
+    }
+
+    async handleXpSet(playerName, setLevel) {
+        //They got here because they messed up.
+        if (!setLevel) {
+            return this.tellPlayerRaw(playerName, [
+                { text: `Specify the level you want to set your experience to.\n`, color: 'red' },
+                { text: `!xp set 20`, color: 'green' },
+                { text: ` will set your experience level to 20 if you have enough points stored.`, color: 'white' },
+            ]);
+        }
+
+        //If !xp autostore is on, turn off. this will ensure player can properly use the xp they get from the store.
+        if (await this.readPlayerXpAutoStore(playerName)) {
+            await this.updatePlayerXpAutoStore(playerName, false);
+            await this.xpAutoStoreInformMessage(playerName, 'OFF');
+        }
+        
+        //checking current xpStore balance
+        let currentBalance = await this.currentBalance(playerName);
+
+        let totalPoints = await this.totalPoints(playerName);
+        let playerLevels = await this.getPlayerExperience(playerName, 'levels');
+
+        //make setLevel an integer
+        let setLevelInt = this.amountInt(setLevel);
+
+        if (setLevelInt <= playerLevels && setLevelInt >= 0) {
+            //store points to get down to setLevel
+            let pointsNeededToStore = totalPoints - this.convertLevelsToPoints(setLevelInt, 0);
+
+            //removing the experience points
+            let pointsRemovedPartial = await this.subtractPlayerExperience(playerName, pointsNeededToStore);
+
+            //adding those points to their xp store
+            await this.updatePlayerXpStore(playerName, currentBalance + pointsRemovedPartial);
+
+            //informing player current point balance
+            this.tellPlayerRaw(playerName, [
+                { text: `Experience set to `, color: 'white' },
+                { text: `level ${setLevelInt}.\n`, color: 'red' },
+                { text: `You have stored `, color: 'white' },
+                { text: `${pointsRemovedPartial}`, color: 'red' },
+                { text: ` experience points.`, color: 'white' },
+            ]);
+            await this.simpleXpCheckMessage(playerName);
+
+        } else if (setLevelInt > playerLevels) {
+            //retrieve points get to setLevel
+            let pointsNeededToGet = this.convertLevelsToPoints(setLevelInt, 0) - totalPoints;
+
+            if (pointsNeededToGet > currentBalance) {
+                this.tellPlayerRaw(playerName, [
+                    { text: `Cannot set experience to this level.\n`, color: 'red' },
+                    { text: ` Not enough stored experience.\nGain `, color: 'white' },
+                    { text: `${pointsNeededToGet - currentBalance}`, color: 'red' },
+                    { text: ` more experience points.`, color: 'white' },
+                ]);
+                return;
+            }
+
+            //adding the experience points
+            let pointsRetrievedPartial = await this.addPlayerExperience(playerName, pointsNeededToGet);
+
+            //removing those points from their xp store
+            await this.updatePlayerXpStore(playerName, currentBalance - pointsRetrievedPartial);
+
+            //informing player current point balance
+            this.tellPlayerRaw(playerName, [
+                { text: `Experience set to `, color: 'white' },
+                { text: `level ${setLevelInt}.\n`, color: 'red' },
+                { text: `You have retrieved `, color: 'white' },
+                { text: `${pointsRetrievedPartial}`, color: 'red' },
+                { text: ` experience points.`, color: 'white' },
+            ]);
+            await this.simpleXpCheckMessage(playerName);
+
+        } else {
+            //they got here because they messed up.
+            this.tellPlayerRaw(playerName, [
+                { text: `Must input a positive number.\n`, color: 'red' },
+                { text: `!xp set 20`, color: 'green' },
+                { text: ` will set your experience level to 20 if you have enough points stored.`, color: 'white' },
+            ]);
+        }  
     }
 
     amountInt(amount) {
