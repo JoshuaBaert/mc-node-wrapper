@@ -462,6 +462,12 @@ module.exports = Base => class extends Base {
             ]);
         }
 
+        //If !xp autostore is on, turn off. this will ensure player can properly use the xp they get from the store.
+        if (await this.readPlayerXpAutoStore(playerName)) {
+            await this.updatePlayerXpAutoStore(playerName, false);
+            await this.xpAutoStoreInformMessage(playerName, 'OFF');
+        }
+        
         //checking current xpStore balance
         let currentBalance = await this.currentBalance(playerName);
 
