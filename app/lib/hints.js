@@ -62,8 +62,8 @@ module.exports = Base => class extends Base {
                 ' will cost you 306 points.\nThe same enchantment at ',
                 { text: 'level 33', color: 'red' },
                 ' will cost you 363 points.\nUse ',
-                { text: '!xp check 30', color: 'green' },
-                ' to find out how many points you should store before you enchant. Economical!',
+                { text: '!xp set 30', color: 'green' },
+                ' before you enchant to save points. Economical!',
             ],
             [
                 'The server can automatically store your experience every 30 minutes. Type ',
