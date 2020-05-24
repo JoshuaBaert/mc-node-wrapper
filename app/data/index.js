@@ -10,9 +10,19 @@ const Location = require('./models/location');
 module.exports = Base => class extends Base {
     checkPlayerRecord(playerName, uuid) {
         return new Promise((resolve, reject) => {
-            Player.findOne({ name: playerName }, (err, player) => {
+            Player.findOne({ id:{ $regex: uuid }}, (err, player) => {
                 // If they are new to the server just create new db record for them
                 if (!player) return this.newPlayer(playerName, uuid);
+
+                // If the player has changed their username, change it on the server too.
+                if (player.name !== playerName) {
+                    player.name = playerName;
+                }
+                
+                // Trim old player ids
+                if (player.id !== uuid) {
+                    player.id = uuid;
+                }
 
                 // If the player has a home on their db object its not the new format so we reformat it
                 if (player.home) {
@@ -23,9 +33,11 @@ module.exports = Base => class extends Base {
                     return player.save(() => {
                         resolve(player);
                     });
-                } else {
-                    resolve(player);
                 }
+
+                return player.save(() => {
+                    resolve(player);
+                });
             });
         });
     };

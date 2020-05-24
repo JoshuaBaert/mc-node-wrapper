@@ -17,7 +17,11 @@ const playerSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
-    id: String,
+    id: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     home: homeSchema, // this is being depreciated
     homes: {
         type: Object,
