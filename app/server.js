@@ -138,7 +138,7 @@ module.exports = class Server extends OtherClasses {
         let dupArr = await this.checkForPlayerDuplicates(uuid)
         if (dupArr) {
             for (let i = 0; i < dupArr.length; i++) {
-                await this.deleteDuplicates(dupArr[i]._id)
+                await this.deleteDuplicates(dupArr[i])
             }    
         };
 
