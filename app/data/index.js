@@ -42,6 +42,37 @@ module.exports = Base => class extends Base {
         });
     };
 
+    checkForPlayerDuplicates(uuid) {
+        return new Promise((resolve, reject) => {
+            Player.find({ id:{ $regex: uuid }}, (err, players) => {
+                //if there are duplicate players we merge them
+                if (players.length > 1) {
+                    console.log('there are ', players.length)
+                    players.map(player => {
+                        if (!player.xpStore) {
+                            player.xpStore = 0
+                        }
+                    })                   
+
+                    let sortedPlayers = players.sort((a, b) => a.xpStore - b.xpStore);
+                    sortedPlayers.pop();
+                    let remove = sortedPlayers.map(player => player._id);
+
+                    resolve(remove);
+                }
+
+                resolve(false)
+            });
+        })
+    }
+
+    deleteDuplicates(_id) {
+            Player.deleteOne({ _id: _id }, function (err) {
+                if(err) console.log(err);
+                console.log("Successful deletion");
+              });
+    }
+
     newPlayer(playerName, uuid) {
         let player = new Player({
             id: uuid,

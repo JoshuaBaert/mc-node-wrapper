@@ -135,7 +135,12 @@ module.exports = class Server extends OtherClasses {
     }
 
     async handlePlayerLogin(playerName, uuid) {
-        await this.checkPlayerRecord(playerName, uuid);
+        let dupArr = await this.checkForPlayerDuplicates(uuid)
+        if (dupArr) {
+            for (let i = 0; i < dupArr.length; i++) {
+                await this.deleteDuplicates(dupArr[i]._id)
+            }    
+        };
 
         //this allows use of setTimeout with async/await
         async function wait(ms) {
@@ -144,8 +149,8 @@ module.exports = class Server extends OtherClasses {
             });
         }
 
-        //ran into issues where server was ahead of Minecraft and this prevented this.displayWelcome from running, so a delay has been introduced.
         await wait(500)
+        await this.checkPlayerRecord(playerName, uuid);
         await this.displayWelcome(playerName);
 
     }
