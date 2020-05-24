@@ -10,9 +10,19 @@ const Location = require('./models/location');
 module.exports = Base => class extends Base {
     checkPlayerRecord(playerName, uuid) {
         return new Promise((resolve, reject) => {
-            Player.findOne({ name: playerName }, (err, player) => {
+            Player.findOne({ id:{ $regex: uuid }}, (err, player) => {
                 // If they are new to the server just create new db record for them
                 if (!player) return this.newPlayer(playerName, uuid);
+
+                // If the player has changed their username, change it on the server too.
+                if (player.name !== playerName) {
+                    player.name = playerName;
+                }
+                
+                // Trim old player ids
+                if (player.id !== uuid) {
+                    player.id = uuid;
+                }
 
                 // If the player has a home on their db object its not the new format so we reformat it
                 if (player.home) {
@@ -23,12 +33,45 @@ module.exports = Base => class extends Base {
                     return player.save(() => {
                         resolve(player);
                     });
-                } else {
-                    resolve(player);
                 }
+
+                return player.save(() => {
+                    resolve(player);
+                });
             });
         });
     };
+
+    checkForPlayerDuplicates(uuid) {
+        return new Promise((resolve, reject) => {
+            Player.find({ id:{ $regex: uuid }}, (err, players) => {
+                //if there are duplicate players we merge them
+                if (players.length > 1) {
+                    console.log('there are ', players.length)
+                    players.map(player => {
+                        if (!player.xpStore) {
+                            player.xpStore = 0
+                        }
+                    })                   
+
+                    let sortedPlayers = players.sort((a, b) => a.xpStore - b.xpStore);
+                    sortedPlayers.pop();
+                    let remove = sortedPlayers.map(player => player._id);
+
+                    resolve(remove);
+                }
+
+                resolve(false)
+            });
+        })
+    }
+
+    deleteDuplicates(_id) {
+            Player.deleteOne({ _id: _id }, function (err) {
+                if(err) console.log(err);
+                console.log("Successful deletion");
+              });
+    }
 
     newPlayer(playerName, uuid) {
         let player = new Player({
