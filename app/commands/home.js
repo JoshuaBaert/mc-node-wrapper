@@ -122,10 +122,11 @@ module.exports = Base => class extends Base {
         try {
             await this.createPlayerHome(playerName, position, rotation, world, homeName);
         } catch (err) {
-            if(err.message = 'name used by shared home') {
+            console.log(err);
+            if(err.message === 'name used by shared home') {
                 return this.tellPlayer(playerName, 'You already have a shared home with this name. Delete that home first.', 'red')
             };
-            if(err.message = 'more than 2 personal homes') {
+            if(err.message === 'more than 2 personal homes') {
                 return this.tellPlayer(playerName, 'Cannot have more than 2 extra homes', 'red')
             };
         }

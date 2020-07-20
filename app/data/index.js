@@ -87,7 +87,7 @@ module.exports = Base => class extends Base {
             Player.findOne({ name: playerName }, (err, player) => {
                 if (err) return reject(err);
                 
-                if (player.shareHomes && player.shareHomes.hasOwnProperty(homeName)) {
+                if (player.shareHomes && player.shareHomes[homeName]) {
                     return reject(new Error('name used by shared home'));
                 }
 
