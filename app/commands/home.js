@@ -122,7 +122,6 @@ module.exports = Base => class extends Base {
         try {
             await this.createPlayerHome(playerName, position, rotation, world, homeName);
         } catch (err) {
-            console.log(err);
             if(err.message === 'name used by shared home') {
                 return this.tellPlayer(playerName, 'You already have a shared home with this name. Delete that home first.', 'red')
             };
