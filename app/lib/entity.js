@@ -64,20 +64,8 @@ module.exports = Base => class extends Base {
     }
 
     async getPlayerDimension(playerName) {
-        let dimensionInt = await this.getEntityData(playerName, 'Dimension');
-
-        return (() => {
-            switch (dimensionInt) {
-            case 0:
-                return 'minecraft:overworld';
-            case -1:
-                return 'minecraft:the_nether';
-            case 1:
-                return 'minecraft:the_end';
-            default:
-                return null;
-            }
-        })();
+        let dimension = await this.getEntityData(playerName, 'Dimension');
+        return dimension;
     }
 
     async getPlayerLocation(playerName) {
@@ -92,7 +80,7 @@ module.exports = Base => class extends Base {
         return new Promise((resolve) => {
             const listenForPlayers = (data) => {
                 let text = data.toString().trim();
-                let regEx = new RegExp('There are \\d+ of a max \\d+ players online:');
+                let regEx = new RegExp('There are \\d+ of a max of \\d+ players online:');
 
                 if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForPlayers);
