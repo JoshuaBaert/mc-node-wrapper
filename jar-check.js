@@ -89,4 +89,4 @@ function paperFetch() {
     });
 }
 
-module.exports = paperFetch;
+module.exports = vanillaFetch;
