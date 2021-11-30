@@ -7,4 +7,3 @@ db
 .env
 test.js
 .vscode
-package-lock.json
