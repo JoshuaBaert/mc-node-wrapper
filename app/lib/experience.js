@@ -8,12 +8,12 @@ module.exports = Base => class extends Base {
         return new Promise((resolve) => {
             const listenForData = (data) => {
                 let text = data.toString();
-                let regEx = new RegExp(`.*\\s${playerName}\\shas\\s\\d+\\sexperience\\s${getData}`);
+                let regEx = /.*Joshyray has (\d+) experience.*/ig;
 
                 if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForData);
 
-                let retrievedData = parseInt(text.split(' ')[4],10);
+                let retrievedData = parseInt(text.replace(regEx, '$1'));
                 resolve(retrievedData);
             };
 
