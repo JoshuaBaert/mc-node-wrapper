@@ -50,7 +50,7 @@ module.exports = Base => class extends Base {
                     let loggedInPlayers = await this.getListOfOnlinePlayers();
                     if (loggedInPlayers.indexOf(args[0]) !== -1) {
                         // If the first word is a players name then make a request for warp
-                        let warpTo = args[0]
+                        let warpTo = args[0];
                         return this.handleWarpRequest(playerName, warpTo);
                     } else return this.handleWrongWarpInput(playerName);             
                 }
@@ -68,7 +68,7 @@ module.exports = Base => class extends Base {
         ]);
     }
 
-    handleWarpRequest(playerName, warpTo) {  
+    handleWarpRequest(playerName, warpTo) {
         //cooldownCheck goes here
         if (this.cooldownCheck('warp', playerName) == true) return;
 
