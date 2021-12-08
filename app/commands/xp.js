@@ -77,7 +77,7 @@ module.exports = Base => class extends Base {
 
         //checking current xpStore balance
         let currentBalance = await this.currentBalance(playerName);
-        
+
         //did player append a number to the command?
         if (!storeAmount) {
             await this.storeAll(playerName, totalPoints, currentBalance);
@@ -547,7 +547,7 @@ module.exports = Base => class extends Base {
 
     async totalPoints(playerName) {
         let playerLevels = await this.getPlayerExperience(playerName, 'levels');
-        let playerPoints = await this.getPlayerExperience(playerName, 'points');        
+        let playerPoints = await this.getPlayerExperience(playerName, 'points');
         return this.convertLevelsToPoints(playerLevels, playerPoints);
     };
 

@@ -1,5 +1,4 @@
-FROM node:12
+FROM openjdk:17-alpine
 
-RUN apt update
-RUN apt -y install default-jdk
-
+RUN apk add --update nodejs npm
+RUN apk add --update npm

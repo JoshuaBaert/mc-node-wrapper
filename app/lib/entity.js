@@ -80,12 +80,12 @@ module.exports = Base => class extends Base {
         return new Promise((resolve) => {
             const listenForPlayers = (data) => {
                 let text = data.toString().trim();
-                let regEx = new RegExp('There are \\d+ of a max of \\d+ players online:');
+                let regEx = /.*There are (\d+) of a max of \d+ players online.*/ig;
 
                 if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForPlayers);
 
-                let onlineNumber = parseInt(text.split(' ')[4],10);
+                let onlineNumber = parseInt(text.replace(regEx, '$1'));
 
                 if (onlineNumber > 0) {
                     let players = text.split('players online: ')[1].split(', ');
