@@ -8,7 +8,7 @@ module.exports = Base => class extends Base {
         return new Promise((resolve) => {
             const listenForData = (data) => {
                 let text = data.toString();
-                let regEx = /.*Joshyray has (\d+) experience.*/ig;
+                let regEx = new RegExp(`.*${playerName} has (\d+) experience.*`);
 
                 if (!regEx.test(text)) return;
                 this.serverProcess.stdout.removeListener('data', listenForData);
