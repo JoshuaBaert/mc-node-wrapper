@@ -1,4 +1,4 @@
-//functions intereacting with player experience points in Minecraft will go here.
+//functions intereacting with player experience points in Minecraft will go here. 
 module.exports = Base => class extends Base {
     constructor() {
         super();
