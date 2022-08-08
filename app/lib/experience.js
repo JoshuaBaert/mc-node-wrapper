@@ -23,7 +23,7 @@ module.exports = Base => class extends Base {
     }
 
     async addPlayerExperience(playerName, newExp) {
-        //need to convert existing level/points into points, then add to that pointPool and convert the new total back.
+        // Need to convert existing level/points into points, then add to that pointPool and convert the new total back.
         let currentExp = this.convertLevelsToPoints(await this.getPlayerExperience(playerName, 'levels'),await this.getPlayerExperience(playerName, 'points'));
         let totalExp = parseInt(newExp,10) + parseInt(currentExp,10);
         let [levels, points] = this.convertPointsToLevels(totalExp);
